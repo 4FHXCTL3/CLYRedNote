@@ -20,6 +20,7 @@ import com.example.test05.ui.tabs.me.MeTabScreen
 import com.example.test05.ui.tabs.home.HomeTabScreen
 import com.example.test05.ui.tabs.market.MarketTabScreen
 import com.example.test05.ui.tabs.messages.MessagesTabScreen
+import com.example.test05.ui.tabs.post.PostTabScreen
 
 @Composable
 fun MainNavigation() {
@@ -31,7 +32,7 @@ fun MainNavigation() {
             when (selectedTab) {
                 0 -> HomeTabScreen()
                 1 -> MarketTabScreen()
-                2 -> PostTabPlaceholder()
+                2 -> PostTabScreen(onNavigateBack = { selectedTab = 0 })
                 3 -> MessagesTabScreen()
                 4 -> MeTabScreen()
             }
