@@ -44,7 +44,15 @@
    - 视频笔记标识：显示播放按钮
    - 数据加载：根据选项卡和分类筛选不同笔记内容
 
-2. **MeTab页面** (我的页面)
+2. **MarketTab页面** (市集)
+   - 搜索栏：支持文本输入和实时搜索功能
+   - 分类选项卡：推荐、1年1度、运动、穿搭、美护、家居、生活
+   - 功能图标网格：市集直播、买手臻选、新品首发、超级满减等
+   - 商品瀑布流：双列网格布局，支持垂直滚动
+   - 商品卡片：商品图片、名称、价格、原价、销量信息
+   - 数据加载：根据分类和搜索条件筛选商品
+
+3. **MeTab页面** (我的页面)
    - 用户资料展示区：头像、昵称、小红书号、IP属地
    - 统计数据：关注数、粉丝数、获赞与收藏数
    - 功能按钮：编辑资料、设置
@@ -52,21 +60,21 @@
    - 笔记分类选项卡：笔记、收藏、赞过
    - 底部分享区域
 
-3. **主导航**
+4. **主导航**
    - 底部导航栏：首页、市集、发布(+)、消息、我
-   - 当前 HomeTab 和 MeTab 完全实现，其他页面为占位页面
+   - 当前 HomeTab、MarketTab 和 MeTab 完全实现，其他页面为占位页面
    - 默认启动显示首页
 
 #### 技术架构
 
 - **MVP 架构模式**
-  - View: HomeTabScreen.kt, MeTabScreen.kt (UI层)
-  - Presenter: HomeTabPresenter.kt, MeTabPresenter.kt (业务逻辑层)
-  - Contract: HomeTabContract.kt, MeTabContract.kt (接口定义)
+  - View: HomeTabScreen.kt, MarketTabScreen.kt, MeTabScreen.kt (UI层)
+  - Presenter: HomeTabPresenter.kt, MarketTabPresenter.kt, MeTabPresenter.kt (业务逻辑层)
+  - Contract: HomeTabContract.kt, MarketTabContract.kt, MeTabContract.kt (接口定义)
 
 - **数据加载**
   - JsonDataLoader.kt: 加载 assets 中的 JSON 数据
-  - 支持用户、笔记、收藏、关注等数据的解析
+  - 支持用户、笔记、商品、收藏、关注等数据的解析
 
 #### UI 特点
 
@@ -84,13 +92,12 @@
 - 依赖项正确配置 (包括 Gson 用于 JSON 解析)
 - UI 渲染正常
 - MVP 架构完整实现
-- HomeTab 和 MeTab 功能完整
+- HomeTab、MarketTab 和 MeTab 功能完整
 
 ## 待开发功能
 
-1. **市集 (MarketTab)** - 商品浏览购买
-2. **发布 (PostTab)** - 笔记发布功能  
-3. **消息 (MessagesTab)** - 私信聊天功能
+1. **发布 (PostTab)** - 笔记发布功能  
+2. **消息 (MessagesTab)** - 私信聊天功能
 
 ## 开发说明
 

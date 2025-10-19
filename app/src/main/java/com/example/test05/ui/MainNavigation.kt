@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.test05.ui.tabs.me.MeTabScreen
 import com.example.test05.ui.tabs.home.HomeTabScreen
+import com.example.test05.ui.tabs.market.MarketTabScreen
 
 @Composable
 fun MainNavigation() {
@@ -28,7 +29,7 @@ fun MainNavigation() {
         Box(modifier = Modifier.weight(1f)) {
             when (selectedTab) {
                 0 -> HomeTabScreen()
-                1 -> MarketTabPlaceholder()
+                1 -> MarketTabScreen()
                 2 -> PostTabPlaceholder()
                 3 -> MessagesTabPlaceholder()
                 4 -> MeTabScreen()

@@ -64,6 +64,16 @@ class JsonDataLoader(private val context: Context) {
         }
     }
 
+    fun loadProducts(): List<Product> {
+        return try {
+            val jsonString = loadJsonFromAssets("data/products.json")
+            val jsonArray = JsonParser.parseString(jsonString).asJsonArray
+            jsonArray.map { parseProduct(it.asJsonObject) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
     fun getCurrentUser(): User? {
         return loadUsers().find { it.id == "user_current" }
     }
@@ -148,6 +158,32 @@ class JsonDataLoader(private val context: Context) {
             isMutual = json.get("isMutual")?.asBoolean ?: false,
             isSpecialFollow = json.get("isSpecialFollow")?.asBoolean ?: false,
             tags = json.get("tags")?.asJsonArray?.map { it.asString } ?: emptyList()
+        )
+    }
+
+    private fun parseProduct(json: JsonObject): Product {
+        return Product(
+            id = json.get("id").asString,
+            name = json.get("name").asString,
+            description = json.get("description").asString,
+            brand = json.get("brand")?.asString,
+            category = json.get("category").asString,
+            price = json.get("price").asBigDecimal,
+            originalPrice = json.get("originalPrice")?.asBigDecimal,
+            discountRate = json.get("discountRate")?.asDouble,
+            images = json.get("images")?.asJsonArray?.map { it.asString } ?: emptyList(),
+            thumbnailImage = json.get("thumbnailImage")?.asString,
+            sellerId = json.get("sellerId").asString,
+            sellerName = json.get("sellerName").asString,
+            stock = json.get("stock")?.asInt ?: 0,
+            salesCount = json.get("salesCount")?.asInt ?: 0,
+            rating = json.get("rating")?.asDouble ?: 0.0,
+            reviewCount = json.get("reviewCount")?.asInt ?: 0,
+            tags = json.get("tags")?.asJsonArray?.map { it.asString } ?: emptyList(),
+            specifications = json.get("specifications")?.asJsonObject?.entrySet()?.associate { 
+                it.key to it.value.asString 
+            } ?: emptyMap(),
+            createdAt = parseDate(json.get("createdAt")?.asString)
         )
     }
 
