@@ -51,8 +51,17 @@
    - 商品瀑布流：双列网格布局，支持垂直滚动
    - 商品卡片：商品图片、名称、价格、原价、销量信息
    - 数据加载：根据分类和搜索条件筛选商品
+   - 图片加载：使用真实资源图片替代系统图标
 
-3. **MeTab页面** (我的页面)
+3. **MessagesTab页面** (消息)
+   - 顶部标题栏：居中显示"消息"标题，右侧搜索和添加图标
+   - 功能图标行：赞和收藏、新增关注、评论和@三个快捷入口
+   - 对话列表：显示系统消息、客服消息、活动消息、群聊对话等
+   - 对话项目：头像、名称、最后消息内容、时间戳、未读标识
+   - 时间格式：今日显示时间，昨天显示"昨天"，本周显示星期，更早显示日期
+   - 未读消息：红点标识未读对话
+
+4. **MeTab页面** (我的页面)
    - 用户资料展示区：头像、昵称、小红书号、IP属地
    - 统计数据：关注数、粉丝数、获赞与收藏数
    - 功能按钮：编辑资料、设置
@@ -60,21 +69,21 @@
    - 笔记分类选项卡：笔记、收藏、赞过
    - 底部分享区域
 
-4. **主导航**
+5. **主导航**
    - 底部导航栏：首页、市集、发布(+)、消息、我
-   - 当前 HomeTab、MarketTab 和 MeTab 完全实现，其他页面为占位页面
+   - 当前 HomeTab、MarketTab、MessagesTab 和 MeTab 完全实现，PostTab 为占位页面
    - 默认启动显示首页
 
 #### 技术架构
 
 - **MVP 架构模式**
-  - View: HomeTabScreen.kt, MarketTabScreen.kt, MeTabScreen.kt (UI层)
-  - Presenter: HomeTabPresenter.kt, MarketTabPresenter.kt, MeTabPresenter.kt (业务逻辑层)
-  - Contract: HomeTabContract.kt, MarketTabContract.kt, MeTabContract.kt (接口定义)
+  - View: HomeTabScreen.kt, MarketTabScreen.kt, MessagesTabScreen.kt, MeTabScreen.kt (UI层)
+  - Presenter: HomeTabPresenter.kt, MarketTabPresenter.kt, MessagesTabPresenter.kt, MeTabPresenter.kt (业务逻辑层)
+  - Contract: HomeTabContract.kt, MarketTabContract.kt, MessagesTabContract.kt, MeTabContract.kt (接口定义)
 
 - **数据加载**
   - JsonDataLoader.kt: 加载 assets 中的 JSON 数据
-  - 支持用户、笔记、商品、收藏、关注等数据的解析
+  - 支持用户、笔记、商品、消息、收藏、关注等数据的解析
 
 #### UI 特点
 
@@ -86,18 +95,17 @@
 
 ## 构建状态
 
-✅ **构建成功** - 2023年10月19日
+✅ **构建成功** - 2025年10月19日
 
 - 所有 Kotlin 代码编译通过
 - 依赖项正确配置 (包括 Gson 用于 JSON 解析)
 - UI 渲染正常
 - MVP 架构完整实现
-- HomeTab、MarketTab 和 MeTab 功能完整
+- HomeTab、MarketTab、MessagesTab 和 MeTab 功能完整
 
 ## 待开发功能
 
-1. **发布 (PostTab)** - 笔记发布功能  
-2. **消息 (MessagesTab)** - 私信聊天功能
+1. **发布 (PostTab)** - 笔记发布功能
 
 ## 开发说明
 

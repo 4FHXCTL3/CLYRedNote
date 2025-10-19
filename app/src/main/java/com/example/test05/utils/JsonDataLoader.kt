@@ -74,6 +74,16 @@ class JsonDataLoader(private val context: Context) {
         }
     }
 
+    fun loadMessages(): List<Message> {
+        return try {
+            val jsonString = loadJsonFromAssets("data/messages.json")
+            val jsonArray = JsonParser.parseString(jsonString).asJsonArray
+            jsonArray.map { parseMessage(it.asJsonObject) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
     fun getCurrentUser(): User? {
         return loadUsers().find { it.id == "user_current" }
     }
@@ -183,6 +193,27 @@ class JsonDataLoader(private val context: Context) {
             specifications = json.get("specifications")?.asJsonObject?.entrySet()?.associate { 
                 it.key to it.value.asString 
             } ?: emptyMap(),
+            createdAt = parseDate(json.get("createdAt")?.asString)
+        )
+    }
+
+    private fun parseMessage(json: JsonObject): Message {
+        val users = loadUsers() // Cache this to avoid repeated loading
+        val sender = users.find { it.id == json.get("senderId").asString } 
+            ?: User(id = "unknown", username = "unknown", nickname = "Unknown")
+        val receiver = users.find { it.id == json.get("receiverId").asString } 
+            ?: User(id = "unknown", username = "unknown", nickname = "Unknown")
+            
+        return Message(
+            id = json.get("id").asString,
+            content = json.get("content").asString,
+            type = MessageType.valueOf(json.get("type")?.asString ?: "TEXT"),
+            sender = sender,
+            receiver = receiver,
+            conversationId = json.get("conversationId").asString,
+            isRead = json.get("isRead")?.asBoolean ?: false,
+            emoji = json.get("emoji")?.asString,
+            note = null, // Could be loaded if needed
             createdAt = parseDate(json.get("createdAt")?.asString)
         )
     }

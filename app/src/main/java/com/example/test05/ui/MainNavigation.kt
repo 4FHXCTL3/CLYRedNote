@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.example.test05.ui.tabs.me.MeTabScreen
 import com.example.test05.ui.tabs.home.HomeTabScreen
 import com.example.test05.ui.tabs.market.MarketTabScreen
+import com.example.test05.ui.tabs.messages.MessagesTabScreen
 
 @Composable
 fun MainNavigation() {
@@ -31,7 +32,7 @@ fun MainNavigation() {
                 0 -> HomeTabScreen()
                 1 -> MarketTabScreen()
                 2 -> PostTabPlaceholder()
-                3 -> MessagesTabPlaceholder()
+                3 -> MessagesTabScreen()
                 4 -> MeTabScreen()
             }
         }

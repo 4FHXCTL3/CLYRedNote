@@ -29,20 +29,20 @@
 "MainActivity":[
 "HomeTab",//finished
 "MarketTab"，//finished
-"PostTab"，
-"MessagesTab",//NowTODo!!
+"PostTab"，//NowTODo!!
+"MessagesTab",//finished
 "MeTab"//finished
 ]
 }
 ```
 
 ## 可参考的截图
-UIReference/MessagesTab.jpg
+UIReference/PostTabTab.jpg
 
 
 ## 你当前的任务
-设计MessagesTab页面，该页面的要素包括:
-1. 顶部：“消息”标题居中，右侧为搜索图标（放大镜）和添加图标。下面一排及图标参考截图。
-3. 中间列表是各个联系人/群聊/商品订单通知的信息，每条信息包括头像、名称、最后一条消息显示、日期。请设计超过一面的信息内容，可以下滑查看。
+设计PostTab页面，该页面的要素包括:
+1. 顶部：左侧点击“×”可以返回，右侧“下一步”按钮暂时不添加新功能。
+3. 中间进行文字编辑，点击空白处弹出键盘输入。
 
 4. 尽可能与参考截图一致
