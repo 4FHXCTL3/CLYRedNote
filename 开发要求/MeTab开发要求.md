@@ -20,7 +20,7 @@
 
 3. 按照指定的页面结构、参考给定的截图作为UI设计指导
 
-4. 严格按照已经定义好的数据结构'app\src\main\java\com\example\MyWechat\model'和已有的数据
+4. 严格按照已经定义好的数据结构'app\src\main\java\com\example\CLYRedNote\model'和已有的数据
    app\src\main\assets\data`
 
 5. 按照用户要求进行开发，除非用户指定，否则不要引入新的内容。
@@ -46,9 +46,10 @@
 ```json
 {
 "MainActivity":[
-"ChatTab",
-"ContactTab"，
-"DiscoverTab",
+"HomeTab",
+"MarketTab"，
+"PostTab"，
+"MessagesTab",
 "MeTab"//NowTODo!!
 ]
 }
@@ -62,8 +63,6 @@ UIReference/MeTab.jpg
 ## 你当前的任务
 设计MeTab页面，该页面的要素包括：
 
-1. 顶部信息栏：展示我的头像，我的昵称，我的微信号，二维码logo、“+状态”按钮可以不做
-
-2. 中部列表，分别包括“Pay and Service、Favorites、My Posts、Channels、Cards & Offers、Stickers Gallery、Settings”
-
-3. 其中微信ID请更换
+1. 顶部信息栏：展示我的头像，我的昵称，我的小红书号（不要用图片中的），IP
+2. 中部内容元素尽量和截图保持一致
+3. 底部导航栏是"HomeTab","MarketTab"，"PostTab"，"MessagesTab","MeTab"公用的，其中"PostTab"是用“+”图案符号表示，如截图所示

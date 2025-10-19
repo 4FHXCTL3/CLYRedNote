@@ -14,36 +14,35 @@
 1. 开发的时候可以采取逐步开发的策略，慢慢补充需求，慢慢新增数据字段等
 2. 避免单个文件代码过长，**必须要遵循MVP模式**
 3. 按照指定的页面结构、参考给定的截图作为UI设计指导
-4. 严格按照已经定义好的数据结构`app\src\main\java\com\example\Mywechat\model`和已有的数据`app\src\main\assets\data`
+4. 严格按照已经定义好的数据结构`app\src\main\java\com\example\CLYRedNote\model`和已有的数据`app\src\main\assets\data`
 5. 按照用户要求进行开发，除非用户指定，否则不要引入新的内容。
     - 你只需要参考我给你的截图，**不要脑补**截图中各个按钮点击后会达到的效果。
     - ***截图里面的信息（例如人的名字、人的头像）不必参考***，因为我们自己预设了已有的数据`app\src\main\assets\data`，图片参考app\src\main\assets\image
 6. UI中，各个图标若找不到合适的，可以用emjoy表情代替。但优先考虑`androidx.compose.material.icons.Icons, androidx.compose.material.icons.filled.AccountCircle`等
 7. 严禁执行删除文件等危险操作。
-8. 每当你修改完代码，记得更新`README.md`文件，并且确定build正常了再交付给我。禁止修改`需求.md`.
+8. 每当你修改完代码，记得更新`README.md`文件，并且确定build正常了再交付给我。禁止修改所有开发要求文件.
 9. 如果你需要图片支持，请给我反馈，告诉我需要什么图片。如果你使用了我给你的图片，记得把图片名改为一个可读的名字，便于后期维护。
 
 ## 页面树
 ```json
 {
-  "MainActivity": [
-    "ChatTab", // finished
-    "ContactTab",//now todo!
-    "DiscoverTab",
-    "MeTab"//finished
-  ],
+"MainActivity":[
+"HomeTab",//NowTODo!!
+"MarketTab"，
+"PostTab"，
+"MessagesTab",
+"MeTab"//finished
+]
 }
 ```
 
 ## 可参考的截图
-UIReference/ContactTab.jpg
+UIReference/HomeTab.jpg
 
 
 ## 你当前的任务
-设计ContactTab页面，该页面的要素包括:
-1. 顶部信息栏：文字居中，搜索按钮、“＋”按钮
-2. 界面整体分为顶部信息栏、中间分类列表、中间联系人列表、底部四个块。顶部是标题和功能图标区域；中间上方是各类联系人分类栏；中间下方是按字母排序的联系人列表；底部是导航栏。
+设计HomeTab页面，该页面的要素包括:
+1. 顶部导航栏：文字居中，“关注、发现、同城“可以滑动，显示不同的笔记内容；下面一排小字是分类
+3. 中间是各个博主发布的笔记内容缩略图，一行两个。每个笔记简介包括封面图、标题、作者、心形点赞符号及点赞数。请设计超过一面的笔记内容，可以下滑查看。
 
-3. 联系人名字要更换，注意各板块之间的间距
-
-4. 点击底部菜单栏的contact可以跳转到本ContactTab页面
+4. 点击底部菜单栏的首页可以跳转到本HomeTab页面
