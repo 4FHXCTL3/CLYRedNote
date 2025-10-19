@@ -1,0 +1,93 @@
+[
+  {
+    "id": "product_001",
+    "name": "Nike Air Max 270 运动鞋",
+    "description": "舒适透气的运动鞋，适合日常运动和休闲穿搭",
+    "brand": "Nike",
+    "category": "运动鞋",
+    "price": 899.00,
+    "originalPrice": 1299.00,
+    "discountRate": 0.31,
+    "images": ["image/scenery1.jpg", "image/scenery2.jpg"],
+    "thumbnailImage": "image/scenery1.jpg",
+    "sellerId": "seller_001",
+    "sellerName": "Nike官方旗舰店",
+    "stock": 156,
+    "salesCount": 2580,
+    "rating": 4.8,
+    "reviewCount": 1890,
+    "tags": ["运动", "舒适", "透气"],
+    "specifications": {
+      "尺码": "36-44",
+      "颜色": "黑白/红白/蓝白",
+      "材质": "网布+橡胶"
+    },
+    "promotions": [
+      {
+        "id": "promo_001",
+        "type": "FULL_REDUCTION",
+        "name": "满减优惠",
+        "description": "满500减50",
+        "discountAmount": 50.00,
+        "minOrderAmount": 500.00,
+        "startTime": "2023-10-01T00:00:00Z",
+        "endTime": "2023-10-31T23:59:59Z",
+        "isActive": true
+      }
+    ],
+    "status": "AVAILABLE",
+    "createdAt": "2023-08-15T10:00:00Z"
+  },
+  {
+    "id": "product_002",
+    "name": "YSL圣罗兰粉底液",
+    "description": "持久遮瑕，自然妆效，适合各种肌肤",
+    "brand": "YSL",
+    "category": "美妆",
+    "price": 458.00,
+    "originalPrice": 498.00,
+    "discountRate": 0.08,
+    "images": ["image/scenery3.jpg"],
+    "thumbnailImage": "image/scenery3.jpg",
+    "sellerId": "seller_002",
+    "sellerName": "YSL美妆旗舰店",
+    "stock": 89,
+    "salesCount": 1234,
+    "rating": 4.9,
+    "reviewCount": 876,
+    "tags": ["美妆", "粉底", "持久"],
+    "specifications": {
+      "色号": "B10/B20/B30",
+      "容量": "30ml",
+      "适用肌肤": "所有肌肤"
+    },
+    "status": "AVAILABLE",
+    "createdAt": "2023-09-01T10:00:00Z"
+  },
+  {
+    "id": "product_003",
+    "name": "秋冬款毛衣外套",
+    "description": "温暖舒适的毛衣外套，多色可选",
+    "brand": "UNIQLO",
+    "category": "服装",
+    "price": 199.00,
+    "originalPrice": 299.00,
+    "discountRate": 0.33,
+    "images": ["image/scenery4.jpg", "image/scenery5.jpg"],
+    "thumbnailImage": "image/scenery4.jpg",
+    "sellerId": "seller_003",
+    "sellerName": "优衣库官方旗舰店",
+    "stock": 234,
+    "salesCount": 3456,
+    "rating": 4.7,
+    "reviewCount": 2345,
+    "tags": ["服装", "毛衣", "秋冬"],
+    "specifications": {
+      "尺码": "S/M/L/XL",
+      "颜色": "米色/灰色/黑色/咖啡色",
+      "材质": "羊毛混纺"
+    },
+    "status": "AVAILABLE",
+    "createdAt": "2023-09-15T10:00:00Z"
+  }
+]

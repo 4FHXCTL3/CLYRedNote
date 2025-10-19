@@ -1,0 +1,29 @@
+[
+  {
+    "id": "collection_001",
+    "userId": "user_current",
+    "noteId": "note_002",
+    "folderId": "folder_001",
+    "folderName": "科技",
+    "tags": ["AI", "实用"],
+    "notes": "很实用的AI技术分享",
+    "collectedAt": "2023-10-14T11:30:00Z"
+  },
+  {
+    "id": "collection_002",
+    "userId": "user_current",
+    "noteId": "note_001",
+    "folderId": "folder_002",
+    "folderName": "穿搭",
+    "tags": ["秋冬", "时尚"],
+    "collectedAt": "2023-10-15T16:20:00Z"
+  },
+  {
+    "id": "collection_003",
+    "userId": "user_001",
+    "noteId": "note_004",
+    "folderId": "folder_default",
+    "folderName": "默认收藏夹",
+    "collectedAt": "2023-10-19T13:15:00Z"
+  }
+]

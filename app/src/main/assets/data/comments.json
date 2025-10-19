@@ -1,0 +1,77 @@
+[
+  {
+    "id": "comment_001",
+    "content": "很有用！",
+    "authorId": "user_current",
+    "noteId": "note_002",
+    "likeCount": 23,
+    "replyCount": 2,
+    "isLiked": false,
+    "status": "NORMAL",
+    "createdAt": "2023-10-19T10:30:00Z",
+    "isAuthorReply": false
+  },
+  {
+    "id": "comment_002",
+    "content": "这个穿搭真的很好看，学到了！",
+    "authorId": "user_003",
+    "noteId": "note_001",
+    "likeCount": 89,
+    "replyCount": 5,
+    "isLiked": true,
+    "status": "NORMAL",
+    "createdAt": "2023-10-15T15:20:00Z",
+    "isAuthorReply": false
+  },
+  {
+    "id": "comment_003",
+    "content": "谢谢喜欢～",
+    "authorId": "user_002",
+    "noteId": "note_001",
+    "parentCommentId": "comment_002",
+    "replyToUserId": "user_003",
+    "replyToUsername": "ai_tech_lover",
+    "likeCount": 45,
+    "replyCount": 0,
+    "isLiked": false,
+    "status": "NORMAL",
+    "createdAt": "2023-10-15T16:10:00Z",
+    "isAuthorReply": true
+  },
+  {
+    "id": "comment_004",
+    "content": "这款粉底液我也在用，确实不错",
+    "authorId": "user_004",
+    "noteId": "note_003",
+    "likeCount": 34,
+    "replyCount": 1,
+    "isLiked": false,
+    "status": "NORMAL",
+    "createdAt": "2023-10-13T17:30:00Z",
+    "isAuthorReply": false
+  },
+  {
+    "id": "comment_005",
+    "content": "太美了！想去这个地方",
+    "authorId": "user_001",
+    "noteId": "note_005",
+    "likeCount": 56,
+    "replyCount": 3,
+    "isLiked": false,
+    "status": "NORMAL",
+    "createdAt": "2023-10-12T19:45:00Z",
+    "isAuthorReply": false
+  },
+  {
+    "id": "comment_006",
+    "content": "看起来就很好吃，地址在哪里？",
+    "authorId": "user_002",
+    "noteId": "note_006",
+    "likeCount": 12,
+    "replyCount": 1,
+    "isLiked": false,
+    "status": "NORMAL",
+    "createdAt": "2023-10-11T21:00:00Z",
+    "isAuthorReply": false
+  }
+]

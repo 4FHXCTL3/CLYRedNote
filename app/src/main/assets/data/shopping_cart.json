@@ -1,0 +1,26 @@
+[
+  {
+    "id": "cart_001",
+    "productId": "product_001",
+    "userId": "user_current",
+    "quantity": 1,
+    "selectedSpecs": {
+      "尺码": "40",
+      "颜色": "黑白"
+    },
+    "isSelected": true,
+    "addedAt": "2023-10-18T14:30:00Z"
+  },
+  {
+    "id": "cart_002",
+    "productId": "product_003",
+    "userId": "user_current",
+    "quantity": 2,
+    "selectedSpecs": {
+      "尺码": "M",
+      "颜色": "米色"
+    },
+    "isSelected": false,
+    "addedAt": "2023-10-17T10:15:00Z"
+  }
+]

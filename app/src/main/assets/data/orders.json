@@ -1,0 +1,44 @@
+[
+  {
+    "id": "order_001",
+    "orderNumber": "CLY20231019001",
+    "userId": "user_current",
+    "items": [
+      {
+        "id": "item_001",
+        "productId": "product_002",
+        "quantity": 1,
+        "price": 458.00,
+        "selectedSpecs": {
+          "色号": "B20"
+        },
+        "status": "NORMAL"
+      }
+    ],
+    "status": "DELIVERED",
+    "totalAmount": 458.00,
+    "shippingFee": 0.00,
+    "discountAmount": 0.00,
+    "actualAmount": 458.00,
+    "shippingAddress": {
+      "id": "addr_001",
+      "recipientName": "CLY",
+      "phoneNumber": "138****8888",
+      "province": "北京市",
+      "city": "北京市",
+      "district": "朝阳区",
+      "detailAddress": "某某小区1号楼101室",
+      "isDefault": true,
+      "createdAt": "2023-10-01T10:00:00Z"
+    },
+    "paymentMethod": {
+      "type": "WECHAT_PAY",
+      "name": "微信支付"
+    },
+    "paymentTime": "2023-10-15T10:30:00Z",
+    "shippingTime": "2023-10-15T16:00:00Z",
+    "deliveryTime": "2023-10-17T14:20:00Z",
+    "createdAt": "2023-10-15T10:00:00Z",
+    "trackingNumber": "SF1234567890"
+  }
+]

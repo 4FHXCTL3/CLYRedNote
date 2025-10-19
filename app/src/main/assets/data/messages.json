@@ -1,0 +1,44 @@
+[
+  {
+    "id": "msg_001",
+    "content": "你好！看了你的穿搭笔记，很喜欢你的风格",
+    "type": "TEXT",
+    "senderId": "user_001",
+    "receiverId": "user_current",
+    "conversationId": "conv_001",
+    "isRead": false,
+    "createdAt": "2023-10-19T09:30:00Z"
+  },
+  {
+    "id": "msg_002",
+    "content": "😊",
+    "type": "EMOJI",
+    "senderId": "user_current",
+    "receiverId": "user_001",
+    "conversationId": "conv_001",
+    "emoji": "😊",
+    "isRead": true,
+    "createdAt": "2023-10-19T10:15:00Z"
+  },
+  {
+    "id": "msg_003",
+    "content": "分享一下我的新笔记",
+    "type": "NOTE_SHARE",
+    "senderId": "user_002",
+    "receiverId": "user_current",
+    "conversationId": "conv_002",
+    "noteId": "note_001",
+    "isRead": false,
+    "createdAt": "2023-10-18T16:20:00Z"
+  },
+  {
+    "id": "msg_004",
+    "content": "谢谢分享！",
+    "type": "TEXT",
+    "senderId": "user_current",
+    "receiverId": "user_002",
+    "conversationId": "conv_002",
+    "isRead": true,
+    "createdAt": "2023-10-18T16:45:00Z"
+  }
+]
