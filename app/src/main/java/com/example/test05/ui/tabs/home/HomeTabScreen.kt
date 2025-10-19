@@ -1,5 +1,6 @@
 package com.example.test05.ui.tabs.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,11 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.graphics.BitmapFactory
 import com.example.CLYRedNote.model.Note
 import com.example.test05.presenter.HomeTabPresenter
 import com.example.test05.utils.JsonDataLoader
@@ -291,17 +295,44 @@ private fun NoteCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(180.dp)
-                    .background(
-                        getNoteImageColor(note, index), 
-                        RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
-                    )
+                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
             ) {
-                // Display emoji as image content
-                Text(
-                    text = getNoteImageEmoji(note, index),
-                    fontSize = 60.sp,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                val context = LocalContext.current
+                val imageName = note.coverImage ?: note.images.firstOrNull()
+                val bitmap = remember(imageName) {
+                    try {
+                        if (imageName != null) {
+                            val inputStream = context.assets.open(imageName)
+                            BitmapFactory.decodeStream(inputStream)?.asImageBitmap()
+                        } else {
+                            null
+                        }
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap,
+                        contentDescription = "Note Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    // Fallback to colored background with emoji
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(getNoteImageColor(note, index)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = getNoteImageEmoji(note, index),
+                            fontSize = 60.sp
+                        )
+                    }
+                }
                 
                 // Video play button for video notes
                 if (note.type.name == "VIDEO") {
