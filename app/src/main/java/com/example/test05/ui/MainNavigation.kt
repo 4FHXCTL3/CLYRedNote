@@ -17,16 +17,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.test05.ui.tabs.me.MeTabScreen
+import com.example.test05.ui.tabs.home.HomeTabScreen
 
 @Composable
 fun MainNavigation() {
-    var selectedTab by remember { mutableIntStateOf(4) } // Start with MeTab selected
+    var selectedTab by remember { mutableIntStateOf(0) } // Start with HomeTab selected
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Content
         Box(modifier = Modifier.weight(1f)) {
             when (selectedTab) {
-                0 -> HomeTabPlaceholder()
+                0 -> HomeTabScreen()
                 1 -> MarketTabPlaceholder()
                 2 -> PostTabPlaceholder()
                 3 -> MessagesTabPlaceholder()
