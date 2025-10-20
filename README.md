@@ -54,6 +54,7 @@
    - 商品卡片：商品图片、名称、价格、原价、销量信息
    - 数据加载：根据分类和搜索条件筛选商品
    - 图片加载：使用真实资源图片替代系统图标
+   - 购物车导航：搜索栏右侧购物车图标，点击进入Cart页面
 
 3. **MessagesTab页面** (消息)
    - 顶部标题栏：居中显示"消息"标题，右侧搜索和添加图标
@@ -89,22 +90,32 @@
    - 评论输入框：底部固定评论输入和发送功能
    - 实时数据更新：点赞、收藏、关注状态实时更新
 
-7. **主导航**
+7. **Cart页面** (购物车)
+   - 顶部导航栏：返回按钮、购物车/心愿单切换标签、搜索和管理按钮
+   - 分类选项卡：全部、1年1度、降价三个筛选选项
+   - 商品分组：按店铺分组显示购物车商品
+   - 商品卡片：选择框、商品图片、名称、规格选择、促销标签、价格、数量调节
+   - 价格显示：原价、优惠价格、促销标签(限时折扣、免息)
+   - 全选功能：支持全选/取消全选所有商品
+   - 结算功能：显示选中商品总价和结算按钮
+   - 数据管理：购物车商品数据加载、选择状态管理、数量修改
+
+8. **主导航**
    - 底部导航栏：首页、市集、发布(+)、消息、我
    - 当前所有五个Tab均已完全实现：HomeTab、MarketTab、PostTab、MessagesTab、MeTab
-   - 页面导航：支持从HomeTab导航到NoteDetail详情页
+   - 页面导航：支持从HomeTab导航到NoteDetail详情页，从MarketTab导航到Cart购物车页面
    - 默认启动显示首页
 
 #### 技术架构
 
 - **MVP 架构模式**
-  - View: HomeTabScreen.kt, MarketTabScreen.kt, PostTabScreen.kt, MessagesTabScreen.kt, MeTabScreen.kt, NoteDetailScreen.kt (UI层)
-  - Presenter: HomeTabPresenter.kt, MarketTabPresenter.kt, PostTabPresenter.kt, MessagesTabPresenter.kt, MeTabPresenter.kt, NoteDetailPresenter.kt (业务逻辑层)
-  - Contract: HomeTabContract.kt, MarketTabContract.kt, PostTabContract.kt, MessagesTabContract.kt, MeTabContract.kt, NoteDetailContract.kt (接口定义)
+  - View: HomeTabScreen.kt, MarketTabScreen.kt, PostTabScreen.kt, MessagesTabScreen.kt, MeTabScreen.kt, NoteDetailScreen.kt, CartScreen.kt (UI层)
+  - Presenter: HomeTabPresenter.kt, MarketTabPresenter.kt, PostTabPresenter.kt, MessagesTabPresenter.kt, MeTabPresenter.kt, NoteDetailPresenter.kt, CartPresenter.kt (业务逻辑层)
+  - Contract: HomeTabContract.kt, MarketTabContract.kt, PostTabContract.kt, MessagesTabContract.kt, MeTabContract.kt, NoteDetailContract.kt, CartContract.kt (接口定义)
 
 - **数据加载**
   - JsonDataLoader.kt: 加载 assets 中的 JSON 数据
-  - 支持用户、笔记、商品、消息、评论、收藏、关注等数据的解析
+  - 支持用户、笔记、商品、消息、评论、收藏、关注、购物车等数据的解析
 
 #### UI 特点
 
@@ -125,6 +136,7 @@
 - MVP 架构完整实现
 - 所有五个主要Tab功能完整：HomeTab、MarketTab、PostTab、MessagesTab、MeTab
 - NoteDetail详情页功能完整实现
+- Cart购物车页面功能完整实现
 - 修复了数据类型匹配和图标引用问题
 
 ## 待开发功能

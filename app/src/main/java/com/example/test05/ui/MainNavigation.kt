@@ -22,17 +22,25 @@ import com.example.test05.ui.tabs.market.MarketTabScreen
 import com.example.test05.ui.tabs.messages.MessagesTabScreen
 import com.example.test05.ui.tabs.post.PostTabScreen
 import com.example.test05.ui.tabs.notedetail.NoteDetailScreen
+import com.example.test05.ui.tabs.cart.CartScreen
 
 @Composable
 fun MainNavigation() {
     var selectedTab by remember { mutableIntStateOf(0) } // Start with HomeTab selected
     var currentNoteId by remember { mutableStateOf<String?>(null) }
     var showNoteDetail by remember { mutableStateOf(false) }
+    var showCart by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Content
         Box(modifier = Modifier.weight(1f)) {
-            if (showNoteDetail && currentNoteId != null) {
+            if (showCart) {
+                CartScreen(
+                    onBackClicked = { 
+                        showCart = false
+                    }
+                )
+            } else if (showNoteDetail && currentNoteId != null) {
                 NoteDetailScreen(
                     noteId = currentNoteId!!,
                     onBackClicked = { 
@@ -48,7 +56,11 @@ fun MainNavigation() {
                             showNoteDetail = true
                         }
                     )
-                    1 -> MarketTabScreen()
+                    1 -> MarketTabScreen(
+                        onCartClicked = {
+                            showCart = true
+                        }
+                    )
                     2 -> PostTabScreen(onNavigateBack = { selectedTab = 0 })
                     3 -> MessagesTabScreen()
                     4 -> MeTabScreen()

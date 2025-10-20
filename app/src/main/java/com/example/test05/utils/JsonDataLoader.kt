@@ -98,6 +98,16 @@ class JsonDataLoader(private val context: Context) {
         return loadUsers().find { it.id == "user_current" }
     }
 
+    fun loadShoppingCart(): List<CartItemJson> {
+        return try {
+            val jsonString = loadJsonFromAssets("data/shopping_cart.json")
+            val jsonArray = JsonParser.parseString(jsonString).asJsonArray
+            jsonArray.map { parseCartItem(it.asJsonObject) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
     private fun parseUser(json: JsonObject): User {
         return User(
             id = json.get("id").asString,
@@ -266,6 +276,20 @@ class JsonDataLoader(private val context: Context) {
         )
     }
 
+    private fun parseCartItem(json: JsonObject): CartItemJson {
+        return CartItemJson(
+            id = json.get("id").asString,
+            productId = json.get("productId").asString,
+            userId = json.get("userId").asString,
+            quantity = json.get("quantity").asInt,
+            selectedSpecs = json.get("selectedSpecs")?.asJsonObject?.entrySet()?.associate { 
+                it.key to it.value.asString 
+            } ?: emptyMap(),
+            isSelected = json.get("isSelected")?.asBoolean ?: true,
+            addedAt = parseDate(json.get("addedAt")?.asString)
+        )
+    }
+
     private fun loadJsonFromAssets(fileName: String): String {
         return try {
             context.assets.open(fileName).bufferedReader().use { it.readText() }
@@ -274,3 +298,13 @@ class JsonDataLoader(private val context: Context) {
         }
     }
 }
+
+data class CartItemJson(
+    val id: String,
+    val productId: String,
+    val userId: String,
+    val quantity: Int,
+    val selectedSpecs: Map<String, String>,
+    val isSelected: Boolean,
+    val addedAt: Date
+)

@@ -37,7 +37,9 @@ import com.example.test05.utils.JsonDataLoader
 import kotlin.math.absoluteValue
 
 @Composable
-fun MarketTabScreen() {
+fun MarketTabScreen(
+    onCartClicked: () -> Unit = {}
+) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
     val presenter = remember { MarketTabPresenter(dataLoader) }
@@ -88,7 +90,8 @@ fun MarketTabScreen() {
             onSearchTextChange = { 
                 searchText = it
                 presenter.searchProducts(it)
-            }
+            },
+            onCartClicked = onCartClicked
         )
 
         // Category Tabs
@@ -132,7 +135,8 @@ fun MarketTabScreen() {
 @Composable
 private fun SearchBar(
     searchText: String,
-    onSearchTextChange: (String) -> Unit
+    onSearchTextChange: (String) -> Unit,
+    onCartClicked: () -> Unit = {}
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     
@@ -185,6 +189,17 @@ private fun SearchBar(
             fontSize = 16.sp,
             modifier = Modifier.clickable { keyboardController?.hide() }
         )
+        
+        Spacer(modifier = Modifier.width(16.dp))
+        
+        IconButton(onClick = onCartClicked) {
+            Icon(
+                imageVector = Icons.Default.ShoppingCart,
+                contentDescription = "Cart",
+                tint = Color.Black,
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }
 
