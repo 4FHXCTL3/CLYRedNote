@@ -80,7 +80,7 @@ fun HomeTabScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Color.White)
     ) {
         // Top Navigation Bar
         TopNavigationBar(
@@ -142,7 +142,7 @@ private fun TopNavigationBar(
         Icon(
             imageVector = Icons.Default.Menu,
             contentDescription = "Menu",
-            tint = Color.White,
+            tint = Color.Black,
             modifier = Modifier.size(24.dp)
         )
 
@@ -171,7 +171,7 @@ private fun TopNavigationBar(
         Icon(
             imageVector = Icons.Default.Search,
             contentDescription = "Search",
-            tint = Color.White,
+            tint = Color.Black,
             modifier = Modifier.size(24.dp)
         )
     }
@@ -189,7 +189,7 @@ private fun TabItem(
     ) {
         Text(
             text = text,
-            color = if (isSelected) Color.White else Color.Gray,
+            color = if (isSelected) Color.Black else Color.Gray,
             fontSize = 16.sp,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         )
@@ -236,7 +236,7 @@ private fun CategoryChip(
 ) {
     Text(
         text = text,
-        color = if (isSelected) Color.White else Color.Gray,
+        color = if (isSelected) Color.Black else Color.Gray,
         fontSize = 14.sp,
         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
         modifier = Modifier
@@ -284,7 +284,7 @@ private fun NoteCard(
             .fillMaxWidth()
             .height(280.dp)
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = Color.DarkGray),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
@@ -358,7 +358,7 @@ private fun NoteCard(
                 // Title
                 Text(
                     text = note.title,
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     maxLines = 2,

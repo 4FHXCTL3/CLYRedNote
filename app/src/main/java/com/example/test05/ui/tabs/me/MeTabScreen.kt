@@ -94,7 +94,7 @@ fun MeTabScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Color.White)
             .padding(16.dp)
     ) {
         // Top Section with User Profile
@@ -195,14 +195,14 @@ private fun UserProfileSection(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = user.nickname,
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = "Dropdown",
-                    tint = Color.White,
+                    tint = Color.Black,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -225,7 +225,7 @@ private fun UserProfileSection(
             Icon(
                 imageVector = Icons.Default.Share,
                 contentDescription = "Share",
-                tint = Color.White,
+                tint = Color.Black,
                 modifier = Modifier
                     .size(24.dp)
                     .clickable { }
@@ -279,7 +279,7 @@ private fun UserStatsSection(
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray),
                 modifier = Modifier.height(40.dp)
             ) {
-                Text("编辑资料", color = Color.White, fontSize = 12.sp)
+                Text("编辑资料", color = Color.Black, fontSize = 12.sp)
             }
             
             Spacer(modifier = Modifier.width(8.dp))
@@ -294,7 +294,7 @@ private fun UserStatsSection(
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = "Settings",
-                    tint = Color.White
+                    tint = Color.Black
                 )
             }
         }
@@ -306,7 +306,7 @@ private fun StatItem(count: Int, label: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = count.toString(),
-            color = Color.White,
+            color = Color.Black,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
@@ -345,7 +345,7 @@ private fun ActionCard(
 ) {
     Card(
         modifier = modifier.height(80.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.DarkGray),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
@@ -356,7 +356,7 @@ private fun ActionCard(
         ) {
             Text(
                 text = title,
-                color = Color.White,
+                color = Color.Black,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -388,7 +388,7 @@ private fun NotesTabsSection(
             ) {
                 Text(
                     text = tab,
-                    color = if (selectedTab == index) Color.White else Color.Gray,
+                    color = if (selectedTab == index) Color.Black else Color.Gray,
                     fontSize = 16.sp,
                     fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal
                 )
@@ -445,7 +445,7 @@ private fun CollectionsContent(collections: List<Collection>) {
             items(collections) { collection ->
                 Text(
                     text = collection.folderName ?: "Unknown",
-                    color = Color.White,
+                    color = Color.Black,
                     modifier = Modifier.padding(8.dp)
                 )
             }
@@ -472,12 +472,12 @@ private fun NoteItem(note: Note) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.DarkGray)
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(
                 text = note.title,
-                color = Color.White,
+                color = Color.Black,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -518,7 +518,7 @@ private fun EmptyContentPlaceholder() {
             shape = RoundedCornerShape(20.dp),
             border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray)
         ) {
-            Text("去发布", color = Color.White)
+            Text("去发布", color = Color.Black)
         }
     }
 }
@@ -547,7 +547,7 @@ private fun ShareSection() {
             shape = RoundedCornerShape(20.dp),
             border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray)
         ) {
-            Text("去发布", color = Color.White)
+            Text("去发布", color = Color.Black)
         }
     }
 }

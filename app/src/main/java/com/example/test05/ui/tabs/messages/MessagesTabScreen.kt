@@ -75,7 +75,7 @@ fun MessagesTabScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Color.White)
     ) {
         // Top Header
         TopHeader(
@@ -139,7 +139,7 @@ private fun TopHeader(
         
         Text(
             text = "消息",
-            color = Color.White,
+            color = Color.Black,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
@@ -149,7 +149,7 @@ private fun TopHeader(
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search",
-                    tint = Color.White,
+                    tint = Color.Black,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -157,7 +157,7 @@ private fun TopHeader(
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add",
-                    tint = Color.White,
+                    tint = Color.Black,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -218,7 +218,7 @@ private fun FunctionIcon(
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = title,
-            color = Color.White,
+            color = Color.Black,
             fontSize = 12.sp
         )
     }
@@ -277,7 +277,7 @@ private fun ConversationCard(
                     } else {
                         conversation.user.nickname
                     },
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.weight(1f),

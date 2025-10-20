@@ -80,7 +80,7 @@ fun MarketTabScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
+            .background(Color.White)
     ) {
         // Search Bar
         SearchBar(
@@ -163,9 +163,9 @@ private fun SearchBar(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Gray,
                 unfocusedBorderColor = Color.Gray,
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                cursorColor = Color.White
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black
             ),
             shape = RoundedCornerShape(20.dp),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
@@ -181,7 +181,7 @@ private fun SearchBar(
         
         Text(
             text = "搜索",
-            color = Color.White,
+            color = Color.Black,
             fontSize = 16.sp,
             modifier = Modifier.clickable { keyboardController?.hide() }
         )
@@ -223,7 +223,7 @@ private fun CategoryTab(
     ) {
         Text(
             text = text,
-            color = if (isSelected) Color.Red else Color.White,
+            color = if (isSelected) Color.Red else Color.Black,
             fontSize = 16.sp,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         )
@@ -300,7 +300,7 @@ private fun MarketIconCard(item: MarketIconItem) {
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = item.title,
-            color = Color.White,
+            color = Color.Black,
             fontSize = 11.sp,
             maxLines = 1
         )
@@ -343,7 +343,7 @@ private fun ProductCard(
             .fillMaxWidth()
             .height(240.dp)
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = Color.DarkGray),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
@@ -403,7 +403,7 @@ private fun ProductCard(
                 // Product Name
                 Text(
                     text = product.name,
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     maxLines = 2,

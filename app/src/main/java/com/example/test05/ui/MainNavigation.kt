@@ -54,7 +54,7 @@ private fun BottomNavigationBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.Black)
+            .background(Color.White)
             .padding(vertical = 8.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
@@ -121,13 +121,13 @@ private fun BottomNavItem(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = if (isSelected) Color.White else Color.Gray,
+                tint = if (isSelected) Color.Black else Color.Gray,
                 modifier = Modifier.size(24.dp)
             )
         }
         Text(
             text = label,
-            color = if (isSelected) Color.White else Color.Gray,
+            color = if (isSelected) Color.Black else Color.Gray,
             fontSize = 10.sp,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
         )
