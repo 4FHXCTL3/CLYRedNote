@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -119,11 +121,6 @@ fun NoteDetailScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Top Bar
-        TopBar(
-            onBackClicked = onBackClicked
-        )
-
         if (isLoading) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -134,14 +131,14 @@ fun NoteDetailScreen(
         } else {
             note?.let { noteData ->
                 LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(16.dp)
+                    modifier = Modifier.weight(1f)
                 ) {
                     item {
-                        // Author Header
-                        AuthorHeader(
+                        // Top Bar with Author Info
+                        TopBarWithAuthor(
                             note = noteData,
                             isFollowing = isFollowing,
+                            onBackClicked = onBackClicked,
                             onFollowClicked = { presenter.onFollowClicked(noteData.author.id) },
                             onShareClicked = { presenter.onShareClicked(noteData.id) }
                         )
@@ -150,61 +147,73 @@ fun NoteDetailScreen(
                     }
 
                     item {
-                        // Note Images
-                        if (noteData.images.isNotEmpty()) {
-                            NoteImageGallery(images = noteData.images)
-                            Spacer(modifier = Modifier.height(16.dp))
+                        // Note Images - always show images
+                        val imagesToShow = if (noteData.images.isNotEmpty()) {
+                            noteData.images
+                        } else {
+                            // If no images, use default assets
+                            listOf("image/scenery1.jpg", "image/scenery2.jpg", "image/scenery3.jpg")
                         }
+                        NoteImageGallery(images = imagesToShow)
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
 
                     item {
                         // Note Content
-                        NoteContent(
-                            content = noteData.content,
-                            createdAt = noteData.createdAt,
-                            location = noteData.location?.name ?: "湖北"
-                        )
+                        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                            NoteContent(
+                                content = noteData.content,
+                                createdAt = noteData.createdAt,
+                                location = noteData.location?.name ?: "湖北"
+                            )
+                        }
                         
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
                     item {
                         // Action Buttons
-                        ActionButtons(
-                            isLiked = isLiked,
-                            isCollected = isCollected,
-                            likeCount = likeCount,
-                            collectCount = collectCount,
-                            commentCount = noteData.commentCount,
-                            shareCount = noteData.shareCount,
-                            onLikeClicked = { presenter.onLikeClicked(noteData.id) },
-                            onCollectClicked = { presenter.onCollectClicked(noteData.id) },
-                            onCommentClicked = { /* Scroll to comments */ },
-                            onShareClicked = { presenter.onShareClicked(noteData.id) }
-                        )
+                        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                            ActionButtons(
+                                isLiked = isLiked,
+                                isCollected = isCollected,
+                                likeCount = likeCount,
+                                collectCount = collectCount,
+                                commentCount = noteData.commentCount,
+                                shareCount = noteData.shareCount,
+                                onLikeClicked = { presenter.onLikeClicked(noteData.id) },
+                                onCollectClicked = { presenter.onCollectClicked(noteData.id) },
+                                onCommentClicked = { /* Scroll to comments */ },
+                                onShareClicked = { presenter.onShareClicked(noteData.id) }
+                            )
+                        }
                         
                         Spacer(modifier = Modifier.height(24.dp))
                     }
 
                     item {
                         // Comments Section Header
-                        Text(
-                            text = "评论 ${comments.size}",
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                            Text(
+                                text = "评论 ${comments.size}",
+                                color = Color.Black,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                         
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
                     // Comments List
                     items(comments) { comment ->
-                        CommentItem(
-                            comment = comment,
-                            onLikeClicked = { presenter.onCommentLikeClicked(comment.id) },
-                            onReplyClicked = { /* Handle reply */ }
-                        )
+                        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                            CommentItem(
+                                comment = comment,
+                                onLikeClicked = { presenter.onCommentLikeClicked(comment.id) },
+                                onReplyClicked = { /* Handle reply */ }
+                            )
+                        }
                         Spacer(modifier = Modifier.height(12.dp))
                     }
                 }
@@ -233,72 +242,54 @@ fun NoteDetailScreen(
 }
 
 @Composable
-private fun TopBar(onBackClicked: () -> Unit) {
+private fun TopBarWithAuthor(
+    note: Note,
+    isFollowing: Boolean,
+    onBackClicked: () -> Unit,
+    onFollowClicked: () -> Unit,
+    onShareClicked: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onBackClicked) {
+        // Back Button
+        IconButton(
+            onClick = onBackClicked,
+            modifier = Modifier.size(40.dp)
+        ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = "Back",
-                tint = Color.Black
+                tint = Color.Black,
+                modifier = Modifier.size(24.dp)
             )
         }
         
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.width(8.dp))
         
-        IconButton(onClick = { /* More options */ }) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = "More",
-                tint = Color.Black
-            )
-        }
-    }
-}
-
-@Composable
-private fun AuthorHeader(
-    note: Note,
-    isFollowing: Boolean,
-    onFollowClicked: () -> Unit,
-    onShareClicked: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
         // Author Avatar
         Icon(
             imageVector = Icons.Default.AccountCircle,
             contentDescription = "Avatar",
             tint = Color.Gray,
             modifier = Modifier
-                .size(48.dp)
+                .size(40.dp)
                 .clip(CircleShape)
         )
         
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(8.dp))
         
-        // Author Info
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = note.author.nickname,
-                color = Color.Black,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = note.author.bio ?: "用户简介",
-                color = Color.Gray,
-                fontSize = 12.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+        // Author Name
+        Text(
+            text = note.author.nickname,
+            color = Color.Black,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.weight(1f)
+        )
         
         // Follow Button
         Button(
@@ -306,8 +297,9 @@ private fun AuthorHeader(
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isFollowing) Color.Gray else Color.Red
             ),
-            shape = RoundedCornerShape(20.dp),
-            modifier = Modifier.height(32.dp)
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.height(32.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
         ) {
             Text(
                 text = if (isFollowing) "已关注" else "关注",
@@ -319,7 +311,10 @@ private fun AuthorHeader(
         Spacer(modifier = Modifier.width(8.dp))
         
         // Share Button
-        IconButton(onClick = onShareClicked) {
+        IconButton(
+            onClick = onShareClicked,
+            modifier = Modifier.size(40.dp)
+        ) {
             Icon(
                 imageVector = Icons.Default.Share,
                 contentDescription = "Share",
@@ -330,19 +325,54 @@ private fun AuthorHeader(
     }
 }
 
+
 @Composable
 private fun NoteImageGallery(images: List<String>) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(images) { imageName ->
-            NoteImage(imageName = imageName)
+    val pagerState = rememberPagerState(pageCount = { images.size })
+    
+    Column {
+        // Image Pager - Full width
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(4f / 3f) // 4:3 aspect ratio like in screenshot
+        ) { page ->
+            NoteImage(
+                imageName = images[page],
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        // Page Indicators
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(images.size) { index ->
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .background(
+                            color = if (index == pagerState.currentPage) Color.Red else Color.Gray.copy(alpha = 0.3f),
+                            shape = CircleShape
+                        )
+                )
+                if (index < images.size - 1) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun NoteImage(imageName: String) {
+private fun NoteImage(
+    imageName: String,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     val bitmap = remember(imageName) {
         try {
@@ -354,9 +384,7 @@ private fun NoteImage(imageName: String) {
     }
 
     Box(
-        modifier = Modifier
-            .size(300.dp, 200.dp)
-            .clip(RoundedCornerShape(12.dp))
+        modifier = modifier
             .background(Color.Gray.copy(alpha = 0.1f)),
         contentAlignment = Alignment.Center
     ) {
