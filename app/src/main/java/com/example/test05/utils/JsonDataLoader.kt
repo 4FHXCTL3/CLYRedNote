@@ -84,6 +84,16 @@ class JsonDataLoader(private val context: Context) {
         }
     }
 
+    fun loadComments(): List<Comment> {
+        return try {
+            val jsonString = loadJsonFromAssets("data/comments.json")
+            val jsonArray = JsonParser.parseString(jsonString).asJsonArray
+            jsonArray.map { parseComment(it.asJsonObject) }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
     fun getCurrentUser(): User? {
         return loadUsers().find { it.id == "user_current" }
     }
@@ -229,6 +239,31 @@ class JsonDataLoader(private val context: Context) {
         } catch (e: Exception) {
             Date()
         }
+    }
+
+    private fun parseComment(json: JsonObject): Comment {
+        val users = loadUsers() // Cache this to avoid repeated loading
+        val author = users.find { it.id == json.get("authorId").asString } 
+            ?: User(id = "unknown", username = "unknown", nickname = "Unknown")
+            
+        return Comment(
+            id = json.get("id").asString,
+            content = json.get("content").asString,
+            author = author,
+            noteId = json.get("noteId").asString,
+            parentCommentId = json.get("parentCommentId")?.asString,
+            replyToUserId = json.get("replyToUserId")?.asString,
+            replyToUsername = json.get("replyToUsername")?.asString,
+            likeCount = json.get("likeCount")?.asInt ?: 0,
+            replyCount = json.get("replyCount")?.asInt ?: 0,
+            isLiked = json.get("isLiked")?.asBoolean ?: false,
+            images = json.get("images")?.asJsonArray?.map { it.asString } ?: emptyList(),
+            status = json.get("status")?.asString?.let { CommentStatus.valueOf(it) } ?: CommentStatus.NORMAL,
+            createdAt = parseDate(json.get("createdAt")?.asString),
+            updatedAt = parseDate(json.get("updatedAt")?.asString),
+            isAuthorReply = json.get("isAuthorReply")?.asBoolean ?: false,
+            isPinned = json.get("isPinned")?.asBoolean ?: false
+        )
     }
 
     private fun loadJsonFromAssets(fileName: String): String {

@@ -33,7 +33,9 @@ import com.example.test05.utils.JsonDataLoader
 import kotlin.math.absoluteValue
 
 @Composable
-fun HomeTabScreen() {
+fun HomeTabScreen(
+    onNoteClicked: (String) -> Unit = {}
+) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
     val presenter = remember { HomeTabPresenter(dataLoader) }
@@ -111,7 +113,7 @@ fun HomeTabScreen() {
         } else {
             NotesGrid(
                 notes = notes,
-                onNoteClicked = { noteId -> presenter.onNoteClicked(noteId) },
+                onNoteClicked = { noteId -> onNoteClicked(noteId) },
                 onNoteLiked = { noteId -> presenter.onNoteLiked(noteId) }
             )
         }
