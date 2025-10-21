@@ -307,82 +307,127 @@ private fun UserInfoSection(
             }
         }
         
-        // Stats Row
+        // Stats and First Action Buttons Row
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            StatItem(label = "关注", count = user.followingCount)
-            StatItem(label = "粉丝", count = user.followerCount)
-            StatItem(label = "获赞与收藏", count = user.noteCount * 10)
+            // Stats Section - Left aligned, not centered
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                StatItem(label = "关注", count = user.followingCount)
+                StatItem(label = "粉丝", count = user.followerCount)
+                StatItem(label = "获赞与收藏", count = user.noteCount * 10)
+            }
+            
+            // First Action Buttons - Right aligned
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onFollowClicked,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isFollowing) Color(0xFFF5F5F5) else Color.Red,
+                        contentColor = if (isFollowing) Color.Gray else Color.White
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text(
+                        text = if (isFollowing) "已关注" else "关注",
+                        fontSize = 12.sp
+                    )
+                }
+                
+                OutlinedButton(
+                    onClick = onMessageClicked,
+                    shape = RoundedCornerShape(16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
+                    modifier = Modifier.height(32.dp)
+                ) {
+                    Text(
+                        text = "私信",
+                        fontSize = 12.sp,
+                        color = Color.Black
+                    )
+                }
+            }
         }
         
-        // Action Buttons
+        // Large Action Buttons - Full width big boxes
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(
-                onClick = onFollowClicked,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isFollowing) Color(0xFFF5F5F5) else Color.Red,
-                    contentColor = if (isFollowing) Color.Gray else Color.White
-                ),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = if (isFollowing) "已关注" else "关注",
-                    fontSize = 14.sp
+            Card(
+                onClick = { onGroupChatClicked() },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(60.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF8F8F8)
                 )
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "💬",
+                            fontSize = 24.sp
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "群聊",
+                            fontSize = 14.sp,
+                            color = Color.Black,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
             
-            OutlinedButton(
-                onClick = onMessageClicked,
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = "私信",
-                    fontSize = 14.sp,
-                    color = Color.Black
+            Card(
+                onClick = { onEvaluateClicked() },
+                modifier = Modifier
+                    .weight(1f)
+                    .height(60.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFF8F8F8)
                 )
-            }
-        }
-        
-        // Additional Action Buttons
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            OutlinedButton(
-                onClick = onGroupChatClicked,
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.weight(1f)
             ) {
-                Text(
-                    text = "群聊",
-                    fontSize = 14.sp,
-                    color = Color.Black
-                )
-            }
-            
-            OutlinedButton(
-                onClick = onEvaluateClicked,
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = "评价",
-                    fontSize = 14.sp,
-                    color = Color.Black
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "⭐",
+                            fontSize = 24.sp
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "评价",
+                            fontSize = 14.sp,
+                            color = Color.Black,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
         }
     }
@@ -391,19 +436,19 @@ private fun UserInfoSection(
 @Composable
 private fun StatItem(label: String, count: Int) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.Start
     ) {
         Text(
             text = count.toString(),
-            fontSize = 18.sp,
+            fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black
         )
         Text(
             text = label,
-            fontSize = 12.sp,
+            fontSize = 11.sp,
             color = Color.Gray,
-            modifier = Modifier.padding(top = 2.dp)
+            modifier = Modifier.padding(top = 1.dp)
         )
     }
 }
@@ -416,19 +461,32 @@ private fun NotesHeader(
     onCategorySelected: (String) -> Unit
 ) {
     Column {
-        Text(
-            text = "笔记",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+        // Notes title and search icon in same row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "笔记",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+            
+            IconButton(
+                onClick = { /* Search action */ },
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
         
-        // Search Bar
-        SearchBar(
-            searchText = searchText,
-            onSearchTextChange = onSearchTextChange
-        )
         
         // Category Filter
         LazyRow(
