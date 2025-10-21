@@ -100,18 +100,36 @@
    - 结算功能：显示选中商品总价和结算按钮
    - 数据管理：购物车商品数据加载、选择状态管理、数量修改
 
-8. **主导航**
+8. **SearchTab页面** (搜索)
+   - 搜索栏：返回按钮、搜索输入框、清除按钮、搜索按钮
+   - 搜索历史：显示最近搜索记录，灰色圆角背景，支持点击搜索和清空历史
+   - 猜你想搜：推荐搜索词汇，红色文字无边框设计，点击可快速搜索
+   - 小红书热点：单行显示，包含序号、标题、浏览数，前三名序号为红色
+   - 实时搜索：输入时即时显示搜索结果，支持标题、内容、标签匹配
+   - 搜索结果：瀑布流展示搜索到的笔记，支持点击查看详情
+   - 简洁设计：去除多余装饰，突出内容可读性
+
+9. **FollowingTab页面** (关注管理)
+   - 顶部标签栏：互相关注、关注、粉丝、推荐四个选项卡
+   - 搜索功能：搜索已关注的人，支持姓名和简介匹配
+   - 我的关注区域：显示关注数量、综合排序选项、全部/商家分类筛选
+   - 关注列表：用户头像、昵称、认证标识、简介、未看笔记提示
+   - 操作按钮：已关注按钮支持取消关注、三点菜单更多操作
+   - 导航入口：从"我"页面点击关注数量进入
+   - 多类型展示：支持互相关注、关注、粉丝、推荐用户不同列表
+
+10. **主导航**
    - 底部导航栏：首页、市集、发布(+)、消息、我
    - 当前所有五个Tab均已完全实现：HomeTab、MarketTab、PostTab、MessagesTab、MeTab
-   - 页面导航：支持从HomeTab导航到NoteDetail详情页，从MarketTab导航到Cart购物车页面
+   - 页面导航：支持从HomeTab导航到NoteDetail详情页和SearchTab搜索页面，从MarketTab导航到Cart购物车页面，从MeTab导航到FollowingTab关注管理页面
    - 默认启动显示首页
 
 #### 技术架构
 
 - **MVP 架构模式**
-  - View: HomeTabScreen.kt, MarketTabScreen.kt, PostTabScreen.kt, MessagesTabScreen.kt, MeTabScreen.kt, NoteDetailScreen.kt, CartScreen.kt (UI层)
-  - Presenter: HomeTabPresenter.kt, MarketTabPresenter.kt, PostTabPresenter.kt, MessagesTabPresenter.kt, MeTabPresenter.kt, NoteDetailPresenter.kt, CartPresenter.kt (业务逻辑层)
-  - Contract: HomeTabContract.kt, MarketTabContract.kt, PostTabContract.kt, MessagesTabContract.kt, MeTabContract.kt, NoteDetailContract.kt, CartContract.kt (接口定义)
+  - View: HomeTabScreen.kt, MarketTabScreen.kt, PostTabScreen.kt, MessagesTabScreen.kt, MeTabScreen.kt, NoteDetailScreen.kt, CartScreen.kt, SearchTabScreen.kt, FollowingTabScreen.kt (UI层)
+  - Presenter: HomeTabPresenter.kt, MarketTabPresenter.kt, PostTabPresenter.kt, MessagesTabPresenter.kt, MeTabPresenter.kt, NoteDetailPresenter.kt, CartPresenter.kt, SearchTabPresenter.kt, FollowingTabPresenter.kt (业务逻辑层)
+  - Contract: HomeTabContract.kt, MarketTabContract.kt, PostTabContract.kt, MessagesTabContract.kt, MeTabContract.kt, NoteDetailContract.kt, CartContract.kt, SearchTabContract.kt, FollowingTabContract.kt (接口定义)
 
 - **数据加载**
   - JsonDataLoader.kt: 加载 assets 中的 JSON 数据
@@ -137,6 +155,8 @@
 - 所有五个主要Tab功能完整：HomeTab、MarketTab、PostTab、MessagesTab、MeTab
 - NoteDetail详情页功能完整实现
 - Cart购物车页面功能完整实现
+- SearchTab搜索页面功能完整实现
+- FollowingTab关注管理页面功能完整实现
 - 修复了数据类型匹配和图标引用问题
 
 ## 待开发功能

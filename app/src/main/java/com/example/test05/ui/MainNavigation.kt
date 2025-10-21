@@ -23,6 +23,8 @@ import com.example.test05.ui.tabs.messages.MessagesTabScreen
 import com.example.test05.ui.tabs.post.PostTabScreen
 import com.example.test05.ui.tabs.notedetail.NoteDetailScreen
 import com.example.test05.ui.tabs.cart.CartScreen
+import com.example.test05.ui.tabs.search.SearchTabScreen
+import com.example.test05.ui.tabs.following.FollowingTabScreen
 
 @Composable
 fun MainNavigation() {
@@ -30,11 +32,30 @@ fun MainNavigation() {
     var currentNoteId by remember { mutableStateOf<String?>(null) }
     var showNoteDetail by remember { mutableStateOf(false) }
     var showCart by remember { mutableStateOf(false) }
+    var showSearch by remember { mutableStateOf(false) }
+    var showFollowing by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Content
         Box(modifier = Modifier.weight(1f)) {
-            if (showCart) {
+            if (showFollowing) {
+                FollowingTabScreen(
+                    onBackClicked = { 
+                        showFollowing = false
+                    }
+                )
+            } else if (showSearch) {
+                SearchTabScreen(
+                    onBackClicked = { 
+                        showSearch = false
+                    },
+                    onNoteClicked = { noteId ->
+                        currentNoteId = noteId
+                        showSearch = false
+                        showNoteDetail = true
+                    }
+                )
+            } else if (showCart) {
                 CartScreen(
                     onBackClicked = { 
                         showCart = false
@@ -54,6 +75,9 @@ fun MainNavigation() {
                         onNoteClicked = { noteId: String ->
                             currentNoteId = noteId
                             showNoteDetail = true
+                        },
+                        onSearchClicked = {
+                            showSearch = true
                         }
                     )
                     1 -> MarketTabScreen(
@@ -63,7 +87,11 @@ fun MainNavigation() {
                     )
                     2 -> PostTabScreen(onNavigateBack = { selectedTab = 0 })
                     3 -> MessagesTabScreen()
-                    4 -> MeTabScreen()
+                    4 -> MeTabScreen(
+                        onFollowingClicked = {
+                            showFollowing = true
+                        }
+                    )
                 }
             }
         }

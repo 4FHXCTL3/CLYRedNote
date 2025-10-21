@@ -31,7 +31,9 @@ import com.example.test05.presenter.MeTabPresenter
 import com.example.test05.utils.JsonDataLoader
 
 @Composable
-fun MeTabScreen() {
+fun MeTabScreen(
+    onFollowingClicked: () -> Unit = {}
+) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
     val presenter = remember { MeTabPresenter(dataLoader) }
@@ -112,7 +114,8 @@ fun MeTabScreen() {
         UserStatsSection(
             followingCount = followingCount,
             followerCount = followerCount,
-            likesAndCollections = likesAndCollections
+            likesAndCollections = likesAndCollections,
+            onFollowingClicked = onFollowingClicked
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -255,7 +258,8 @@ private fun UserProfileSection(
 private fun UserStatsSection(
     followingCount: Int,
     followerCount: Int,
-    likesAndCollections: Int
+    likesAndCollections: Int,
+    onFollowingClicked: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -263,7 +267,11 @@ private fun UserStatsSection(
     ) {
         // Stats
         Row(modifier = Modifier.weight(1f)) {
-            StatItem(count = followingCount, label = "关注")
+            StatItem(
+                count = followingCount, 
+                label = "关注",
+                onClick = onFollowingClicked
+            )
             Spacer(modifier = Modifier.width(32.dp))
             StatItem(count = followerCount, label = "粉丝")
             Spacer(modifier = Modifier.width(32.dp))
@@ -302,8 +310,15 @@ private fun UserStatsSection(
 }
 
 @Composable
-private fun StatItem(count: Int, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+private fun StatItem(
+    count: Int, 
+    label: String,
+    onClick: (() -> Unit)? = null
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = if (onClick != null) Modifier.clickable { onClick() } else Modifier
+    ) {
         Text(
             text = count.toString(),
             color = Color.Black,

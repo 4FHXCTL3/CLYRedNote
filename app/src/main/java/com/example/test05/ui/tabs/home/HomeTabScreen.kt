@@ -34,7 +34,8 @@ import kotlin.math.absoluteValue
 
 @Composable
 fun HomeTabScreen(
-    onNoteClicked: (String) -> Unit = {}
+    onNoteClicked: (String) -> Unit = {},
+    onSearchClicked: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
@@ -90,7 +91,8 @@ fun HomeTabScreen(
             onTabSelected = { tabType ->
                 selectedTab = tabType
                 presenter.onTabSelected(tabType)
-            }
+            },
+            onSearchClicked = onSearchClicked
         )
 
         // Category Filter Row
@@ -131,7 +133,8 @@ fun HomeTabScreen(
 @Composable
 private fun TopNavigationBar(
     selectedTab: HomeTabType,
-    onTabSelected: (HomeTabType) -> Unit
+    onTabSelected: (HomeTabType) -> Unit,
+    onSearchClicked: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -170,12 +173,14 @@ private fun TopNavigationBar(
         }
 
         // Search Icon
-        Icon(
-            imageVector = Icons.Default.Search,
-            contentDescription = "Search",
-            tint = Color.Black,
-            modifier = Modifier.size(24.dp)
-        )
+        IconButton(onClick = onSearchClicked) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search",
+                tint = Color.Black,
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }
 

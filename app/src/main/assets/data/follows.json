@@ -43,5 +43,68 @@
     "isMutual": true,
     "isSpecialFollow": false,
     "tags": ["美妆"]
+  },
+  {
+    "id": "follow_006",
+    "followerId": "user_current",
+    "followingId": "user_006",
+    "followedAt": "2023-10-12T09:15:00Z",
+    "isMutual": false,
+    "isSpecialFollow": false,
+    "tags": ["宠物"]
+  },
+  {
+    "id": "follow_007",
+    "followerId": "user_current",
+    "followingId": "user_007",
+    "followedAt": "2023-10-11T14:20:00Z",
+    "isMutual": true,
+    "isSpecialFollow": false,
+    "tags": ["健身"]
+  },
+  {
+    "id": "follow_008",
+    "followerId": "user_current",
+    "followingId": "user_008",
+    "followedAt": "2023-10-09T16:45:00Z",
+    "isMutual": false,
+    "isSpecialFollow": false,
+    "tags": ["数码", "科技"]
+  },
+  {
+    "id": "follow_009",
+    "followerId": "user_current",
+    "followingId": "user_009",
+    "followedAt": "2023-10-07T11:30:00Z",
+    "isMutual": false,
+    "isSpecialFollow": false,
+    "tags": ["家居", "设计"]
+  },
+  {
+    "id": "follow_010",
+    "followerId": "user_current",
+    "followingId": "user_010",
+    "followedAt": "2023-10-06T13:25:00Z",
+    "isMutual": false,
+    "isSpecialFollow": false,
+    "tags": ["读书"]
+  },
+  {
+    "id": "follow_011",
+    "followerId": "user_current",
+    "followingId": "user_011",
+    "followedAt": "2023-10-04T10:40:00Z",
+    "isMutual": true,
+    "isSpecialFollow": true,
+    "tags": ["音乐"]
+  },
+  {
+    "id": "follow_012",
+    "followerId": "user_current",
+    "followingId": "user_012",
+    "followedAt": "2023-10-02T15:55:00Z",
+    "isMutual": false,
+    "isSpecialFollow": false,
+    "tags": ["艺术", "绘画"]
   }
 ]
