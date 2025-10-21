@@ -117,19 +117,40 @@
    - 操作按钮：已关注按钮支持取消关注、三点菜单更多操作
    - 导航入口：从"我"页面点击关注数量进入
    - 多类型展示：支持互相关注、关注、粉丝、推荐用户不同列表
+   - 博主详情导航：点击关注列表中的用户可进入BloggerDetail页面
 
-10. **主导航**
+10. **BloggerDetail页面** (博主详情页)
+   - 顶部导航栏：返回按钮、更多选项菜单
+   - 用户信息区域：大头像、昵称、小红书号、IP属地、认证标识
+   - 个人简介：个人描述文本和兴趣标签
+   - 统计数据：关注数、粉丝数、获赞与收藏数的展示
+   - 操作按钮：关注/已关注、私信、群聊、评价按钮
+   - 笔记搜索：支持搜索该博主的笔记内容
+   - 分类筛选：全部、图文、视频三个笔记类型筛选
+   - 笔记网格：双列网格展示博主的所有笔记，支持点击查看详情
+   - 导航入口：从FollowingTab关注列表点击用户进入
+
+11. **FanTab页面** (粉丝页)
+   - 顶部标签栏：互相关注、关注、粉丝、推荐四个选项卡
+   - 粉丝列表：显示关注当前用户的粉丝列表
+   - 粉丝信息：头像、昵称、认证标识、笔记数和粉丝数统计
+   - 回关按钮：支持对粉丝进行回关操作，显示"回关"或"已关注"状态
+   - 跨页面导航：点击"关注"标签可跳转到FollowingTab页面
+   - 推荐区域：底部显示"你可能感兴趣的人"提示
+   - 导航入口：从"我"页面点击粉丝数量进入
+
+12. **主导航**
    - 底部导航栏：首页、市集、发布(+)、消息、我
    - 当前所有五个Tab均已完全实现：HomeTab、MarketTab、PostTab、MessagesTab、MeTab
-   - 页面导航：支持从HomeTab导航到NoteDetail详情页和SearchTab搜索页面，从MarketTab导航到Cart购物车页面，从MeTab导航到FollowingTab关注管理页面
+   - 页面导航：支持从HomeTab导航到NoteDetail详情页和SearchTab搜索页面，从MarketTab导航到Cart购物车页面，从MeTab导航到FollowingTab关注管理页面和FanTab粉丝页面，从FollowingTab导航到BloggerDetail博主详情页面，从FanTab导航到FollowingTab关注管理页面
    - 默认启动显示首页
 
 #### 技术架构
 
 - **MVP 架构模式**
-  - View: HomeTabScreen.kt, MarketTabScreen.kt, PostTabScreen.kt, MessagesTabScreen.kt, MeTabScreen.kt, NoteDetailScreen.kt, CartScreen.kt, SearchTabScreen.kt, FollowingTabScreen.kt (UI层)
-  - Presenter: HomeTabPresenter.kt, MarketTabPresenter.kt, PostTabPresenter.kt, MessagesTabPresenter.kt, MeTabPresenter.kt, NoteDetailPresenter.kt, CartPresenter.kt, SearchTabPresenter.kt, FollowingTabPresenter.kt (业务逻辑层)
-  - Contract: HomeTabContract.kt, MarketTabContract.kt, PostTabContract.kt, MessagesTabContract.kt, MeTabContract.kt, NoteDetailContract.kt, CartContract.kt, SearchTabContract.kt, FollowingTabContract.kt (接口定义)
+  - View: HomeTabScreen.kt, MarketTabScreen.kt, PostTabScreen.kt, MessagesTabScreen.kt, MeTabScreen.kt, NoteDetailScreen.kt, CartScreen.kt, SearchTabScreen.kt, FollowingTabScreen.kt, BloggerDetailScreen.kt, FanTabScreen.kt (UI层)
+  - Presenter: HomeTabPresenter.kt, MarketTabPresenter.kt, PostTabPresenter.kt, MessagesTabPresenter.kt, MeTabPresenter.kt, NoteDetailPresenter.kt, CartPresenter.kt, SearchTabPresenter.kt, FollowingTabPresenter.kt, BloggerDetailPresenter.kt, FanTabPresenter.kt (业务逻辑层)
+  - Contract: HomeTabContract.kt, MarketTabContract.kt, PostTabContract.kt, MessagesTabContract.kt, MeTabContract.kt, NoteDetailContract.kt, CartContract.kt, SearchTabContract.kt, FollowingTabContract.kt, BloggerDetailContract.kt, FanTabContract.kt (接口定义)
 
 - **数据加载**
   - JsonDataLoader.kt: 加载 assets 中的 JSON 数据
@@ -146,7 +167,7 @@
 
 ## 构建状态
 
-✅ **构建成功** - 2025年10月20日
+✅ **构建成功** - 2025年10月21日
 
 - 所有 Kotlin 代码编译通过
 - 依赖项正确配置 (包括 Gson 用于 JSON 解析)
@@ -157,7 +178,9 @@
 - Cart购物车页面功能完整实现
 - SearchTab搜索页面功能完整实现
 - FollowingTab关注管理页面功能完整实现
+- BloggerDetail博主详情页功能完整实现
 - 修复了数据类型匹配和图标引用问题
+- 完整的页面导航系统，支持多层级页面跳转
 
 ## 待开发功能
 

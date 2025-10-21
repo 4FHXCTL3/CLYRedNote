@@ -25,6 +25,8 @@ import com.example.test05.ui.tabs.notedetail.NoteDetailScreen
 import com.example.test05.ui.tabs.cart.CartScreen
 import com.example.test05.ui.tabs.search.SearchTabScreen
 import com.example.test05.ui.tabs.following.FollowingTabScreen
+import com.example.test05.ui.tabs.bloggerdetail.BloggerDetailScreen
+import com.example.test05.ui.tabs.fan.FanTabScreen
 
 @Composable
 fun MainNavigation() {
@@ -34,14 +36,48 @@ fun MainNavigation() {
     var showCart by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
     var showFollowing by remember { mutableStateOf(false) }
+    var showBloggerDetail by remember { mutableStateOf(false) }
+    var currentBloggerId by remember { mutableStateOf<String?>(null) }
+    var showFanTab by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Content
         Box(modifier = Modifier.weight(1f)) {
-            if (showFollowing) {
+            if (showBloggerDetail && currentBloggerId != null) {
+                BloggerDetailScreen(
+                    userId = currentBloggerId!!,
+                    onBackClicked = { 
+                        showBloggerDetail = false
+                        currentBloggerId = null
+                    },
+                    onNoteClicked = { noteId ->
+                        currentNoteId = noteId
+                        showBloggerDetail = false
+                        showNoteDetail = true
+                    }
+                )
+            } else if (showFanTab) {
+                FanTabScreen(
+                    onBackClicked = { 
+                        showFanTab = false
+                    },
+                    onUserClicked = { userId ->
+                        currentBloggerId = userId
+                        showBloggerDetail = true
+                    },
+                    onNavigateToFollowing = {
+                        showFanTab = false
+                        showFollowing = true
+                    }
+                )
+            } else if (showFollowing) {
                 FollowingTabScreen(
                     onBackClicked = { 
                         showFollowing = false
+                    },
+                    onUserClicked = { userId ->
+                        currentBloggerId = userId
+                        showBloggerDetail = true
                     }
                 )
             } else if (showSearch) {
@@ -90,6 +126,9 @@ fun MainNavigation() {
                     4 -> MeTabScreen(
                         onFollowingClicked = {
                             showFollowing = true
+                        },
+                        onFansClicked = {
+                            showFanTab = true
                         }
                     )
                 }

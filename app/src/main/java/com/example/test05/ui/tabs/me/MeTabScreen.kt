@@ -32,7 +32,8 @@ import com.example.test05.utils.JsonDataLoader
 
 @Composable
 fun MeTabScreen(
-    onFollowingClicked: () -> Unit = {}
+    onFollowingClicked: () -> Unit = {},
+    onFansClicked: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
@@ -115,7 +116,8 @@ fun MeTabScreen(
             followingCount = followingCount,
             followerCount = followerCount,
             likesAndCollections = likesAndCollections,
-            onFollowingClicked = onFollowingClicked
+            onFollowingClicked = onFollowingClicked,
+            onFansClicked = onFansClicked
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -259,7 +261,8 @@ private fun UserStatsSection(
     followingCount: Int,
     followerCount: Int,
     likesAndCollections: Int,
-    onFollowingClicked: () -> Unit = {}
+    onFollowingClicked: () -> Unit = {},
+    onFansClicked: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -273,7 +276,11 @@ private fun UserStatsSection(
                 onClick = onFollowingClicked
             )
             Spacer(modifier = Modifier.width(32.dp))
-            StatItem(count = followerCount, label = "粉丝")
+            StatItem(
+                count = followerCount, 
+                label = "粉丝",
+                onClick = onFansClicked
+            )
             Spacer(modifier = Modifier.width(32.dp))
             StatItem(count = likesAndCollections, label = "获赞与收藏")
         }

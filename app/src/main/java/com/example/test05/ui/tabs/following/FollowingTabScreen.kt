@@ -34,7 +34,8 @@ import com.example.test05.utils.JsonDataLoader
 
 @Composable
 fun FollowingTabScreen(
-    onBackClicked: () -> Unit = {}
+    onBackClicked: () -> Unit = {},
+    onUserClicked: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
@@ -157,7 +158,10 @@ fun FollowingTabScreen(
                     FollowingUserItem(
                         followingUser = followingUser,
                         onUnfollowClicked = { presenter.onUnfollowClicked(it) },
-                        onUserClicked = { presenter.onUserClicked(it) },
+                        onUserClicked = { userId ->
+                            presenter.onUserClicked(userId)
+                            onUserClicked(userId)
+                        },
                         onMoreClicked = { presenter.onMoreClicked(it) }
                     )
                 }
