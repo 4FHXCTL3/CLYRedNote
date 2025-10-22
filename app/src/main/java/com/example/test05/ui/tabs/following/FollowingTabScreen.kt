@@ -104,12 +104,10 @@ fun FollowingTabScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Top Bar
-        TopBar(onBackClicked = onBackClicked)
-        
-        // Tab Bar
-        TabBar(
+        // Top Bar with Tabs in same row
+        TopBarWithTabs(
             selectedTab = selectedTab,
+            onBackClicked = onBackClicked,
             onTabSelected = { 
                 selectedTab = it
                 presenter.onTabSelected(it)
@@ -179,34 +177,9 @@ fun FollowingTabScreen(
 }
 
 @Composable
-private fun TopBar(onBackClicked: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = onBackClicked) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.Black
-            )
-        }
-        
-        Text(
-            text = "关注管理",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-private fun TabBar(
+private fun TopBarWithTabs(
     selectedTab: FollowingTabType,
+    onBackClicked: () -> Unit,
     onTabSelected: (FollowingTabType) -> Unit
 ) {
     val tabs = listOf(
@@ -216,18 +189,36 @@ private fun TabBar(
         FollowingTabType.RECOMMENDED to "推荐"
     )
     
-    LazyRow(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(32.dp)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        items(tabs) { (tabType, title) ->
-            TabItem(
-                text = title,
-                isSelected = selectedTab == tabType,
-                onClick = { onTabSelected(tabType) }
+        IconButton(
+            onClick = onBackClicked,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.Black
             )
+        }
+        
+        Spacer(modifier = Modifier.width(8.dp))
+        
+        LazyRow(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            items(tabs) { (tabType, title) ->
+                TabItem(
+                    text = title,
+                    isSelected = selectedTab == tabType,
+                    onClick = { onTabSelected(tabType) }
+                )
+            }
         }
     }
 }

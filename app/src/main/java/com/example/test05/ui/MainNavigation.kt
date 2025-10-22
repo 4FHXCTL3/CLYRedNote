@@ -27,6 +27,9 @@ import com.example.test05.ui.tabs.search.SearchTabScreen
 import com.example.test05.ui.tabs.following.FollowingTabScreen
 import com.example.test05.ui.tabs.bloggerdetail.BloggerDetailScreen
 import com.example.test05.ui.tabs.fan.FanTabScreen
+import com.example.test05.ui.tabs.fan.FanTabType
+import com.example.test05.ui.tabs.commentat.CommentAtTabScreen
+import com.example.test05.ui.tabs.profileedit.ProfileEditScreen
 
 @Composable
 fun MainNavigation() {
@@ -39,11 +42,25 @@ fun MainNavigation() {
     var showBloggerDetail by remember { mutableStateOf(false) }
     var currentBloggerId by remember { mutableStateOf<String?>(null) }
     var showFanTab by remember { mutableStateOf(false) }
+    var showCommentAt by remember { mutableStateOf(false) }
+    var showProfileEdit by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Content
         Box(modifier = Modifier.weight(1f)) {
-            if (showBloggerDetail && currentBloggerId != null) {
+            if (showProfileEdit) {
+                ProfileEditScreen(
+                    onBackPressed = { 
+                        showProfileEdit = false
+                    }
+                )
+            } else if (showCommentAt) {
+                CommentAtTabScreen(
+                    onBackClicked = { 
+                        showCommentAt = false
+                    }
+                )
+            } else if (showBloggerDetail && currentBloggerId != null) {
                 BloggerDetailScreen(
                     userId = currentBloggerId!!,
                     onBackClicked = { 
@@ -58,6 +75,7 @@ fun MainNavigation() {
                 )
             } else if (showFanTab) {
                 FanTabScreen(
+                    initialTab = FanTabType.FANS,
                     onBackClicked = { 
                         showFanTab = false
                     },
@@ -122,13 +140,20 @@ fun MainNavigation() {
                         }
                     )
                     2 -> PostTabScreen(onNavigateBack = { selectedTab = 0 })
-                    3 -> MessagesTabScreen()
+                    3 -> MessagesTabScreen(
+                        onCommentAtClicked = {
+                            showCommentAt = true
+                        }
+                    )
                     4 -> MeTabScreen(
                         onFollowingClicked = {
                             showFollowing = true
                         },
                         onFansClicked = {
                             showFanTab = true
+                        },
+                        onProfileEditClicked = {
+                            showProfileEdit = true
                         }
                     )
                 }

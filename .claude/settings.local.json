@@ -4,7 +4,9 @@
       "Bash(mkdir:*)",
       "Bash(./gradlew:*)",
       "Bash(\".\\gradlew.bat\" build)",
-      "Bash(.\\gradlew.bat assembleDebug:*)"
+      "Bash(.\\gradlew.bat assembleDebug:*)",
+      "Bash(gradlew.bat build:*)",
+      "Bash(.\\gradlew.bat build:*)"
     ],
     "deny": []
   }

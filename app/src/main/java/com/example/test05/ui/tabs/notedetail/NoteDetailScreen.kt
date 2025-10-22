@@ -471,9 +471,9 @@ private fun ActionButtons(
         )
         
         ActionButton(
-            icon = if (isCollected) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+            icon = Icons.Default.Star,
             text = collectCount.toString(),
-            tint = if (isCollected) Color(0xFFFF9800) else Color.Gray,
+            tint = if (isCollected) Color(0xFFFFD700) else Color.Gray,
             onClick = onCollectClicked
         )
         

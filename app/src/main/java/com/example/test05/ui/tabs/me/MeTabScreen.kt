@@ -5,6 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,13 +20,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.graphics.BitmapFactory
+import java.io.IOException
 import com.example.CLYRedNote.model.Collection
 import com.example.CLYRedNote.model.Note
 import com.example.CLYRedNote.model.User
@@ -33,7 +41,8 @@ import com.example.test05.utils.JsonDataLoader
 @Composable
 fun MeTabScreen(
     onFollowingClicked: () -> Unit = {},
-    onFansClicked: () -> Unit = {}
+    onFansClicked: () -> Unit = {},
+    onProfileEditClicked: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
@@ -104,7 +113,7 @@ fun MeTabScreen(
         currentUser?.let { user ->
             UserProfileSection(
                 user = user,
-                onEditProfile = { presenter.onEditProfileClicked() },
+                onEditProfile = onProfileEditClicked,
                 onSettings = { presenter.onSettingsClicked() }
             )
         }
@@ -117,7 +126,8 @@ fun MeTabScreen(
             followerCount = followerCount,
             likesAndCollections = likesAndCollections,
             onFollowingClicked = onFollowingClicked,
-            onFansClicked = onFansClicked
+            onFansClicked = onFansClicked,
+            onEditProfileClicked = onProfileEditClicked
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -130,6 +140,7 @@ fun MeTabScreen(
         // Notes Tabs Section
         NotesTabsSection(
             selectedTab = selectedTab,
+            collectionsCount = collections.size,
             onTabSelected = { tabIndex ->
                 selectedTab = tabIndex
                 when (tabIndex) {
@@ -262,7 +273,8 @@ private fun UserStatsSection(
     followerCount: Int,
     likesAndCollections: Int,
     onFollowingClicked: () -> Unit = {},
-    onFansClicked: () -> Unit = {}
+    onFansClicked: () -> Unit = {},
+    onEditProfileClicked: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -288,7 +300,7 @@ private fun UserStatsSection(
         // Action Buttons
         Row {
             Button(
-                onClick = { },
+                onClick = onEditProfileClicked,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 shape = RoundedCornerShape(20.dp),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray),
@@ -394,10 +406,14 @@ private fun ActionCard(
 @Composable
 private fun NotesTabsSection(
     selectedTab: Int,
-    onTabSelected: (Int) -> Unit
+    onTabSelected: (Int) -> Unit,
+    collectionsCount: Int = 0
 ) {
     val tabs = listOf("笔记", "收藏", "赞过")
-    val tabCounts = listOf("公开 0", "私密 4", "合集 0")
+    val tabCounts = when (selectedTab) {
+        1 -> listOf("公开 0", "专辑 21", "合集 0") // Collection tab shows album count
+        else -> listOf("公开 0", "私密 4", "合集 0")
+    }
     
     Row(modifier = Modifier.fillMaxWidth()) {
         tabs.forEachIndexed { index, tab ->
@@ -463,13 +479,38 @@ private fun CollectionsContent(collections: List<Collection>) {
     if (collections.isEmpty()) {
         EmptyContentPlaceholder()
     } else {
-        LazyColumn {
-            items(collections) { collection ->
+        Column {
+            // Statistics row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 Text(
-                    text = collection.folderName ?: "Unknown",
-                    color = Color.Black,
-                    modifier = Modifier.padding(8.dp)
+                    text = "笔记 213",
+                    color = Color.Gray,
+                    fontSize = 14.sp,
+                    modifier = Modifier.weight(1f)
                 )
+                Text(
+                    text = "专辑 21",
+                    color = Color.Gray,
+                    fontSize = 14.sp,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+            
+            // Grid of collected notes
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(16.dp)
+            ) {
+                items(collections) { collection ->
+                    CollectionNoteItem(collection = collection)
+                }
             }
         }
     }
@@ -571,5 +612,105 @@ private fun ShareSection() {
         ) {
             Text("去发布", color = Color.Black)
         }
+    }
+}
+
+@Composable
+private fun CollectionNoteItem(collection: Collection) {
+    val context = LocalContext.current
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    
+    // Load image from assets
+    LaunchedEffect(collection.note.coverImage) {
+        try {
+            val imagePath = collection.note.coverImage ?: collection.note.images.firstOrNull()
+            if (!imagePath.isNullOrEmpty()) {
+                val inputStream = context.assets.open(imagePath)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                imageBitmap = bitmap?.asImageBitmap()
+            }
+        } catch (e: Exception) {
+            // Image loading failed, will show fallback
+            imageBitmap = null
+        }
+    }
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Note image
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(if (imageBitmap == null) getCollectionImageColor(collection.folderName ?: "默认") else Color.Transparent),
+                contentAlignment = Alignment.Center
+            ) {
+                if (imageBitmap != null) {
+                    Image(
+                        bitmap = imageBitmap!!,
+                        contentDescription = "Note Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    // Fallback to emoji with color background
+                    Text(
+                        text = getCollectionEmoji(collection.folderName ?: "默认"),
+                        fontSize = 40.sp,
+                        color = Color.White
+                    )
+                }
+            }
+            
+            // Note title
+            Text(
+                text = collection.note.title,
+                color = Color.Black,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+    }
+}
+
+private fun getCollectionImageColor(folderName: String): Color {
+    return when (folderName) {
+        "科技" -> Color(0xFF2196F3) // Blue
+        "穿搭" -> Color(0xFFE91E63) // Pink
+        "美妆" -> Color(0xFFFF5722) // Deep Orange
+        "旅行" -> Color(0xFF4CAF50) // Green
+        "家居" -> Color(0xFF795548) // Brown
+        "健身" -> Color(0xFFFF9800) // Orange
+        "摄影" -> Color(0xFF9C27B0) // Purple
+        "阅读" -> Color(0xFF607D8B) // Blue Grey
+        "宠物" -> Color(0xFFFFEB3B) // Yellow
+        else -> Color(0xFF9E9E9E) // Grey
+    }
+}
+
+private fun getCollectionEmoji(folderName: String): String {
+    return when (folderName) {
+        "科技" -> "💻"
+        "穿搭" -> "👗"
+        "美妆" -> "💄"
+        "旅行" -> "🌍"
+        "家居" -> "🏠"
+        "健身" -> "💪"
+        "摄影" -> "📸"
+        "阅读" -> "📚"
+        "宠物" -> "🐱"
+        else -> "📝"
     }
 }

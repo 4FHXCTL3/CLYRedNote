@@ -28,7 +28,9 @@ import java.util.*
 import kotlin.math.absoluteValue
 
 @Composable
-fun MessagesTabScreen() {
+fun MessagesTabScreen(
+    onCommentAtClicked: () -> Unit = {}
+) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
     val presenter = remember { MessagesTabPresenter(dataLoader) }
@@ -84,7 +86,7 @@ fun MessagesTabScreen() {
         )
 
         // Function Icons Row
-        FunctionIconsRow()
+        FunctionIconsRow(onCommentAtClicked = onCommentAtClicked)
 
         // Conversations List
         if (isLoading) {
@@ -166,7 +168,9 @@ private fun TopHeader(
 }
 
 @Composable
-private fun FunctionIconsRow() {
+private fun FunctionIconsRow(
+    onCommentAtClicked: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -189,7 +193,7 @@ private fun FunctionIconsRow() {
             title = "评论和@",
             emoji = "💬",
             backgroundColor = Color(0xFF2E8B57)
-        ) { }
+        ) { onCommentAtClicked() }
     }
 }
 

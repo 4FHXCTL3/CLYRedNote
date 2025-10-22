@@ -31,6 +31,7 @@ import com.example.test05.utils.JsonDataLoader
 
 @Composable
 fun FanTabScreen(
+    initialTab: FanTabType = FanTabType.FANS,
     onBackClicked: () -> Unit = {},
     onUserClicked: (String) -> Unit = {},
     onNavigateToFollowing: () -> Unit = {}
@@ -39,7 +40,7 @@ fun FanTabScreen(
     val dataLoader = remember { JsonDataLoader(context) }
     val presenter = remember { FanTabPresenter(dataLoader) }
     
-    var selectedTab by remember { mutableStateOf(FanTabType.FANS) }
+    var selectedTab by remember { mutableStateOf(initialTab) }
     var fanUsers by remember { mutableStateOf<List<FanUser>>(emptyList()) }
     var fanCount by remember { mutableIntStateOf(0) }
     var isLoading by remember { mutableStateOf(false) }
@@ -87,6 +88,7 @@ fun FanTabScreen(
 
     LaunchedEffect(Unit) {
         presenter.attachView(view)
+        presenter.onTabSelected(initialTab)
     }
 
     DisposableEffect(Unit) {
@@ -100,12 +102,10 @@ fun FanTabScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Top Bar
-        TopBar(onBackClicked = onBackClicked)
-        
-        // Tab Bar
-        TabBar(
+        // Top Bar with Tabs in same row
+        TopBarWithTabs(
             selectedTab = selectedTab,
+            onBackClicked = onBackClicked,
             onTabSelected = { 
                 selectedTab = it
                 if (it == FanTabType.FOLLOWING) {
@@ -163,34 +163,9 @@ fun FanTabScreen(
 }
 
 @Composable
-private fun TopBar(onBackClicked: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(onClick = onBackClicked) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
-                tint = Color.Black
-            )
-        }
-        
-        Text(
-            text = "粉丝",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
-
-@Composable
-private fun TabBar(
+private fun TopBarWithTabs(
     selectedTab: FanTabType,
+    onBackClicked: () -> Unit,
     onTabSelected: (FanTabType) -> Unit
 ) {
     val tabs = listOf(
@@ -200,18 +175,36 @@ private fun TabBar(
         FanTabType.RECOMMENDED to "推荐"
     )
     
-    LazyRow(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(32.dp)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        items(tabs) { (tabType, title) ->
-            TabItem(
-                text = title,
-                isSelected = selectedTab == tabType,
-                onClick = { onTabSelected(tabType) }
+        IconButton(
+            onClick = onBackClicked,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = "Back",
+                tint = Color.Black
             )
+        }
+        
+        Spacer(modifier = Modifier.width(8.dp))
+        
+        LazyRow(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            items(tabs) { (tabType, title) ->
+                TabItem(
+                    text = title,
+                    isSelected = selectedTab == tabType,
+                    onClick = { onTabSelected(tabType) }
+                )
+            }
         }
     }
 }
@@ -313,9 +306,10 @@ private fun FanUserItem(
             Button(
                 onClick = { onFollowBackClicked(fanUser.user.id) },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFF5F5F5),
+                    containerColor = Color.White,
                     contentColor = Color.Gray
                 ),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f)),
                 shape = RoundedCornerShape(16.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                 modifier = Modifier.height(28.dp)
@@ -329,9 +323,10 @@ private fun FanUserItem(
             Button(
                 onClick = { onFollowBackClicked(fanUser.user.id) },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Red,
-                    contentColor = Color.White
+                    containerColor = Color.White,
+                    contentColor = Color.Red
                 ),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color.Red.copy(alpha = 0.3f)),
                 shape = RoundedCornerShape(16.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                 modifier = Modifier.height(28.dp)
