@@ -159,10 +159,7 @@ fun BloggerDetailScreen(
                         // Notes Grid
                         NotesGrid(
                             notes = notes,
-                            onNoteClicked = { noteId ->
-                                presenter.onNoteClicked(noteId)
-                                onNoteClicked(noteId)
-                            }
+                            onNoteClicked = onNoteClicked
                         )
                     }
                 }

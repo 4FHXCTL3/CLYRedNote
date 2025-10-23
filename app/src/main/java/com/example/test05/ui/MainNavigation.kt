@@ -31,6 +31,7 @@ import com.example.test05.ui.tabs.fan.FanTabType
 import com.example.test05.ui.tabs.commentat.CommentAtTabScreen
 import com.example.test05.ui.tabs.profileedit.ProfileEditScreen
 import com.example.test05.ui.tabs.searchdetail.SearchDetailScreen
+import com.example.test05.ui.tabs.postnext.PostNextScreen
 
 @Composable
 fun MainNavigation() {
@@ -47,20 +48,37 @@ fun MainNavigation() {
     var showProfileEdit by remember { mutableStateOf(false) }
     var showSearchDetail by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
+    var showPostNext by remember { mutableStateOf(false) }
+    var postNextData by remember { mutableStateOf<com.example.test05.ui.tabs.postnext.PostData?>(null) }
+    
+    // Navigation stack state to handle proper back navigation
+    var fromBloggerDetail by remember { mutableStateOf(false) }
+    var fromSearchDetail by remember { mutableStateOf(false) }
+    var fromSearchTab by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Content
         Box(modifier = Modifier.weight(1f)) {
-            if (showSearchDetail) {
+            if (showPostNext && postNextData != null) {
+                PostNextScreen(
+                    postData = postNextData!!,
+                    onBackClicked = {
+                        showPostNext = false
+                        postNextData = null
+                        selectedTab = 2
+                    }
+                )
+            } else if (showSearchDetail) {
                 SearchDetailScreen(
                     initialQuery = searchQuery,
                     onBackClicked = { 
                         showSearchDetail = false
                         searchQuery = ""
+                        fromSearchDetail = false
                     },
                     onNoteClicked = { noteId ->
                         currentNoteId = noteId
-                        showSearchDetail = false
+                        fromSearchDetail = true
                         showNoteDetail = true
                     }
                 )
@@ -82,10 +100,11 @@ fun MainNavigation() {
                     onBackClicked = { 
                         showBloggerDetail = false
                         currentBloggerId = null
+                        fromBloggerDetail = false
                     },
                     onNoteClicked = { noteId ->
                         currentNoteId = noteId
-                        showBloggerDetail = false
+                        fromBloggerDetail = true
                         showNoteDetail = true
                     }
                 )
@@ -118,10 +137,11 @@ fun MainNavigation() {
                 SearchTabScreen(
                     onBackClicked = { 
                         showSearch = false
+                        fromSearchTab = false
                     },
                     onNoteClicked = { noteId ->
                         currentNoteId = noteId
-                        showSearch = false
+                        fromSearchTab = true
                         showNoteDetail = true
                     },
                     onSearchPerformed = { query ->
@@ -142,6 +162,22 @@ fun MainNavigation() {
                     onBackClicked = { 
                         showNoteDetail = false
                         currentNoteId = null
+                        // Navigate back to the appropriate screen based on where we came from
+                        when {
+                            fromBloggerDetail -> {
+                                showBloggerDetail = true
+                                fromBloggerDetail = false
+                            }
+                            fromSearchDetail -> {
+                                showSearchDetail = true
+                                fromSearchDetail = false
+                            }
+                            fromSearchTab -> {
+                                showSearch = true
+                                fromSearchTab = false
+                            }
+                            // If from Home or other tabs, just close NoteDetail
+                        }
                     }
                 )
             } else {
@@ -160,7 +196,17 @@ fun MainNavigation() {
                             showCart = true
                         }
                     )
-                    2 -> PostTabScreen(onNavigateBack = { selectedTab = 0 })
+                    2 -> PostTabScreen(
+                        onNavigateBack = { selectedTab = 0 },
+                        onNavigateToPostNext = { title, content, images ->
+                            postNextData = com.example.test05.ui.tabs.postnext.PostData(
+                                title = title,
+                                content = content,
+                                images = images
+                            )
+                            showPostNext = true
+                        }
+                    )
                     3 -> MessagesTabScreen(
                         onCommentAtClicked = {
                             showCommentAt = true
@@ -183,7 +229,7 @@ fun MainNavigation() {
 
         // Bottom Navigation (隐藏在某些全屏页面中)
         if (!showSearchDetail && !showNoteDetail && !showCart && !showSearch && 
-            !showFollowing && !showBloggerDetail && !showFanTab && !showCommentAt && !showProfileEdit) {
+            !showFollowing && !showBloggerDetail && !showFanTab && !showCommentAt && !showProfileEdit && !showPostNext) {
             BottomNavigationBar(
                 selectedTab = selectedTab,
                 onTabSelected = { selectedTab = it }

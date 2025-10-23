@@ -9,11 +9,23 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class JsonDataLoader(private val context: Context) {
+    private var usersCache: List<User>? = null
+    
+    private fun getUsersCache(): List<User> {
+        if (usersCache == null) {
+            usersCache = loadUsersInternal()
+        }
+        return usersCache!!
+    }
     private val gson = GsonBuilder()
         .setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         .create()
 
     fun loadUsers(): List<User> {
+        return getUsersCache()
+    }
+    
+    private fun loadUsersInternal(): List<User> {
         return try {
             val jsonString = loadJsonFromAssets("data/users.json")
             val jsonArray = JsonParser.parseString(jsonString).asJsonArray
@@ -126,7 +138,7 @@ class JsonDataLoader(private val context: Context) {
     }
 
     private fun parseNote(json: JsonObject): Note {
-        val users = loadUsers() // Cache this to avoid repeated loading
+        val users = getUsersCache() // Use cached users to avoid recursive calls
         val author = users.find { it.id == json.get("authorId").asString } 
             ?: User(id = "unknown", username = "unknown", nickname = "Unknown")
             
@@ -252,7 +264,7 @@ class JsonDataLoader(private val context: Context) {
     }
 
     private fun parseComment(json: JsonObject): Comment {
-        val users = loadUsers() // Cache this to avoid repeated loading
+        val users = getUsersCache() // Use cached users to avoid recursive calls
         val author = users.find { it.id == json.get("authorId").asString } 
             ?: User(id = "unknown", username = "unknown", nickname = "Unknown")
             

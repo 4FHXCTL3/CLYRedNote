@@ -10,6 +10,7 @@ interface PostTabContract {
         fun showSuccess(message: String)
         fun navigateBack()
         fun showImagePicker()
+        fun navigateToPostNext(title: String, content: String, images: List<String>)
     }
 
     interface Presenter {

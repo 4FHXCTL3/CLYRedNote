@@ -32,9 +32,7 @@ class PostTabPresenter(
     }
     
     override fun onNextStepClicked() {
-        if (validateInput()) {
-            publishNote()
-        }
+        view?.navigateToPostNext(currentTitle, currentContent, currentImages)
     }
     
     override fun onTitleChanged(title: String) {

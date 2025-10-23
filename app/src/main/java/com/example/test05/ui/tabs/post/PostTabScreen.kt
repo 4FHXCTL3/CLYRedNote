@@ -29,7 +29,8 @@ import com.example.test05.utils.JsonDataLoader
 
 @Composable
 fun PostTabScreen(
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    onNavigateToPostNext: (String, String, List<String>) -> Unit = { _, _, _ -> }
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
@@ -75,6 +76,10 @@ fun PostTabScreen(
             // Mock image selection
             val mockImage = "image/scenery${(1..6).random()}.jpg"
             presenter.onImageSelected(mockImage)
+        }
+
+        override fun navigateToPostNext(title: String, content: String, images: List<String>) {
+            onNavigateToPostNext(title, content, images)
         }
     }
 
