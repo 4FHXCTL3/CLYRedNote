@@ -162,7 +162,10 @@ fun NoteDetailScreen(
                         // Note Content
                         Box(modifier = Modifier.padding(horizontal = 16.dp)) {
                             NoteContent(
+                                title = noteData.title,
                                 content = noteData.content,
+                                topics = noteData.topics,
+                                tags = noteData.tags,
                                 createdAt = noteData.createdAt,
                                 location = noteData.location?.name ?: "湖北"
                             )
@@ -193,12 +196,24 @@ fun NoteDetailScreen(
 
                     item {
                         // Comments Section Header
-                        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
-                                text = "评论 ${comments.size}",
+                                text = "共 ${comments.size} 条评论",
                                 color = Color.Black,
                                 fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = "More options",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                         
@@ -280,7 +295,7 @@ private fun TopBarWithAuthor(
                 .clip(CircleShape)
         )
         
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(12.dp))
         
         // Author Name
         Text(
@@ -291,20 +306,24 @@ private fun TopBarWithAuthor(
             modifier = Modifier.weight(1f)
         )
         
-        // Follow Button
-        Button(
+        // Follow Button - styled like reference
+        OutlinedButton(
             onClick = onFollowClicked,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isFollowing) Color.Gray else Color.Red
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = if (isFollowing) Color.Gray.copy(alpha = 0.1f) else Color.White,
+                contentColor = if (isFollowing) Color.Gray else Color.Red
             ),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.height(32.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
+            border = androidx.compose.foundation.BorderStroke(
+                1.dp, 
+                if (isFollowing) Color.Gray else Color.Red
+            ),
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.height(36.dp),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 4.dp)
         ) {
             Text(
                 text = if (isFollowing) "已关注" else "关注",
-                color = Color.White,
-                fontSize = 12.sp
+                fontSize = 14.sp
             )
         }
         
@@ -407,11 +426,27 @@ private fun NoteImage(
 
 @Composable
 private fun NoteContent(
+    title: String,
     content: String,
+    topics: List<String>,
+    tags: List<String>,
     createdAt: Date,
     location: String
 ) {
     Column {
+        // Note Title (if different from content)
+        if (title.isNotEmpty() && title != content) {
+            Text(
+                text = title,
+                color = Color.Black,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                lineHeight = 26.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+        
+        // Note Content
         Text(
             text = content,
             color = Color.Black,
@@ -421,22 +456,48 @@ private fun NoteContent(
         
         Spacer(modifier = Modifier.height(12.dp))
         
+        // Topic Tags
+        if (topics.isNotEmpty() || tags.isNotEmpty()) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(topics) { topic ->
+                    TopicTag(text = topic)
+                }
+                items(tags) { tag ->
+                    TopicTag(text = "#$tag")
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+        
+        // Time and Location Info
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(createdAt),
+                text = "今天 ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(createdAt)}",
                 color = Color.Gray,
                 fontSize = 12.sp
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
-                text = "IP属地：$location",
+                text = location,
                 color = Color.Gray,
                 fontSize = 12.sp
             )
         }
     }
+}
+
+@Composable
+private fun TopicTag(text: String) {
+    Text(
+        text = text,
+        color = Color(0xFF0066CC),
+        fontSize = 14.sp,
+        modifier = Modifier.clickable { /* Handle topic click */ }
+    )
 }
 
 @Composable
@@ -454,63 +515,68 @@ private fun ActionButtons(
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        ActionButton(
-            icon = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-            text = likeCount.toString(),
-            tint = if (isLiked) Color.Red else Color.Gray,
-            onClick = onLikeClicked
-        )
+        // Like Button
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { onLikeClicked() }
+        ) {
+            Icon(
+                imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                contentDescription = "Like",
+                tint = if (isLiked) Color.Red else Color.Gray,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = likeCount.toString(),
+                color = if (isLiked) Color.Red else Color.Gray,
+                fontSize = 14.sp
+            )
+        }
         
-        ActionButton(
-            icon = Icons.Default.Email,
-            text = commentCount.toString(),
-            tint = Color.Gray,
-            onClick = onCommentClicked
-        )
+        // Collect Button  
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { onCollectClicked() }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = "Collect",
+                tint = if (isCollected) Color(0xFFFFD700) else Color.Gray,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "收藏",
+                color = if (isCollected) Color(0xFFFFD700) else Color.Gray,
+                fontSize = 14.sp
+            )
+        }
         
-        ActionButton(
-            icon = Icons.Default.Star,
-            text = collectCount.toString(),
-            tint = if (isCollected) Color(0xFFFFD700) else Color.Gray,
-            onClick = onCollectClicked
-        )
-        
-        ActionButton(
-            icon = Icons.Default.Share,
-            text = shareCount.toString(),
-            tint = Color.Gray,
-            onClick = onShareClicked
-        )
+        // Comment Button
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { onCommentClicked() }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Email,
+                contentDescription = "Comment",
+                tint = Color.Gray,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = commentCount.toString(),
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+        }
     }
 }
 
-@Composable
-private fun ActionButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    text: String,
-    tint: Color,
-    onClick: () -> Unit
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { onClick() }
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = tint,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = text,
-            color = tint,
-            fontSize = 12.sp
-        )
-    }
-}
 
 @Composable
 private fun CommentItem(
@@ -614,42 +680,93 @@ private fun CommentInputBar(
     onCommentTextChanged: (String) -> Unit,
     onSendClicked: () -> Unit
 ) {
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color.White)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
     ) {
-        OutlinedTextField(
-            value = commentText,
-            onValueChange = onCommentTextChanged,
-            placeholder = { Text("说点什么...", color = Color.Gray, fontSize = 14.sp) },
-            modifier = Modifier.weight(1f),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Red,
-                unfocusedBorderColor = Color.Gray.copy(alpha = 0.3f)
-            ),
-            shape = RoundedCornerShape(20.dp),
-            maxLines = 3
-        )
-        
-        Spacer(modifier = Modifier.width(8.dp))
-        
-        Button(
-            onClick = onSendClicked,
-            enabled = commentText.isNotBlank(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Red,
-                disabledContainerColor = Color.Gray
-            ),
-            shape = RoundedCornerShape(20.dp)
+        // Bottom action bar from screenshot
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "发送",
-                color = Color.White,
-                fontSize = 14.sp
+            // Comment input field
+            OutlinedTextField(
+                value = commentText,
+                onValueChange = onCommentTextChanged,
+                placeholder = { Text("说点什么...", color = Color.Gray, fontSize = 14.sp) },
+                modifier = Modifier.weight(1f),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.Transparent,
+                    unfocusedBorderColor = Color.Transparent
+                ),
+                shape = RoundedCornerShape(20.dp),
+                maxLines = 1,
+                singleLine = true
             )
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            // Like button with count (from screenshot)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Like",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "40",
+                    color = Color.Gray,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            // Collect button (from screenshot)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Collect",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "收藏",
+                    color = Color.Gray,
+                    fontSize = 16.sp
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            // Comment button with count (from screenshot)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = "Comment",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "16",
+                    color = Color.Gray,
+                    fontSize = 16.sp
+                )
+            }
         }
     }
 }

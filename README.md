@@ -82,13 +82,13 @@
    - 底部分享区域
 
 6. **NoteDetail页面** (笔记详情页)
-   - 顶部导航栏：左侧返回按钮，右侧更多选项菜单
-   - 作者信息区：头像、昵称、简介、关注按钮、分享按钮
-   - 笔记内容展示：多图片横向滑动查看，文本内容，发布时间和IP属地
-   - 互动按钮区：点赞、评论、收藏、分享功能，显示对应数量
-   - 评论区域：评论列表，支持点赞评论和回复
-   - 评论输入框：底部固定评论输入和发送功能
-   - 实时数据更新：点赞、收藏、关注状态实时更新
+   - 顶部导航栏：返回按钮、作者头像和昵称、关注按钮（描边样式）、分享按钮
+   - 笔记内容展示：多图片横向滑动查看，页面指示器，支持封面图片展示
+   - 内容区域：笔记标题（如有）、正文内容、话题标签（蓝色可点击）、发布时间和地点信息
+   - 互动按钮区：点赞（数量显示）、收藏（文字标签）、评论（数量显示）横向排列
+   - 评论区域：评论总数显示"共X条评论"，评论列表支持点赞和回复
+   - 底部操作栏：评论输入框、点赞按钮（含数量）、收藏按钮、评论按钮（含数量）
+   - 界面优化：匹配参考截图布局，简洁明了的信息层次
 
 7. **Cart页面** (购物车)
    - 顶部导航栏：返回按钮、购物车/心愿单切换标签、搜索和管理按钮
@@ -108,6 +108,7 @@
    - 实时搜索：输入时即时显示搜索结果，支持标题、内容、标签匹配
    - 搜索结果：瀑布流展示搜索到的笔记，支持点击查看详情
    - 简洁设计：去除多余装饰，突出内容可读性
+   - 搜索导航：点击搜索按钮进入SearchDetail详细搜索页面
 
 9. **FollowingTab页面** (关注管理)
    - 顶部标签栏：互相关注、关注、粉丝、推荐四个选项卡
@@ -172,18 +173,29 @@
    - 统一交互设计：每个编辑项右侧都有箭头图标，支持点击进入详细编辑
    - 导航入口：从"我"页面点击"编辑资料"按钮进入
 
-15. **主导航**
+15. **SearchDetail页面** (搜索详情页)
+   - 顶部搜索栏：返回按钮、搜索输入框(默认显示查询词)、搜索按钮
+   - 分类标签栏：全部、用户、商品、群聊、问一问五个分类选项卡
+   - 筛选标签栏：综合、可购买、最新、实穿主义、微胖mm五个筛选选项
+   - 搜索结果展示：双列网格布局展示匹配的笔记内容，全屏显示无底部导航栏干扰
+   - 笔记卡片：图片、标题、作者、点赞数等信息
+   - 智能搜索：支持标题、内容、作者、标签多维度匹配
+   - 分类筛选：根据选择的分类和筛选条件过滤结果
+   - 丰富内容：新增8个秋冬穿搭主题笔记，包含毛衣叠穿、外套选购、显瘦搭配、配色指南、微胖mm专题、鞋子搭配、实穿主义、围巾系法等
+   - 导航入口：从SearchTab页面点击搜索按钮进入
+
+16. **主导航**
    - 底部导航栏：首页、市集、发布(+)、消息、我
    - 当前所有五个Tab均已完全实现：HomeTab、MarketTab、PostTab、MessagesTab、MeTab
-   - 页面导航：支持从HomeTab导航到NoteDetail详情页和SearchTab搜索页面，从MarketTab导航到Cart购物车页面，从MeTab导航到FollowingTab关注管理页面、FanTab粉丝页面和ProfileEdit编辑资料页面，从FollowingTab导航到BloggerDetail博主详情页面，从FanTab导航到FollowingTab关注管理页面，从MessagesTab导航到CommentAtTab评论页面，在MeTab内通过标签切换访问Collection收藏功能
+   - 页面导航：支持从HomeTab导航到NoteDetail详情页和SearchTab搜索页面，从SearchTab导航到SearchDetail搜索详情页面，从MarketTab导航到Cart购物车页面，从MeTab导航到FollowingTab关注管理页面、FanTab粉丝页面和ProfileEdit编辑资料页面，从FollowingTab导航到BloggerDetail博主详情页面，从FanTab导航到FollowingTab关注管理页面，从MessagesTab导航到CommentAtTab评论页面，在MeTab内通过标签切换访问Collection收藏功能
    - 默认启动显示首页
 
 #### 技术架构
 
 - **MVP 架构模式**
-  - View: HomeTabScreen.kt, MarketTabScreen.kt, PostTabScreen.kt, MessagesTabScreen.kt, MeTabScreen.kt, NoteDetailScreen.kt, CartScreen.kt, SearchTabScreen.kt, FollowingTabScreen.kt, BloggerDetailScreen.kt, FanTabScreen.kt, CommentAtTabScreen.kt, ProfileEditScreen.kt (UI层)
-  - Presenter: HomeTabPresenter.kt, MarketTabPresenter.kt, PostTabPresenter.kt, MessagesTabPresenter.kt, MeTabPresenter.kt, NoteDetailPresenter.kt, CartPresenter.kt, SearchTabPresenter.kt, FollowingTabPresenter.kt, BloggerDetailPresenter.kt, FanTabPresenter.kt, CommentAtTabPresenter.kt, ProfileEditPresenter.kt (业务逻辑层)
-  - Contract: HomeTabContract.kt, MarketTabContract.kt, PostTabContract.kt, MessagesTabContract.kt, MeTabContract.kt, NoteDetailContract.kt, CartContract.kt, SearchTabContract.kt, FollowingTabContract.kt, BloggerDetailContract.kt, FanTabContract.kt, CommentAtTabContract.kt, ProfileEditContract.kt (接口定义)
+  - View: HomeTabScreen.kt, MarketTabScreen.kt, PostTabScreen.kt, MessagesTabScreen.kt, MeTabScreen.kt, NoteDetailScreen.kt, CartScreen.kt, SearchTabScreen.kt, SearchDetailScreen.kt, FollowingTabScreen.kt, BloggerDetailScreen.kt, FanTabScreen.kt, CommentAtTabScreen.kt, ProfileEditScreen.kt (UI层)
+  - Presenter: HomeTabPresenter.kt, MarketTabPresenter.kt, PostTabPresenter.kt, MessagesTabPresenter.kt, MeTabPresenter.kt, NoteDetailPresenter.kt, CartPresenter.kt, SearchTabPresenter.kt, SearchDetailPresenter.kt, FollowingTabPresenter.kt, BloggerDetailPresenter.kt, FanTabPresenter.kt, CommentAtTabPresenter.kt, ProfileEditPresenter.kt (业务逻辑层)
+  - Contract: HomeTabContract.kt, MarketTabContract.kt, PostTabContract.kt, MessagesTabContract.kt, MeTabContract.kt, NoteDetailContract.kt, CartContract.kt, SearchTabContract.kt, SearchDetailContract.kt, FollowingTabContract.kt, BloggerDetailContract.kt, FanTabContract.kt, CommentAtTabContract.kt, ProfileEditContract.kt (接口定义)
 
 - **数据加载**
   - JsonDataLoader.kt: 加载 assets 中的 JSON 数据
@@ -210,18 +222,22 @@
 - NoteDetail详情页功能完整实现
 - Cart购物车页面功能完整实现
 - SearchTab搜索页面功能完整实现
+- SearchDetail搜索详情页面功能完整实现
 - FollowingTab关注管理页面功能完整实现
 - BloggerDetail博主详情页功能完整实现
 - 修复了数据类型匹配和图标引用问题
 - 完整的页面导航系统，支持多层级页面跳转
 - BloggerDetail页面布局优化：统计数据与按钮同行，大框按钮样式，笔记标题与搜索同行
 - 新增6个笔记内容：家居装修、健身日记、学习方法、摄影技巧、书单推荐、宠物日常
+- 新增8个秋冬穿搭主题笔记：毛衣叠穿指南、外套选购攻略、显瘦搭配公式、配色指南、微胖mm专题、鞋子搭配、实穿主义、围巾系法
 - FanTab页面界面优化：返回按钮与标签同行，回关按钮白色背景，支持标签切换
 - FollowingTab页面布局优化：去掉"关注管理"标题，返回按钮与标签同行
 - NoteDetail界面优化：收藏图标改为星星，收藏时显示金黄色
 - CommentAtTab页面完整实现：评论通知列表，支持点赞回复，显示原笔记预览
 - Collection收藏页面完整实现：基于MeTab收藏标签，网格布局展示收藏笔记，统计数据显示
 - ProfileEdit编辑资料页面完整实现：完整的个人信息编辑界面，支持头像、基本信息、个人资料编辑
+- SearchDetail搜索详情页面界面优化：移除活动推荐区域，隐藏底部导航栏，简化界面设计，专注搜索结果展示
+- NoteDetail页面界面优化：更新顶部作者区域布局，添加笔记标题和话题标签显示，优化互动按钮布局，改进评论区域和底部操作栏设计
 
 ## 待开发功能
 

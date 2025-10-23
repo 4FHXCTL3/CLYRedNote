@@ -30,6 +30,7 @@ import com.example.test05.ui.tabs.fan.FanTabScreen
 import com.example.test05.ui.tabs.fan.FanTabType
 import com.example.test05.ui.tabs.commentat.CommentAtTabScreen
 import com.example.test05.ui.tabs.profileedit.ProfileEditScreen
+import com.example.test05.ui.tabs.searchdetail.SearchDetailScreen
 
 @Composable
 fun MainNavigation() {
@@ -44,11 +45,26 @@ fun MainNavigation() {
     var showFanTab by remember { mutableStateOf(false) }
     var showCommentAt by remember { mutableStateOf(false) }
     var showProfileEdit by remember { mutableStateOf(false) }
+    var showSearchDetail by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Content
         Box(modifier = Modifier.weight(1f)) {
-            if (showProfileEdit) {
+            if (showSearchDetail) {
+                SearchDetailScreen(
+                    initialQuery = searchQuery,
+                    onBackClicked = { 
+                        showSearchDetail = false
+                        searchQuery = ""
+                    },
+                    onNoteClicked = { noteId ->
+                        currentNoteId = noteId
+                        showSearchDetail = false
+                        showNoteDetail = true
+                    }
+                )
+            } else if (showProfileEdit) {
                 ProfileEditScreen(
                     onBackPressed = { 
                         showProfileEdit = false
@@ -107,6 +123,11 @@ fun MainNavigation() {
                         currentNoteId = noteId
                         showSearch = false
                         showNoteDetail = true
+                    },
+                    onSearchPerformed = { query ->
+                        searchQuery = query
+                        showSearch = false
+                        showSearchDetail = true
                     }
                 )
             } else if (showCart) {
@@ -160,11 +181,14 @@ fun MainNavigation() {
             }
         }
 
-        // Bottom Navigation
-        BottomNavigationBar(
-            selectedTab = selectedTab,
-            onTabSelected = { selectedTab = it }
-        )
+        // Bottom Navigation (隐藏在某些全屏页面中)
+        if (!showSearchDetail && !showNoteDetail && !showCart && !showSearch && 
+            !showFollowing && !showBloggerDetail && !showFanTab && !showCommentAt && !showProfileEdit) {
+            BottomNavigationBar(
+                selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it }
+            )
+        }
     }
 }
 

@@ -1,10 +1,9 @@
-package com.example.test05.ui.tabs.search
+package com.example.test05.ui.tabs.searchdetail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -32,44 +31,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.graphics.BitmapFactory
 import com.example.CLYRedNote.model.Note
-import com.example.test05.presenter.SearchTabPresenter
+import com.example.test05.presenter.SearchDetailPresenter
 import com.example.test05.utils.JsonDataLoader
 
 @Composable
-fun SearchTabScreen(
+fun SearchDetailScreen(
+    initialQuery: String = "",
     onBackClicked: () -> Unit = {},
-    onNoteClicked: (String) -> Unit = {},
-    onSearchPerformed: (String) -> Unit = {}
+    onNoteClicked: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
-    val presenter = remember { SearchTabPresenter(dataLoader) }
+    val presenter = remember { SearchDetailPresenter(dataLoader) }
     
-    var searchText by remember { mutableStateOf("") }
-    var searchHistory by remember { mutableStateOf<List<String>>(emptyList()) }
-    var recommendedSearches by remember { mutableStateOf<List<String>>(emptyList()) }
-    var hotTopics by remember { mutableStateOf<List<HotTopic>>(emptyList()) }
+    var searchText by remember { mutableStateOf(initialQuery) }
+    var selectedCategory by remember { mutableStateOf(SearchCategory.ALL.displayName) }
+    var selectedFilter by remember { mutableStateOf(SearchFilter.COMPREHENSIVE.displayName) }
     var searchResults by remember { mutableStateOf<List<Note>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    var showSearchResults by remember { mutableStateOf(false) }
 
-    val view = object : SearchTabContract.View {
-        override fun showSearchHistory(history: List<String>) {
-            searchHistory = history
-        }
-
-        override fun showRecommendedSearches(recommendations: List<String>) {
-            recommendedSearches = recommendations
-        }
-
-        override fun showHotTopics(topics: List<HotTopic>) {
-            hotTopics = topics
-        }
-
+    val view = object : SearchDetailContract.View {
         override fun showSearchResults(notes: List<Note>) {
             searchResults = notes
-            showSearchResults = notes.isNotEmpty()
         }
 
         override fun showLoading(loading: Boolean) {
@@ -84,14 +68,20 @@ fun SearchTabScreen(
             searchText = text
         }
 
-        override fun clearSearchResults() {
-            searchResults = emptyList()
-            showSearchResults = false
+        override fun updateSelectedCategory(category: String) {
+            selectedCategory = category
+        }
+
+        override fun updateSelectedFilter(filter: String) {
+            selectedFilter = filter
         }
     }
 
     LaunchedEffect(Unit) {
         presenter.attachView(view)
+        if (initialQuery.isNotEmpty()) {
+            presenter.loadSearchResults(initialQuery)
+        }
     }
 
     DisposableEffect(Unit) {
@@ -106,21 +96,32 @@ fun SearchTabScreen(
             .background(Color.White)
     ) {
         // Search Bar
-        SearchBar(
+        SearchDetailBar(
             searchText = searchText,
             onSearchTextChange = { 
                 searchText = it
                 presenter.onSearchTextChanged(it)
             },
-            onSearchClicked = { 
-                presenter.onSearchClicked(searchText)
-                if (searchText.isNotEmpty()) {
-                    onSearchPerformed(searchText)
-                }
-            },
+            onSearchClicked = { presenter.onSearchClicked(searchText) },
             onBackClicked = onBackClicked
         )
 
+        // Category Tabs (全部、用户、商品、群聊、问一问)
+        CategoryTabRow(
+            categories = SearchCategory.values().map { it.displayName },
+            selectedCategory = selectedCategory,
+            onCategorySelected = { presenter.onCategorySelected(it) }
+        )
+
+        // Filter Tabs (综合、可购买、最新、实穿主义、微胖mm)
+        FilterTabRow(
+            filters = SearchFilter.values().map { it.displayName },
+            selectedFilter = selectedFilter,
+            onFilterSelected = { presenter.onFilterSelected(it) }
+        )
+
+
+        // Search Results
         if (isLoading) {
             Box(
                 modifier = Modifier
@@ -130,10 +131,7 @@ fun SearchTabScreen(
             ) {
                 CircularProgressIndicator(color = Color.Red)
             }
-        }
-
-        if (showSearchResults) {
-            // Search Results
+        } else {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier
@@ -147,39 +145,6 @@ fun SearchTabScreen(
                     SearchResultCard(
                         note = note,
                         onClick = { onNoteClicked(note.id) }
-                    )
-                }
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                // Search History Section
-                if (searchHistory.isNotEmpty()) {
-                    item {
-                        SearchHistorySection(
-                            history = searchHistory,
-                            onHistoryClicked = { presenter.onHistoryItemClicked(it) },
-                            onClearClicked = { presenter.clearHistory() }
-                        )
-                    }
-                }
-
-                // Recommended Searches Section
-                item {
-                    RecommendedSearchesSection(
-                        recommendations = recommendedSearches,
-                        onRecommendationClicked = { presenter.onRecommendationClicked(it) }
-                    )
-                }
-
-                // Hot Topics Section
-                item {
-                    HotTopicsSection(
-                        hotTopics = hotTopics,
-                        onTopicClicked = { presenter.onHotTopicClicked(it) }
                     )
                 }
             }
@@ -197,7 +162,7 @@ fun SearchTabScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchBar(
+private fun SearchDetailBar(
     searchText: String,
     onSearchTextChange: (String) -> Unit,
     onSearchClicked: () -> Unit,
@@ -224,7 +189,7 @@ private fun SearchBar(
             onValueChange = onSearchTextChange,
             placeholder = { 
                 Text(
-                    "搜索笔记、用户",
+                    "秋冬穿搭",
                     color = Color.Gray,
                     fontSize = 14.sp
                 ) 
@@ -288,191 +253,99 @@ private fun SearchBar(
 }
 
 @Composable
-private fun SearchHistorySection(
-    history: List<String>,
-    onHistoryClicked: (String) -> Unit,
-    onClearClicked: () -> Unit
+private fun CategoryTabRow(
+    categories: List<String>,
+    selectedCategory: String,
+    onCategorySelected: (String) -> Unit
 ) {
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "搜索历史",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        items(categories) { category ->
+            CategoryTab(
+                text = category,
+                isSelected = category == selectedCategory,
+                onClick = { onCategorySelected(category) }
             )
-            TextButton(onClick = onClearClicked) {
-                Text(
-                    text = "清空",
-                    fontSize = 14.sp,
-                    color = Color.Gray
-                )
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(12.dp))
-        
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(history) { item ->
-                HistoryChip(
-                    text = item,
-                    onClick = { onHistoryClicked(item) }
-                )
-            }
         }
     }
 }
 
 @Composable
-private fun HistoryChip(
+private fun CategoryTab(
     text: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable { onClick() }
+    ) {
+        Text(
+            text = text,
+            fontSize = 16.sp,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+            color = if (isSelected) Color.Black else Color.Gray,
+            modifier = Modifier.padding(vertical = 12.dp)
+        )
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .width(20.dp)
+                    .height(3.dp)
+                    .background(Color.Red, RoundedCornerShape(1.5.dp))
+            )
+        } else {
+            Spacer(modifier = Modifier.height(3.dp))
+        }
+    }
+}
+
+@Composable
+private fun FilterTabRow(
+    filters: List<String>,
+    selectedFilter: String,
+    onFilterSelected: (String) -> Unit
+) {
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(filters) { filter ->
+            FilterChip(
+                text = filter,
+                isSelected = filter == selectedFilter,
+                onClick = { onFilterSelected(filter) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilterChip(
+    text: String,
+    isSelected: Boolean,
     onClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
-        color = Color(0xFFF5F5F5)
+        color = if (isSelected) Color.Red else Color(0xFFF5F5F5)
     ) {
         Text(
             text = text,
             fontSize = 14.sp,
-            color = Color.Black,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+            color = if (isSelected) Color.White else Color.Black,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }
 }
 
-@Composable
-private fun RecommendedSearchesSection(
-    recommendations: List<String>,
-    onRecommendationClicked: (String) -> Unit
-) {
-    Column {
-        Text(
-            text = "猜你想搜",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color.Black
-        )
-        
-        Spacer(modifier = Modifier.height(12.dp))
-        
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(recommendations) { item ->
-                RecommendationChip(
-                    text = item,
-                    onClick = { onRecommendationClicked(item) }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun RecommendationChip(
-    text: String,
-    onClick: () -> Unit
-) {
-    Text(
-        text = text,
-        fontSize = 14.sp,
-        color = Color.Red,
-        modifier = Modifier
-            .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 8.dp)
-    )
-}
-
-@Composable
-private fun HotTopicsSection(
-    hotTopics: List<HotTopic>,
-    onTopicClicked: (HotTopic) -> Unit
-) {
-    Column {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "小红书热点",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "🔥",
-                fontSize = 18.sp
-            )
-        }
-        
-        Spacer(modifier = Modifier.height(12.dp))
-        
-        hotTopics.forEachIndexed { index, topic ->
-            HotTopicItem(
-                topic = topic,
-                rank = index + 1,
-                onClick = { onTopicClicked(topic) }
-            )
-            if (index < hotTopics.size - 1) {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun HotTopicItem(
-    topic: HotTopic,
-    rank: Int,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Rank number
-        Text(
-            text = rank.toString(),
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (rank <= 3) Color.Red else Color.Gray,
-            modifier = Modifier.width(24.dp)
-        )
-        
-        Spacer(modifier = Modifier.width(12.dp))
-        
-        // Title
-        Text(
-            text = topic.title,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal,
-            color = Color.Black,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f)
-        )
-        
-        Spacer(modifier = Modifier.width(8.dp))
-        
-        // View count
-        Text(
-            text = "${formatCount(topic.viewCount)}",
-            fontSize = 12.sp,
-            color = Color.Gray
-        )
-    }
-}
 
 @Composable
 private fun SearchResultCard(
@@ -482,7 +355,7 @@ private fun SearchResultCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
+            .height(220.dp)
             .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -495,7 +368,7 @@ private fun SearchResultCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp)
+                    .height(140.dp)
                     .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
             ) {
                 val context = LocalContext.current

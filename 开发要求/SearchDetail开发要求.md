@@ -27,23 +27,44 @@
 ```json
 {
 "MainActivity":[
-"HomeTab",//finished
-"MarketTab"，//finished
-"PostTab"，
-"MessagesTab",//NowTODo!!
-"MeTab"//finished
+	"HomeTab",//finished
+	"MarketTab"，//finished
+	"PostTab"，//finished
+	"MessagesTab",//finished
+	"MeTab"//finished
 ],
-"HomeTab":[
-"NoteDetail",//NowTODo!!
-]
+    
+    "HomeTab":[
+        "NoteDetail",//finished
+        "SearchTab"//finished
+    ],
+    "Market":[
+        "Cart"//finished
+    ],
+    "MeTab":[
+        "FolllowingTab",//finished
+        "FanTab",//finished
+        "Collection",//finished
+        "ProfileEdit"//finished
+    ],
+    "MessagesTab":[
+        "CommentAtTab"//finished
+    ],
+    	"FolllowingTab":[
+            "BloggerDetail"//finished
+        ],
+    	"SearchTab":[
+            "SearchDetail"//NowToDo!!
+        ]
 }
 ```
 
 ## 可参考的截图
-UIReference/NoteDetail.jpg
+UIReference/SearchDetail.jpg
 
 
 ## 你当前的任务
-设计NoteDetail页面，该页面的要素包括:
-1. 页面上方是发布者的头像、名称，右侧有“关注”按钮和分享按钮；接着是笔记的图片区域（这个不用更改）；再往下是笔记的文字内容，包含标题、正文、话题标签以及发布时间和地点；然后是评论区域，显示评论总数，下面有评论输入框和已有的评论内容；最底部是互动区域，有评论输入框、点赞按钮、收藏按钮和评论数按钮。请设计超过一面的信息内容，可以下滑查看。
-4. 尽可能与参考截图一致
+设计SearchDetail页面，该页面的要素包括:
+1. 页面上方是搜索栏，包含搜索框和“搜索”按钮；接着是“全部”“用户”“商品”“群聊”“问一问”的标签栏；再往下是“综合”“可购买”“最新”“实穿主义”“微胖mm”的分类标签；然后是一个活动推荐区域”都市丽人走都市丽人风“可以不用开发；下面是笔记内容展示区域，以多列布局呈现多条笔记，每条笔记包含图片、标题、发布者、点赞数和发布时间等信息，笔记列表和首页相同。
+2. 该界面的进入位置是“首页->放大镜按钮->搜索框输入秋冬穿搭->点击搜索“，同时
+3. 尽可能与参考截图一致

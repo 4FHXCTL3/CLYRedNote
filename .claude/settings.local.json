@@ -6,7 +6,8 @@
       "Bash(\".\\gradlew.bat\" build)",
       "Bash(.\\gradlew.bat assembleDebug:*)",
       "Bash(gradlew.bat build:*)",
-      "Bash(.\\gradlew.bat build:*)"
+      "Bash(.\\gradlew.bat build:*)",
+      "Bash(.gradlew build)"
     ],
     "deny": []
   }
