@@ -41,6 +41,7 @@ fun CommentAtTabScreen(
     var commentNotifications by remember { mutableStateOf<List<CommentNotification>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var replyTexts by remember { mutableStateOf<Map<String, String>>(emptyMap()) }
 
     val view = object : CommentAtTabContract.View {
         override fun showCommentNotifications(notifications: List<CommentNotification>) {
@@ -62,7 +63,8 @@ fun CommentAtTabScreen(
                         comment = notification.comment.copy(
                             isLiked = isLiked,
                             likeCount = likeCount
-                        )
+                        ),
+                        isLiked = isLiked
                     )
                 } else {
                     notification
@@ -71,7 +73,32 @@ fun CommentAtTabScreen(
         }
 
         override fun showReplySuccess() {
-            // Show success message if needed
+            // Clear the reply text after successful reply
+        }
+        
+        override fun updateReplyVisibility(commentId: String, showInput: Boolean) {
+            commentNotifications = commentNotifications.map { notification ->
+                if (notification.comment.id == commentId) {
+                    notification.copy(showReplyInput = showInput)
+                } else {
+                    notification
+                }
+            }
+        }
+        
+        override fun addReplyToComment(commentId: String, replyText: String) {
+            commentNotifications = commentNotifications.map { notification ->
+                if (notification.comment.id == commentId) {
+                    notification.copy(
+                        replies = notification.replies + replyText,
+                        showReplyInput = false
+                    )
+                } else {
+                    notification
+                }
+            }
+            // Clear the reply text
+            replyTexts = replyTexts - commentId
         }
     }
 
@@ -109,8 +136,17 @@ fun CommentAtTabScreen(
                 items(commentNotifications) { notification ->
                     CommentNotificationItem(
                         notification = notification,
+                        replyText = replyTexts[notification.comment.id] ?: "",
+                        onReplyTextChanged = { text ->
+                            replyTexts = replyTexts + (notification.comment.id to text)
+                        },
                         onLikeClicked = { presenter.onCommentLikeClicked(notification.comment.id) },
-                        onReplyClicked = { /* Handle reply navigation */ }
+                        onReplyClicked = { presenter.onReplyClicked(notification.comment.id) },
+                        onReplySubmitted = { replyText ->
+                            if (replyText.isNotBlank()) {
+                                presenter.onReplySubmitted(notification.comment.id, replyText)
+                            }
+                        }
                     )
                 }
                 
@@ -189,8 +225,11 @@ private fun TopBar(
 @Composable
 private fun CommentNotificationItem(
     notification: CommentNotification,
+    replyText: String,
+    onReplyTextChanged: (String) -> Unit,
     onLikeClicked: () -> Unit,
-    onReplyClicked: () -> Unit
+    onReplyClicked: () -> Unit,
+    onReplySubmitted: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -299,15 +338,15 @@ private fun CommentNotificationItem(
                         modifier = Modifier.clickable { onLikeClicked() }
                     ) {
                         Icon(
-                            imageVector = if (notification.comment.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            imageVector = if (notification.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = "Like",
-                            tint = if (notification.comment.isLiked) Color.Red else Color.Gray,
+                            tint = if (notification.isLiked) Color.Red else Color.Gray,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = "赞",
-                            color = if (notification.comment.isLiked) Color.Red else Color.Gray,
+                            color = if (notification.isLiked) Color.Red else Color.Gray,
                             fontSize = 14.sp
                         )
                     }
@@ -329,6 +368,63 @@ private fun CommentNotificationItem(
                             color = Color.Gray,
                             fontSize = 14.sp
                         )
+                    }
+                }
+                
+                // Reply input (if visible)
+                if (notification.showReplyInput) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = replyText,
+                            onValueChange = onReplyTextChanged,
+                            placeholder = { Text("回复评论...", color = Color.Gray, fontSize = 14.sp) },
+                            modifier = Modifier.weight(1f),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color.Gray,
+                                unfocusedBorderColor = Color.Gray
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            maxLines = 3
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
+                            onClick = { onReplySubmitted(replyText) },
+                            enabled = replyText.isNotBlank(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Red,
+                                contentColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("发送", fontSize = 14.sp)
+                        }
+                    }
+                }
+                
+                // Display replies
+                if (notification.replies.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    notification.replies.forEach { reply ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.Gray.copy(alpha = 0.1f)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                text = "你回复：$reply",
+                                color = Color.Black,
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(12.dp)
+                            )
+                        }
                     }
                 }
             }

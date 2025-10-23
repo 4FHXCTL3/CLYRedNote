@@ -6,7 +6,9 @@ import com.example.CLYRedNote.model.Note
 data class CommentNotification(
     val comment: Comment,
     val originalNote: Note,
-    val isLiked: Boolean = false
+    val isLiked: Boolean = false,
+    val replies: List<String> = emptyList(),
+    val showReplyInput: Boolean = false
 )
 
 interface CommentAtTabContract {
@@ -16,6 +18,8 @@ interface CommentAtTabContract {
         fun showError(message: String)
         fun updateCommentLikeStatus(commentId: String, isLiked: Boolean, likeCount: Int)
         fun showReplySuccess()
+        fun updateReplyVisibility(commentId: String, showInput: Boolean)
+        fun addReplyToComment(commentId: String, replyText: String)
     }
 
     interface Presenter {
@@ -23,7 +27,8 @@ interface CommentAtTabContract {
         fun detachView()
         fun loadCommentNotifications()
         fun onCommentLikeClicked(commentId: String)
-        fun onReplyClicked(commentId: String, replyText: String)
+        fun onReplyClicked(commentId: String)
+        fun onReplySubmitted(commentId: String, replyText: String)
         fun refreshCommentNotifications()
     }
 }

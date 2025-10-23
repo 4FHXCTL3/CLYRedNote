@@ -18,6 +18,8 @@ class CommentAtTabPresenter(
     
     private var view: CommentAtTabContract.View? = null
     private val scope = CoroutineScope(Dispatchers.Main)
+    private val likedComments = mutableSetOf<String>()
+    private val commentReplies = mutableMapOf<String, MutableList<String>>()
     
     override fun attachView(view: CommentAtTabContract.View) {
         this.view = view
@@ -48,20 +50,42 @@ class CommentAtTabPresenter(
     override fun onCommentLikeClicked(commentId: String) {
         scope.launch {
             try {
-                // Simulate like/unlike toggle
-                // In real app, this would update the backend
-                view?.updateCommentLikeStatus(commentId, true, 1)
+                // Toggle like status
+                val isCurrentlyLiked = likedComments.contains(commentId)
+                val newLikeStatus = !isCurrentlyLiked
+                val newLikeCount = if (newLikeStatus) 1 else 0
+                
+                if (newLikeStatus) {
+                    likedComments.add(commentId)
+                } else {
+                    likedComments.remove(commentId)
+                }
+                
+                view?.updateCommentLikeStatus(commentId, newLikeStatus, newLikeCount)
             } catch (e: Exception) {
                 view?.showError("点赞失败: ${e.message}")
             }
         }
     }
     
-    override fun onReplyClicked(commentId: String, replyText: String) {
+    override fun onReplyClicked(commentId: String) {
         scope.launch {
             try {
-                // Simulate reply
-                // In real app, this would send the reply to backend
+                // Toggle reply input visibility
+                view?.updateReplyVisibility(commentId, true)
+            } catch (e: Exception) {
+                view?.showError("显示回复框失败: ${e.message}")
+            }
+        }
+    }
+    
+    override fun onReplySubmitted(commentId: String, replyText: String) {
+        scope.launch {
+            try {
+                // Add reply to the comment
+                commentReplies.getOrPut(commentId) { mutableListOf() }.add(replyText)
+                view?.addReplyToComment(commentId, replyText)
+                view?.updateReplyVisibility(commentId, false)
                 view?.showReplySuccess()
             } catch (e: Exception) {
                 view?.showError("回复失败: ${e.message}")
@@ -95,9 +119,11 @@ class CommentAtTabPresenter(
             val author = userMap[comment.author.id]
             if (note != null && author != null) {
                 CommentNotification(
-                    comment = comment.copy(author = author),
+                    comment = comment.copy(author = author, isLiked = likedComments.contains(comment.id)),
                     originalNote = note,
-                    isLiked = false
+                    isLiked = likedComments.contains(comment.id),
+                    replies = commentReplies[comment.id] ?: emptyList(),
+                    showReplyInput = false
                 )
             } else null
         }.sortedByDescending { it.comment.createdAt }
