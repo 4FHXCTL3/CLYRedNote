@@ -175,22 +175,6 @@ fun NoteDetailScreen(
                     }
 
                     item {
-                        // Action Buttons
-                        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                            ActionButtons(
-                                isLiked = isLiked,
-                                isCollected = isCollected,
-                                likeCount = likeCount,
-                                collectCount = collectCount,
-                                commentCount = noteData.commentCount,
-                                shareCount = noteData.shareCount,
-                                onLikeClicked = { presenter.onLikeClicked(noteData.id) },
-                                onCollectClicked = { presenter.onCollectClicked(noteData.id) },
-                                onCommentClicked = { /* Scroll to comments */ },
-                                onShareClicked = { presenter.onShareClicked(noteData.id) }
-                            )
-                        }
-                        
                         Spacer(modifier = Modifier.height(24.dp))
                     }
 
@@ -242,7 +226,13 @@ fun NoteDetailScreen(
                 onCommentTextChanged = { commentText = it },
                 onSendClicked = { 
                     presenter.onAddComment(noteData.id, commentText)
-                }
+                },
+                isLiked = isLiked,
+                isCollected = isCollected,
+                likeCount = likeCount,
+                commentCount = noteData.commentCount,
+                onLikeClicked = { presenter.onLikeClicked(noteData.id) },
+                onCollectClicked = { presenter.onCollectClicked(noteData.id) }
             )
         }
 
@@ -500,82 +490,6 @@ private fun TopicTag(text: String) {
     )
 }
 
-@Composable
-private fun ActionButtons(
-    isLiked: Boolean,
-    isCollected: Boolean,
-    likeCount: Int,
-    collectCount: Int,
-    commentCount: Int,
-    shareCount: Int,
-    onLikeClicked: () -> Unit,
-    onCollectClicked: () -> Unit,
-    onCommentClicked: () -> Unit,
-    onShareClicked: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Like Button
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { onLikeClicked() }
-        ) {
-            Icon(
-                imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                contentDescription = "Like",
-                tint = if (isLiked) Color.Red else Color.Gray,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = likeCount.toString(),
-                color = if (isLiked) Color.Red else Color.Gray,
-                fontSize = 14.sp
-            )
-        }
-        
-        // Collect Button  
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { onCollectClicked() }
-        ) {
-            Icon(
-                imageVector = Icons.Default.Star,
-                contentDescription = "Collect",
-                tint = if (isCollected) Color(0xFFFFD700) else Color.Gray,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = "收藏",
-                color = if (isCollected) Color(0xFFFFD700) else Color.Gray,
-                fontSize = 14.sp
-            )
-        }
-        
-        // Comment Button
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { onCommentClicked() }
-        ) {
-            Icon(
-                imageVector = Icons.Default.Email,
-                contentDescription = "Comment",
-                tint = Color.Gray,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = commentCount.toString(),
-                color = Color.Gray,
-                fontSize = 14.sp
-            )
-        }
-    }
-}
 
 
 @Composable
@@ -678,7 +592,13 @@ private fun CommentItem(
 private fun CommentInputBar(
     commentText: String,
     onCommentTextChanged: (String) -> Unit,
-    onSendClicked: () -> Unit
+    onSendClicked: () -> Unit,
+    isLiked: Boolean,
+    isCollected: Boolean,
+    likeCount: Int,
+    commentCount: Int,
+    onLikeClicked: () -> Unit,
+    onCollectClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -709,20 +629,21 @@ private fun CommentInputBar(
             
             Spacer(modifier = Modifier.width(16.dp))
             
-            // Like button with count (from screenshot)
+            // Like button with count
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onLikeClicked() }
             ) {
                 Icon(
-                    imageVector = Icons.Default.Favorite,
+                    imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = "Like",
-                    tint = Color.Gray,
+                    tint = if (isLiked) Color.Red else Color.Gray,
                     modifier = Modifier.size(28.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "40",
-                    color = Color.Gray,
+                    text = likeCount.toString(),
+                    color = if (isLiked) Color.Red else Color.Gray,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 )
@@ -730,27 +651,28 @@ private fun CommentInputBar(
             
             Spacer(modifier = Modifier.width(16.dp))
             
-            // Collect button (from screenshot)
+            // Collect button
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onCollectClicked() }
             ) {
                 Icon(
                     imageVector = Icons.Default.Star,
                     contentDescription = "Collect",
-                    tint = Color.Gray,
+                    tint = if (isCollected) Color(0xFFFFD700) else Color.Gray,
                     modifier = Modifier.size(28.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = "收藏",
-                    color = Color.Gray,
+                    color = if (isCollected) Color(0xFFFFD700) else Color.Gray,
                     fontSize = 16.sp
                 )
             }
             
             Spacer(modifier = Modifier.width(16.dp))
             
-            // Comment button with count (from screenshot)
+            // Comment button with count
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -762,7 +684,7 @@ private fun CommentInputBar(
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = "16",
+                    text = commentCount.toString(),
                     color = Color.Gray,
                     fontSize = 16.sp
                 )
