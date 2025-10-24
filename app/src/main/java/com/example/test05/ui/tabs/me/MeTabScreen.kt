@@ -38,6 +38,32 @@ import com.example.CLYRedNote.model.User
 import com.example.test05.presenter.MeTabPresenter
 import com.example.test05.utils.JsonDataLoader
 
+// Mock data classes
+data class MockNoteItemWithDetails(
+    val title: String,
+    val folder: String,
+    val author: String,
+    val likes: String,
+    val publishDate: String,
+    val imagePath: String
+)
+
+data class MockCollectionNoteItem(
+    val title: String,
+    val folder: String,
+    val likes: String,
+    val timeAgo: String,
+    val imagePath: String
+)
+
+data class MockLikedNoteItem(
+    val title: String,
+    val content: String,
+    val author: String,
+    val likes: String,
+    val imagePath: String
+)
+
 @Composable
 fun MeTabScreen(
     onFollowingClicked: () -> Unit = {},
@@ -155,16 +181,10 @@ fun MeTabScreen(
 
         // Content based on selected tab
         when (selectedTab) {
-            0 -> NotesContent(notes)
-            1 -> CollectionsContent(collections)
-            2 -> LikedNotesContent(likedNotes)
+            0 -> NotesContent(notes, selectedTab)
+            1 -> CollectionsContent(collections, selectedTab)
+            2 -> LikedNotesContent(likedNotes, selectedTab)
         }
-
-        // Bottom content section
-        Spacer(modifier = Modifier.weight(1f))
-        
-        // Share section
-        ShareSection()
     }
 }
 
@@ -410,10 +430,6 @@ private fun NotesTabsSection(
     collectionsCount: Int = 0
 ) {
     val tabs = listOf("笔记", "收藏", "赞过")
-    val tabCounts = when (selectedTab) {
-        1 -> listOf("公开 0", "专辑 21", "合集 0") // Collection tab shows album count
-        else -> listOf("公开 0", "私密 4", "合集 0")
-    }
     
     Row(modifier = Modifier.fillMaxWidth()) {
         tabs.forEachIndexed { index, tab ->
@@ -439,13 +455,6 @@ private fun NotesTabsSection(
                             .background(Color.Red)
                     )
                 }
-                if (index < tabCounts.size) {
-                    Text(
-                        text = tabCounts[index],
-                        color = Color.Gray,
-                        fontSize = 12.sp
-                    )
-                }
             }
         }
         
@@ -462,69 +471,158 @@ private fun NotesTabsSection(
 }
 
 @Composable
-private fun NotesContent(notes: List<Note>) {
-    if (notes.isEmpty()) {
-        EmptyContentPlaceholder()
-    } else {
-        LazyColumn {
-            items(notes) { note ->
-                NoteItem(note = note)
+private fun NotesContent(notes: List<Note>, selectedTab: Int) {
+    // Sub-category tabs for Notes section
+    var selectedSubTab by remember { mutableIntStateOf(0) }
+    val subTabs = listOf("公开", "私密", "合集")
+    
+    Column {
+        // Sub tabs row - aligned to left
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            subTabs.forEachIndexed { index, tab ->
+                Text(
+                    text = "$tab ${if (index == 0) "0" else if (index == 1) "4" else "0"}",
+                    color = if (selectedSubTab == index) Color.Red else Color.Gray,
+                    fontSize = 14.sp,
+                    fontWeight = if (selectedSubTab == index) FontWeight.Bold else FontWeight.Normal,
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        .clickable { selectedSubTab = index }
+                )
             }
         }
-    }
-}
-
-@Composable
-private fun CollectionsContent(collections: List<Collection>) {
-    if (collections.isEmpty()) {
-        EmptyContentPlaceholder()
-    } else {
-        Column {
-            // Statistics row
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "笔记 213",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
-                    modifier = Modifier.weight(1f)
-                )
-                Text(
-                    text = "专辑 21",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
-                    modifier = Modifier.weight(1f)
-                )
-            }
+        
+        // Notes grid - only show for "私密" tab (index 1) to match screenshot
+        if (selectedSubTab == 1) {
+            // Create mock private notes with detailed info
+            val mockPrivateNotes = listOf(
+                MockNoteItemWithDetails("我的日常分享", "生活记录", "小红书用户", "128", "2025-01-08 发布", "image/scenery1.jpg"),
+                MockNoteItemWithDetails("周末咖啡店打卡", "探店日记", "咖啡爱好者", "256", "2025-01-06 发布", "image/scenery2.jpg"),
+                MockNoteItemWithDetails("读书笔记分享", "精神食粮", "书虫小姐", "189", "2025-01-05 发布", "image/scenery3.jpg"),
+                MockNoteItemWithDetails("健身打卡第30天", "自律生活", "健身达人", "342", "2025-01-04 发布", "image/scenery4.jpg"),
+                MockNoteItemWithDetails("旅行风景照", "足迹记录", "旅行者", "567", "2025-01-03 发布", "image/scenery5.jpg"),
+                MockNoteItemWithDetails("美食制作教程", "吃货日常", "美食博主", "891", "2025-01-02 发布", "image/scenery6.jpg"),
+                MockNoteItemWithDetails("摄影作品", "光影世界", "摄影师", "423", "2025-01-01 发布", "image/scenery1.jpg"),
+                MockNoteItemWithDetails("穿搭分享", "时尚穿搭", "穿搭博主", "678", "2024-12-31 发布", "image/scenery2.jpg"),
+                MockNoteItemWithDetails("宠物日常", "毛孩子", "铲屎官", "945", "2024-12-30 发布", "image/scenery3.jpg")
+            )
             
-            // Grid of collected notes
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(16.dp)
+                contentPadding = PaddingValues(4.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                items(collections) { collection ->
-                    CollectionNoteItem(collection = collection)
+                items(mockPrivateNotes.size) { index ->
+                    PrivateNoteDetailItem(note = mockPrivateNotes[index])
                 }
             }
+        } else if (selectedSubTab == 0) {
+            // Empty state for public notes
+            EmptyGridContent(text = "还没有发布的笔记")
+        } else {
+            // Empty state for collections
+            EmptyGridContent(text = "还没有创建的合集")
         }
     }
 }
 
 @Composable
-private fun LikedNotesContent(notes: List<Note>) {
-    if (notes.isEmpty()) {
-        EmptyContentPlaceholder()
-    } else {
-        LazyColumn {
-            items(notes) { note ->
-                NoteItem(note = note)
+private fun CollectionsContent(collections: List<Collection>, selectedTab: Int) {
+    // Sub-category tabs for Collections section
+    var selectedSubTab by remember { mutableIntStateOf(0) }
+    val subTabs = listOf("笔记", "专辑")
+    
+    Column {
+        // Statistics row - aligned to left like in screenshot
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Text(
+                text = "笔记 213",
+                color = if (selectedSubTab == 0) Color.Red else Color.Gray,
+                fontSize = 14.sp,
+                fontWeight = if (selectedSubTab == 0) FontWeight.Bold else FontWeight.Normal,
+                modifier = Modifier
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                    .clickable { selectedSubTab = 0 }
+            )
+            Text(
+                text = "专辑 21",
+                color = if (selectedSubTab == 1) Color.Red else Color.Gray,
+                fontSize = 14.sp,
+                fontWeight = if (selectedSubTab == 1) FontWeight.Bold else FontWeight.Normal,
+                modifier = Modifier
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                    .clickable { selectedSubTab = 1 }
+            )
+        }
+        
+        // Collections grid
+        if (selectedSubTab == 0) {
+            // Create mock collection notes
+            val mockCollectionNotes = listOf(
+                MockCollectionNoteItem("夏日穿搭分享", "穿搭日记", "3.1万", "1天前", "image/scenery1.jpg"),
+                MockCollectionNoteItem("精致妆容教程", "美妆心得", "2.8万", "3天前", "image/scenery2.jpg"),
+                MockCollectionNoteItem("旅行打卡记录", "足迹", "1.9万", "1周前", "image/scenery3.jpg"),
+                MockCollectionNoteItem("美食探店推荐", "吃货日常", "4.2万", "2周前", "image/scenery4.jpg"),
+                MockCollectionNoteItem("家居装饰灵感", "温馨小窝", "1.5万", "3周前", "image/scenery5.jpg"),
+                MockCollectionNoteItem("健身打卡记录", "自律生活", "2.1万", "1个月前", "image/scenery6.jpg"),
+                MockCollectionNoteItem("摄影作品分享", "光影世界", "3.7万", "2个月前", "image/scenery1.jpg"),
+                MockCollectionNoteItem("读书笔记整理", "精神食粮", "1.2万", "3个月前", "image/scenery2.jpg"),
+                MockCollectionNoteItem("宠物日常记录", "毛孩子", "5.1万", "4个月前", "image/scenery3.jpg")
+            )
+            
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(4.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(mockCollectionNotes.size) { index ->
+                    CollectionNoteGridItem(note = mockCollectionNotes[index])
+                }
             }
+        } else {
+            EmptyGridContent(text = "还没有收藏的专辑")
+        }
+    }
+}
+
+@Composable
+private fun LikedNotesContent(notes: List<Note>, selectedTab: Int) {
+    // Create mock liked notes
+    val mockLikedNotes = listOf(
+        MockLikedNoteItem("2025新年快乐", "急救跑者就位｜带你体验长沙马拉松半马赛道", "肉未来", "207", "image/scenery1.jpg"),
+        MockLikedNoteItem("我们在操场撞到人之后", "运动的时候也要美美哒", "狮山长跑队", "1.5万", "image/scenery2.jpg"),
+        MockLikedNoteItem("夏日清爽妆容教程", "超详细步骤分享", "美妆达人小王", "5.2万", "image/scenery3.jpg"),
+        MockLikedNoteItem("周末探店新发现", "这家咖啡厅太有格调了", "探店小分队", "3.8万", "image/scenery4.jpg"),
+        MockLikedNoteItem("家居改造前后对比", "小空间大变身", "装修小能手", "2.1万", "image/scenery5.jpg"),
+        MockLikedNoteItem("健身打卡第100天", "坚持的力量", "健身小白", "4.3万", "image/scenery6.jpg"),
+        MockLikedNoteItem("旅行vlog分享", "三天两夜重庆游", "旅行记录者", "6.7万", "image/scenery1.jpg"),
+        MockLikedNoteItem("读书分享推荐", "这本书改变了我", "书虫小姐", "1.9万", "image/scenery2.jpg"),
+        MockLikedNoteItem("宠物日常萌照", "我家橘猫的搞笑日常", "铲屎官日记", "8.1万", "image/scenery3.jpg")
+    )
+    
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(4.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        items(mockLikedNotes.size) { index ->
+            LikedNoteGridItem(note = mockLikedNotes[index])
         }
     }
 }
@@ -586,34 +684,6 @@ private fun EmptyContentPlaceholder() {
     }
 }
 
-@Composable
-private fun ShareSection() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "📷",
-            fontSize = 60.sp,
-            color = Color.Gray
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "分享你的大学出游日常",
-            color = Color.Gray,
-            fontSize = 14.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(
-            onClick = { },
-            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-            shape = RoundedCornerShape(20.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, Color.Gray)
-        ) {
-            Text("去发布", color = Color.Black)
-        }
-    }
-}
 
 @Composable
 private fun CollectionNoteItem(collection: Collection) {
@@ -712,5 +782,419 @@ private fun getCollectionEmoji(folderName: String): String {
         "阅读" -> "📚"
         "宠物" -> "🐱"
         else -> "📝"
+    }
+}
+
+@Composable
+private fun PrivateNoteDetailItem(note: MockNoteItemWithDetails) {
+    val context = LocalContext.current
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    
+    // Load image from assets
+    LaunchedEffect(note.imagePath) {
+        try {
+            val inputStream = context.assets.open(note.imagePath)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream.close()
+            imageBitmap = bitmap?.asImageBitmap()
+        } catch (e: Exception) {
+            imageBitmap = null
+        }
+    }
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(0.75f),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Image section
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                if (imageBitmap != null) {
+                    Image(
+                        bitmap = imageBitmap!!,
+                        contentDescription = "Private Note Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0xFFE0E0E0)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "📷",
+                            fontSize = 32.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+                
+                // Privacy indicator at bottom left
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(8.dp)
+                        .background(
+                            Color.Black.copy(alpha = 0.6f),
+                            RoundedCornerShape(12.dp)
+                        )
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "仅自己可见",
+                        color = Color.White,
+                        fontSize = 10.sp
+                    )
+                }
+            }
+            
+            // Content section
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = note.title,
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Author",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = note.author,
+                            color = Color.Gray,
+                            fontSize = 10.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Likes",
+                            tint = Color.Red,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = note.likes,
+                            color = Color.Gray,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(2.dp))
+                
+                Text(
+                    text = note.publishDate,
+                    color = Color.Gray,
+                    fontSize = 10.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CollectionNoteGridItem(note: MockCollectionNoteItem) {
+    val context = LocalContext.current
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    
+    // Load image from assets
+    LaunchedEffect(note.imagePath) {
+        try {
+            val inputStream = context.assets.open(note.imagePath)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream.close()
+            imageBitmap = bitmap?.asImageBitmap()
+        } catch (e: Exception) {
+            imageBitmap = null
+        }
+    }
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(0.75f),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Image section
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                if (imageBitmap != null) {
+                    Image(
+                        bitmap = imageBitmap!!,
+                        contentDescription = "Collection Note Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0xFFE0E0E0)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "📷",
+                            fontSize = 32.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
+            
+            // Content section
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = note.title,
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Author",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = note.folder,
+                            color = Color.Gray,
+                            fontSize = 10.sp
+                        )
+                    }
+                    
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Likes",
+                            tint = Color.Red,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = note.likes,
+                            color = Color.Gray,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(2.dp))
+                
+                Text(
+                    text = note.timeAgo,
+                    color = Color.Gray,
+                    fontSize = 10.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LikedNoteGridItem(note: MockLikedNoteItem) {
+    val context = LocalContext.current
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    
+    // Load image from assets
+    LaunchedEffect(note.imagePath) {
+        try {
+            val inputStream = context.assets.open(note.imagePath)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream.close()
+            imageBitmap = bitmap?.asImageBitmap()
+        } catch (e: Exception) {
+            imageBitmap = null
+        }
+    }
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(0.75f),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Image section
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                if (imageBitmap != null) {
+                    Image(
+                        bitmap = imageBitmap!!,
+                        contentDescription = "Liked Note Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0xFFE0E0E0)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "📷",
+                            fontSize = 32.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
+            
+            // Content section
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = note.title,
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                Text(
+                    text = note.content,
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Author",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = note.author,
+                            color = Color.Gray,
+                            fontSize = 10.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Likes",
+                            tint = Color.Red,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = note.likes,
+                            color = Color.Gray,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptyGridContent(text: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "📷",
+                fontSize = 48.sp,
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = text,
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+        }
     }
 }

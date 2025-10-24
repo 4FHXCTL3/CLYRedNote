@@ -229,7 +229,7 @@ fun MainNavigation() {
 
         // Bottom Navigation (隐藏在某些全屏页面中)
         if (!showSearchDetail && !showNoteDetail && !showCart && !showSearch && 
-            !showFollowing && !showBloggerDetail && !showFanTab && !showCommentAt && !showProfileEdit && !showPostNext) {
+            !showFollowing && !showBloggerDetail && !showFanTab && !showCommentAt && !showProfileEdit && !showPostNext && selectedTab != 2) {
             BottomNavigationBar(
                 selectedTab = selectedTab,
                 onTabSelected = { selectedTab = it }
