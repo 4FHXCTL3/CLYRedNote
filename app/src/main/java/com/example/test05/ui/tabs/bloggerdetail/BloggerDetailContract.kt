@@ -12,6 +12,7 @@ interface BloggerDetailContract {
         fun updateFollowStatus(isFollowing: Boolean)
         fun showFollowSuccess()
         fun showUnfollowSuccess()
+        fun navigateToMessage(userId: String)
     }
 
     interface Presenter {

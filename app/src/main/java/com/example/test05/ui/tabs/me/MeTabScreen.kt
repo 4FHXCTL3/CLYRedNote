@@ -69,7 +69,8 @@ data class MockLikedNoteItem(
 fun MeTabScreen(
     onFollowingClicked: () -> Unit = {},
     onFansClicked: () -> Unit = {},
-    onProfileEditClicked: () -> Unit = {}
+    onProfileEditClicked: () -> Unit = {},
+    onSettingsClicked: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
@@ -141,7 +142,7 @@ fun MeTabScreen(
             UserProfileSection(
                 user = user,
                 onEditProfile = onProfileEditClicked,
-                onSettings = { presenter.onSettingsClicked() }
+                onSettings = onSettingsClicked
             )
         }
 
@@ -154,7 +155,8 @@ fun MeTabScreen(
             likesAndCollections = likesAndCollections,
             onFollowingClicked = onFollowingClicked,
             onFansClicked = onFansClicked,
-            onEditProfileClicked = onProfileEditClicked
+            onEditProfileClicked = onProfileEditClicked,
+            onSettings = onSettingsClicked
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -295,7 +297,8 @@ private fun UserStatsSection(
     likesAndCollections: Int,
     onFollowingClicked: () -> Unit = {},
     onFansClicked: () -> Unit = {},
-    onEditProfileClicked: () -> Unit = {}
+    onEditProfileClicked: () -> Unit = {},
+    onSettings: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -333,7 +336,7 @@ private fun UserStatsSection(
             Spacer(modifier = Modifier.width(8.dp))
             
             IconButton(
-                onClick = { },
+                onClick = onSettings,
                 modifier = Modifier
                     .size(40.dp)
                     .background(Color.Transparent, CircleShape)

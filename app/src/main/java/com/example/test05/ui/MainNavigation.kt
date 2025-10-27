@@ -32,6 +32,8 @@ import com.example.test05.ui.tabs.commentat.CommentAtTabScreen
 import com.example.test05.ui.tabs.profileedit.ProfileEditScreen
 import com.example.test05.ui.tabs.searchdetail.SearchDetailScreen
 import com.example.test05.ui.tabs.postnext.PostNextScreen
+import com.example.test05.ui.tabs.messagedetail.MessageDetailScreen
+import com.example.test05.ui.tabs.settings.SettingsScreen
 
 @Composable
 fun MainNavigation() {
@@ -50,11 +52,15 @@ fun MainNavigation() {
     var searchQuery by remember { mutableStateOf("") }
     var showPostNext by remember { mutableStateOf(false) }
     var postNextData by remember { mutableStateOf<com.example.test05.ui.tabs.postnext.PostData?>(null) }
+    var showMessageDetail by remember { mutableStateOf(false) }
+    var currentMessageUserId by remember { mutableStateOf<String?>(null) }
+    var showSettings by remember { mutableStateOf(false) }
     
     // Navigation stack state to handle proper back navigation
     var fromBloggerDetail by remember { mutableStateOf(false) }
     var fromSearchDetail by remember { mutableStateOf(false) }
     var fromSearchTab by remember { mutableStateOf(false) }
+    var fromMessageDetail by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Content
@@ -106,6 +112,11 @@ fun MainNavigation() {
                         currentNoteId = noteId
                         fromBloggerDetail = true
                         showNoteDetail = true
+                    },
+                    onMessageClicked = { userId ->
+                        currentMessageUserId = userId
+                        fromBloggerDetail = true
+                        showMessageDetail = true
                     }
                 )
             } else if (showFanTab) {
@@ -154,6 +165,25 @@ fun MainNavigation() {
                 CartScreen(
                     onBackClicked = { 
                         showCart = false
+                    }
+                )
+            } else if (showSettings) {
+                SettingsScreen(
+                    onBackClicked = {
+                        showSettings = false
+                    }
+                )
+            } else if (showMessageDetail && currentMessageUserId != null) {
+                MessageDetailScreen(
+                    userId = currentMessageUserId!!,
+                    onBackClicked = {
+                        showMessageDetail = false
+                        currentMessageUserId = null
+                        // Navigate back to blogger detail if we came from there
+                        if (fromBloggerDetail) {
+                            showBloggerDetail = true
+                            fromBloggerDetail = false
+                        }
                     }
                 )
             } else if (showNoteDetail && currentNoteId != null) {
@@ -210,6 +240,10 @@ fun MainNavigation() {
                     3 -> MessagesTabScreen(
                         onCommentAtClicked = {
                             showCommentAt = true
+                        },
+                        onMessageClicked = { userId ->
+                            currentMessageUserId = userId
+                            showMessageDetail = true
                         }
                     )
                     4 -> MeTabScreen(
@@ -221,6 +255,9 @@ fun MainNavigation() {
                         },
                         onProfileEditClicked = {
                             showProfileEdit = true
+                        },
+                        onSettingsClicked = {
+                            showSettings = true
                         }
                     )
                 }
@@ -229,7 +266,7 @@ fun MainNavigation() {
 
         // Bottom Navigation (隐藏在某些全屏页面中)
         if (!showSearchDetail && !showNoteDetail && !showCart && !showSearch && 
-            !showFollowing && !showBloggerDetail && !showFanTab && !showCommentAt && !showProfileEdit && !showPostNext && selectedTab != 2) {
+            !showFollowing && !showBloggerDetail && !showFanTab && !showCommentAt && !showProfileEdit && !showPostNext && !showMessageDetail && !showSettings && selectedTab != 2) {
             BottomNavigationBar(
                 selectedTab = selectedTab,
                 onTabSelected = { selectedTab = it }

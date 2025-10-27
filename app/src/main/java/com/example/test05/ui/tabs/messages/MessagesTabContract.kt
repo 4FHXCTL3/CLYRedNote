@@ -18,6 +18,7 @@ interface MessagesTabContract {
         fun showLoading(isLoading: Boolean)
         fun showError(message: String)
         fun updateUnreadCount(conversationId: String, count: Int)
+        fun navigateToMessageDetail(userId: String)
     }
 
     interface Presenter {

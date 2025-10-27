@@ -42,7 +42,8 @@ import com.example.test05.utils.JsonDataLoader
 fun BloggerDetailScreen(
     userId: String,
     onBackClicked: () -> Unit = {},
-    onNoteClicked: (String) -> Unit = {}
+    onNoteClicked: (String) -> Unit = {},
+    onMessageClicked: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
@@ -83,6 +84,10 @@ fun BloggerDetailScreen(
 
         override fun showUnfollowSuccess() {
             // Could show a snackbar or toast
+        }
+
+        override fun navigateToMessage(userId: String) {
+            onMessageClicked(userId)
         }
     }
 

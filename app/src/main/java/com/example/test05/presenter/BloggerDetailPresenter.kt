@@ -93,7 +93,9 @@ class BloggerDetailPresenter(
     }
 
     override fun onMessageClicked() {
-        // Handle message action - would normally navigate to chat
+        currentBlogger?.let { blogger ->
+            view?.navigateToMessage(blogger.id)
+        }
     }
 
     override fun onGroupChatClicked() {

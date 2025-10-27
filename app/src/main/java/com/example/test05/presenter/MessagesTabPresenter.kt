@@ -40,7 +40,19 @@ class MessagesTabPresenter(
     }
     
     override fun onConversationClicked(conversationId: String) {
-        // TODO: Navigate to chat screen
+        // Extract user ID from conversation and navigate to MessageDetail
+        // For group conversations, we don't navigate to MessageDetail
+        if (!conversationId.contains("group")) {
+            val userId = when (conversationId) {
+                "conv_system" -> "user_001"
+                "conv_service" -> "user_002" 
+                "conv_activity" -> "user_003"
+                "conv_friend_001" -> "user_001"
+                "conv_friend_002" -> "user_002"
+                else -> "user_001" // default
+            }
+            view?.navigateToMessageDetail(userId)
+        }
     }
     
     override fun onSearchClicked() {

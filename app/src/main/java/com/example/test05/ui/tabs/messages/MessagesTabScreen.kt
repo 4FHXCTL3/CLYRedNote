@@ -29,7 +29,8 @@ import kotlin.math.absoluteValue
 
 @Composable
 fun MessagesTabScreen(
-    onCommentAtClicked: () -> Unit = {}
+    onCommentAtClicked: () -> Unit = {},
+    onMessageClicked: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
@@ -60,6 +61,10 @@ fun MessagesTabScreen(
                     conversation
                 }
             }
+        }
+
+        override fun navigateToMessageDetail(userId: String) {
+            onMessageClicked(userId)
         }
     }
 
