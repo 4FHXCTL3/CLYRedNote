@@ -88,8 +88,13 @@ class SettingsPresenter : SettingsContract.Presenter {
     }
     
     override fun onSettingsItemClicked(item: SettingsItem) {
-        // Handle settings item click - would navigate to detailed settings pages
-        // For now, just placeholder functionality
+        when (item.title) {
+            "账号与安全" -> view?.navigateToAccountSecurity()
+            else -> {
+                // Handle other settings item clicks - would navigate to detailed settings pages
+                // For now, just placeholder functionality
+            }
+        }
     }
     
     override fun onBackClicked() {

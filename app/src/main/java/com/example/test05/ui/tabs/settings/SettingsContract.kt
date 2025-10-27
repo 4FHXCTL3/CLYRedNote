@@ -12,6 +12,7 @@ interface SettingsContract {
         fun showSettingsItems(items: List<SettingsItem>)
         fun showLoading(isLoading: Boolean)
         fun showError(message: String)
+        fun navigateToAccountSecurity()
     }
 
     interface Presenter {

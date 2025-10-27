@@ -34,6 +34,7 @@ import com.example.test05.ui.tabs.searchdetail.SearchDetailScreen
 import com.example.test05.ui.tabs.postnext.PostNextScreen
 import com.example.test05.ui.tabs.messagedetail.MessageDetailScreen
 import com.example.test05.ui.tabs.settings.SettingsScreen
+import com.example.test05.ui.tabs.accountsecurity.AccountSecurityScreen
 
 @Composable
 fun MainNavigation() {
@@ -55,6 +56,7 @@ fun MainNavigation() {
     var showMessageDetail by remember { mutableStateOf(false) }
     var currentMessageUserId by remember { mutableStateOf<String?>(null) }
     var showSettings by remember { mutableStateOf(false) }
+    var showAccountSecurity by remember { mutableStateOf(false) }
     
     // Navigation stack state to handle proper back navigation
     var fromBloggerDetail by remember { mutableStateOf(false) }
@@ -167,10 +169,21 @@ fun MainNavigation() {
                         showCart = false
                     }
                 )
+            } else if (showAccountSecurity) {
+                AccountSecurityScreen(
+                    onBackClicked = {
+                        showAccountSecurity = false
+                        showSettings = true
+                    }
+                )
             } else if (showSettings) {
                 SettingsScreen(
                     onBackClicked = {
                         showSettings = false
+                    },
+                    onAccountSecurityClicked = {
+                        showSettings = false
+                        showAccountSecurity = true
                     }
                 )
             } else if (showMessageDetail && currentMessageUserId != null) {
@@ -266,7 +279,7 @@ fun MainNavigation() {
 
         // Bottom Navigation (隐藏在某些全屏页面中)
         if (!showSearchDetail && !showNoteDetail && !showCart && !showSearch && 
-            !showFollowing && !showBloggerDetail && !showFanTab && !showCommentAt && !showProfileEdit && !showPostNext && !showMessageDetail && !showSettings && selectedTab != 2) {
+            !showFollowing && !showBloggerDetail && !showFanTab && !showCommentAt && !showProfileEdit && !showPostNext && !showMessageDetail && !showSettings && !showAccountSecurity && selectedTab != 2) {
             BottomNavigationBar(
                 selectedTab = selectedTab,
                 onTabSelected = { selectedTab = it }

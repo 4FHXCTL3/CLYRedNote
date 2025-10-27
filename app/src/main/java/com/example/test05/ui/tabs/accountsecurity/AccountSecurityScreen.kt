@@ -1,4 +1,4 @@
-package com.example.test05.ui.tabs.settings
+package com.example.test05.ui.tabs.accountsecurity
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,27 +12,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.test05.presenter.SettingsPresenter
+import com.example.test05.presenter.AccountSecurityPresenter
 
 @Composable
-fun SettingsScreen(
-    onBackClicked: () -> Unit = {},
-    onAccountSecurityClicked: () -> Unit = {}
+fun AccountSecurityScreen(
+    onBackClicked: () -> Unit = {}
 ) {
-    val presenter = remember { SettingsPresenter() }
+    val presenter = remember { AccountSecurityPresenter() }
     
-    var settingsItems by remember { mutableStateOf<List<SettingsItem>>(emptyList()) }
+    var accountSecurityItems by remember { mutableStateOf<List<AccountSecurityItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    val view = object : SettingsContract.View {
-        override fun showSettingsItems(items: List<SettingsItem>) {
-            settingsItems = items
+    val view = object : AccountSecurityContract.View {
+        override fun showAccountSecurityItems(items: List<AccountSecurityItem>) {
+            accountSecurityItems = items
         }
 
         override fun showLoading(loading: Boolean) {
@@ -42,15 +40,11 @@ fun SettingsScreen(
         override fun showError(message: String) {
             errorMessage = message
         }
-
-        override fun navigateToAccountSecurity() {
-            onAccountSecurityClicked()
-        }
     }
 
     LaunchedEffect(Unit) {
         presenter.attachView(view)
-        presenter.loadSettingsItems()
+        presenter.loadAccountSecurityItems()
     }
 
     DisposableEffect(Unit) {
@@ -80,11 +74,19 @@ fun SettingsScreen(
                 CircularProgressIndicator(color = Color.Red)
             }
         } else {
-            // Settings Items List
-            SettingsItemsList(
-                items = settingsItems,
-                onItemClick = { presenter.onSettingsItemClicked(it) }
-            )
+            // Account Security Items List
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                items(accountSecurityItems) { item ->
+                    AccountSecurityItemRow(
+                        item = item,
+                        isLast = item == accountSecurityItems.lastOrNull(),
+                        onClick = { presenter.onAccountSecurityItemClicked(item) }
+                    )
+                }
+            }
         }
 
         errorMessage?.let { message ->
@@ -122,7 +124,7 @@ private fun TopHeader(
         Spacer(modifier = Modifier.weight(1f))
         
         Text(
-            text = "设置",
+            text = "账号与安全",
             color = Color.Black,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
@@ -137,27 +139,8 @@ private fun TopHeader(
 }
 
 @Composable
-private fun SettingsItemsList(
-    items: List<SettingsItem>,
-    onItemClick: (SettingsItem) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp)
-    ) {
-        items(items) { item ->
-            SettingsItemRow(
-                item = item,
-                isLast = item == items.lastOrNull(),
-                onClick = { onItemClick(item) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun SettingsItemRow(
-    item: SettingsItem,
+private fun AccountSecurityItemRow(
+    item: AccountSecurityItem,
     isLast: Boolean,
     onClick: () -> Unit
 ) {
@@ -169,21 +152,6 @@ private fun SettingsItemRow(
                 .padding(vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icon
-            Box(
-                modifier = Modifier.size(40.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = getIconForName(item.icon),
-                    contentDescription = item.title,
-                    tint = Color.Black,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
             // Title
             Text(
                 text = item.title,
@@ -192,52 +160,48 @@ private fun SettingsItemRow(
                 modifier = Modifier.weight(1f)
             )
             
-            // Right text (if any)
-            item.rightText?.let { rightText ->
-                Text(
-                    text = rightText,
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
-                Spacer(modifier = Modifier.width(8.dp))
+            // Status and Arrow Section
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Status text (if any)
+                item.status?.let { status ->
+                    Text(
+                        text = status,
+                        color = Color.Gray,
+                        fontSize = 14.sp
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                
+                // Arrow (if enabled)
+                if (item.hasArrow) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowRight,
+                        contentDescription = "Arrow",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
-            
-            // Arrow (if enabled)
-            if (item.hasArrow) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
-                    contentDescription = "Arrow",
-                    tint = Color.Gray,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
+        }
+        
+        // Description (if any)
+        item.description?.let { description ->
+            Text(
+                text = description,
+                color = Color.Gray,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
         }
         
         // Divider
         if (!isLast) {
             HorizontalDivider(
                 color = Color.Gray.copy(alpha = 0.2f),
-                thickness = 0.5.dp,
-                modifier = Modifier.padding(start = 56.dp)
+                thickness = 0.5.dp
             )
         }
-    }
-}
-
-private fun getIconForName(iconName: String): ImageVector {
-    return when (iconName) {
-        "AccountCircle" -> Icons.Default.AccountCircle
-        "Settings" -> Icons.Default.Settings
-        "Notifications" -> Icons.Default.Notifications
-        "Lock" -> Icons.Default.Lock
-        "Storage" -> Icons.Default.Build
-        "Tune" -> Icons.Default.Settings
-        "LocationOn" -> Icons.Default.LocationOn
-        "Widgets" -> Icons.Default.Add
-        "Security" -> Icons.Default.Lock
-        "Science" -> Icons.Default.Star
-        "Support" -> Icons.Default.Phone
-        "Info" -> Icons.Default.Info
-        else -> Icons.Default.Settings
     }
 }
