@@ -15,6 +15,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
 import com.example.CLYRedNote.model.Note
 import com.example.CLYRedNote.model.Comment
 import com.example.test05.presenter.NoteDetailPresenter
@@ -53,6 +56,7 @@ fun NoteDetailScreen(
     var likeCount by remember { mutableIntStateOf(0) }
     var collectCount by remember { mutableIntStateOf(0) }
     var commentText by remember { mutableStateOf("") }
+    var showShareBottomSheet by remember { mutableStateOf(false) }
 
     val view = object : NoteDetailContract.View {
         override fun showNote(noteData: Note) {
@@ -140,7 +144,7 @@ fun NoteDetailScreen(
                             isFollowing = isFollowing,
                             onBackClicked = onBackClicked,
                             onFollowClicked = { presenter.onFollowClicked(noteData.author.id) },
-                            onShareClicked = { presenter.onShareClicked(noteData.id) }
+                            onShareClicked = { showShareBottomSheet = true }
                         )
                         
                         Spacer(modifier = Modifier.height(16.dp))
@@ -243,6 +247,13 @@ fun NoteDetailScreen(
                 modifier = Modifier.padding(16.dp)
             )
         }
+    }
+    
+    // Share Bottom Sheet
+    if (showShareBottomSheet) {
+        ShareBottomSheet(
+            onDismiss = { showShareBottomSheet = false }
+        )
     }
 }
 
@@ -692,3 +703,247 @@ private fun CommentInputBar(
         }
     }
 }
+
+@Composable
+private fun ShareBottomSheet(
+    onDismiss: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.5f))
+            .clickable { onDismiss() },
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Color.White,
+                    RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                )
+                .padding(16.dp)
+                .clickable(enabled = false) { }
+        ) {
+            // Title and close button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "分享至",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+                
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "关闭",
+                        tint = Color.Gray
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Recent contacts row
+            RecentContactsRow()
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // Social platforms row
+            SocialPlatformsRow()
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // Other options row
+            OtherOptionsRow()
+            
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun RecentContactsRow() {
+    Column {
+        Text(
+            text = "最近联系人",
+            fontSize = 14.sp,
+            color = Color.Gray,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(5) { index ->
+                ShareContactItem(
+                    name = when (index) {
+                        0 -> "张雨萱"
+                        1 -> "李思凡"
+                        2 -> "王浩然"
+                        3 -> "陈梦琪"
+                        4 -> "刘振宇"
+                        else -> "联系人${index + 1}"
+                    },
+                    avatarImage = when (index) {
+                        0 -> "image/scenery1.jpg"
+                        1 -> "image/scenery2.jpg"
+                        2 -> "image/scenery3.jpg"
+                        3 -> "image/scenery4.jpg"
+                        4 -> "image/scenery5.jpg"
+                        else -> null
+                    },
+                    isOnline = index < 3
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShareContactItem(
+    name: String,
+    avatarImage: String? = null,
+    isOnline: Boolean = false
+) {
+    val context = LocalContext.current
+    var imageBitmap by remember { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
+    
+    // Load image from assets
+    LaunchedEffect(avatarImage) {
+        if (!avatarImage.isNullOrEmpty()) {
+            try {
+                val inputStream = context.assets.open(avatarImage)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                imageBitmap = bitmap?.asImageBitmap()
+            } catch (e: Exception) {
+                imageBitmap = null
+            }
+        }
+    }
+    
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable { /* Handle contact click */ }
+    ) {
+        Box {
+            if (imageBitmap != null) {
+                Image(
+                    bitmap = imageBitmap!!,
+                    contentDescription = name,
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = name,
+                    tint = Color.Gray,
+                    modifier = Modifier.size(56.dp)
+                )
+            }
+            
+            if (isOnline) {
+                Box(
+                    modifier = Modifier
+                        .size(16.dp)
+                        .background(Color.Green, CircleShape)
+                        .align(Alignment.BottomEnd)
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = name,
+            fontSize = 12.sp,
+            color = Color.Black,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(64.dp),
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+private fun SocialPlatformsRow() {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(32.dp)
+    ) {
+        items(listOf(
+            ShareOption("私信好友", Icons.Default.Send, Color.Red),
+            ShareOption("微信好友", Icons.Default.Email, Color.Green),
+            ShareOption("朋友圈", Icons.Default.Person, Color.Green),
+            ShareOption("QQ好友", Icons.Default.Person, Color.Blue),
+            ShareOption("QQ空间", Icons.Default.Star, Color.Yellow)
+        )) { option ->
+            ShareOptionItem(option = option)
+        }
+    }
+}
+
+@Composable
+private fun OtherOptionsRow() {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(32.dp)
+    ) {
+        items(listOf(
+            ShareOption("创群分享", Icons.Default.Person, Color.Gray),
+            ShareOption("生成分享图", Icons.Default.Add, Color.Gray),
+            ShareOption("复制链接", Icons.Default.Share, Color.Gray),
+            ShareOption("为ta加热", Icons.Default.Favorite, Color.Gray),
+            ShareOption("不喜欢", Icons.Default.Close, Color.Gray)
+        )) { option ->
+            ShareOptionItem(option = option)
+        }
+    }
+}
+
+@Composable
+private fun ShareOptionItem(
+    option: ShareOption
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.clickable { /* Handle share option click */ }
+    ) {
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .background(option.backgroundColor.copy(alpha = 0.1f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = option.icon,
+                contentDescription = option.title,
+                tint = option.backgroundColor,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = option.title,
+            fontSize = 12.sp,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+data class ShareOption(
+    val title: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val backgroundColor: Color
+)

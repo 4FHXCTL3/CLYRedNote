@@ -2,6 +2,7 @@ package com.example.test05.presenter
 
 import com.example.CLYRedNote.model.Note
 import com.example.CLYRedNote.model.NoteType
+import com.example.CLYRedNote.model.NoteVisibility
 import com.example.test05.ui.tabs.postnext.PostNextContract
 import com.example.test05.ui.tabs.postnext.PostData
 import com.example.test05.ui.tabs.postnext.PostPrivacy
@@ -135,6 +136,15 @@ class PostNextPresenter(
                     return@launch
                 }
                 
+                // Map PostPrivacy to NoteVisibility
+                val noteVisibility = when (currentPrivacy) {
+                    PostPrivacy.PUBLIC -> NoteVisibility.PUBLIC
+                    PostPrivacy.PRIVATE -> NoteVisibility.PRIVATE
+                    PostPrivacy.FRIENDS_ONLY -> NoteVisibility.FRIENDS_ONLY
+                    PostPrivacy.FOLLOWERS_ONLY -> NoteVisibility.FRIENDS_ONLY
+                    PostPrivacy.MUTUAL_FRIENDS -> NoteVisibility.SPECIFIC_FRIENDS
+                }
+                
                 // Create new note
                 val newNote = Note(
                     id = "note_${System.currentTimeMillis()}",
@@ -145,7 +155,9 @@ class PostNextPresenter(
                     images = currentPostData.images,
                     tags = currentTags.toList(),
                     topics = currentTopics.toList(),
-                    createdAt = Date()
+                    visibility = noteVisibility,
+                    createdAt = Date(),
+                    publishedAt = Date()
                 )
                 
                 // TODO: Save note to JSON data

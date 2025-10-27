@@ -35,6 +35,7 @@ import java.io.IOException
 import com.example.CLYRedNote.model.Collection
 import com.example.CLYRedNote.model.Note
 import com.example.CLYRedNote.model.User
+import com.example.CLYRedNote.model.NoteVisibility
 import com.example.test05.presenter.MeTabPresenter
 import com.example.test05.utils.JsonDataLoader
 
@@ -476,6 +477,14 @@ private fun NotesContent(notes: List<Note>, selectedTab: Int) {
     var selectedSubTab by remember { mutableIntStateOf(0) }
     val subTabs = listOf("公开", "私密", "合集")
     
+    // Filter notes based on visibility
+    val publicNotes = notes.filter { it.visibility == NoteVisibility.PUBLIC }
+    val privateNotes = notes.filter { 
+        it.visibility == NoteVisibility.PRIVATE || 
+        it.visibility == NoteVisibility.FRIENDS_ONLY || 
+        it.visibility == NoteVisibility.SPECIFIC_FRIENDS 
+    }
+    
     Column {
         // Sub tabs row - aligned to left
         Row(
@@ -485,8 +494,13 @@ private fun NotesContent(notes: List<Note>, selectedTab: Int) {
             horizontalArrangement = Arrangement.Start
         ) {
             subTabs.forEachIndexed { index, tab ->
+                val count = when (index) {
+                    0 -> publicNotes.size
+                    1 -> privateNotes.size
+                    else -> 0
+                }
                 Text(
-                    text = "$tab ${if (index == 0) "0" else if (index == 1) "4" else "0"}",
+                    text = "$tab $count",
                     color = if (selectedSubTab == index) Color.Red else Color.Gray,
                     fontSize = 14.sp,
                     fontWeight = if (selectedSubTab == index) FontWeight.Bold else FontWeight.Normal,
@@ -497,38 +511,48 @@ private fun NotesContent(notes: List<Note>, selectedTab: Int) {
             }
         }
         
-        // Notes grid - only show for "私密" tab (index 1) to match screenshot
-        if (selectedSubTab == 1) {
-            // Create mock private notes with detailed info
-            val mockPrivateNotes = listOf(
-                MockNoteItemWithDetails("我的日常分享", "生活记录", "小红书用户", "128", "2025-01-08 发布", "image/scenery1.jpg"),
-                MockNoteItemWithDetails("周末咖啡店打卡", "探店日记", "咖啡爱好者", "256", "2025-01-06 发布", "image/scenery2.jpg"),
-                MockNoteItemWithDetails("读书笔记分享", "精神食粮", "书虫小姐", "189", "2025-01-05 发布", "image/scenery3.jpg"),
-                MockNoteItemWithDetails("健身打卡第30天", "自律生活", "健身达人", "342", "2025-01-04 发布", "image/scenery4.jpg"),
-                MockNoteItemWithDetails("旅行风景照", "足迹记录", "旅行者", "567", "2025-01-03 发布", "image/scenery5.jpg"),
-                MockNoteItemWithDetails("美食制作教程", "吃货日常", "美食博主", "891", "2025-01-02 发布", "image/scenery6.jpg"),
-                MockNoteItemWithDetails("摄影作品", "光影世界", "摄影师", "423", "2025-01-01 发布", "image/scenery1.jpg"),
-                MockNoteItemWithDetails("穿搭分享", "时尚穿搭", "穿搭博主", "678", "2024-12-31 发布", "image/scenery2.jpg"),
-                MockNoteItemWithDetails("宠物日常", "毛孩子", "铲屎官", "945", "2024-12-30 发布", "image/scenery3.jpg")
-            )
-            
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(4.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(mockPrivateNotes.size) { index ->
-                    PrivateNoteDetailItem(note = mockPrivateNotes[index])
+        // Notes grid based on selected tab
+        when (selectedSubTab) {
+            0 -> {
+                // Public notes
+                if (publicNotes.isNotEmpty()) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(4.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(publicNotes.size) { index ->
+                            NoteGridItem(note = publicNotes[index], isPrivate = false)
+                        }
+                    }
+                } else {
+                    EmptyGridContent(text = "还没有发布的公开笔记")
                 }
             }
-        } else if (selectedSubTab == 0) {
-            // Empty state for public notes
-            EmptyGridContent(text = "还没有发布的笔记")
-        } else {
-            // Empty state for collections
-            EmptyGridContent(text = "还没有创建的合集")
+            1 -> {
+                // Private notes
+                if (privateNotes.isNotEmpty()) {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(4.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(privateNotes.size) { index ->
+                            NoteGridItem(note = privateNotes[index], isPrivate = true)
+                        }
+                    }
+                } else {
+                    EmptyGridContent(text = "还没有发布的私密笔记")
+                }
+            }
+            2 -> {
+                // Collections - keep empty for now
+                EmptyGridContent(text = "还没有创建的合集")
+            }
         }
     }
 }
@@ -782,6 +806,167 @@ private fun getCollectionEmoji(folderName: String): String {
         "阅读" -> "📚"
         "宠物" -> "🐱"
         else -> "📝"
+    }
+}
+
+// Helper function to format like count
+private fun formatLikeCount(count: Int): String {
+    return when {
+        count >= 10000 -> "${(count / 10000.0).let { if (it == it.toInt().toDouble()) it.toInt() else String.format("%.1f", it) }}万"
+        count >= 1000 -> "${(count / 1000.0).let { if (it == it.toInt().toDouble()) it.toInt() else String.format("%.1f", it) }}k"
+        else -> count.toString()
+    }
+}
+
+@Composable
+private fun NoteGridItem(note: Note, isPrivate: Boolean) {
+    val context = LocalContext.current
+    var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+    
+    // Load image from assets
+    LaunchedEffect(note.coverImage ?: note.images.firstOrNull()) {
+        try {
+            val imagePath = note.coverImage ?: note.images.firstOrNull()
+            if (!imagePath.isNullOrEmpty()) {
+                val inputStream = context.assets.open(imagePath)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream.close()
+                imageBitmap = bitmap?.asImageBitmap()
+            }
+        } catch (e: Exception) {
+            imageBitmap = null
+        }
+    }
+    
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(0.75f),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Image section
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                if (imageBitmap != null) {
+                    Image(
+                        bitmap = imageBitmap!!,
+                        contentDescription = "Note Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0xFFE0E0E0)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "📷",
+                            fontSize = 32.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+                
+                // Privacy indicator for private notes
+                if (isPrivate) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(8.dp)
+                            .background(
+                                Color.Black.copy(alpha = 0.6f),
+                                RoundedCornerShape(12.dp)
+                            )
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = when (note.visibility) {
+                                NoteVisibility.PRIVATE -> "仅自己可见"
+                                NoteVisibility.FRIENDS_ONLY -> "仅好友可见" 
+                                NoteVisibility.SPECIFIC_FRIENDS -> "部分好友可见"
+                                else -> "私密"
+                            },
+                            color = Color.White,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
+            }
+            
+            // Content section
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = note.title,
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                Text(
+                    text = note.content.ifBlank { "分享生活点滴" },
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                Spacer(modifier = Modifier.height(4.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Author",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = note.author.nickname,
+                            color = Color.Gray,
+                            fontSize = 10.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = "Likes",
+                            tint = Color.Red,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            text = formatLikeCount(note.likeCount),
+                            color = Color.Gray,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
