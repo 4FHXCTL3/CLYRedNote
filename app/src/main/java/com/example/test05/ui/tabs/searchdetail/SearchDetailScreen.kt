@@ -33,6 +33,7 @@ import android.graphics.BitmapFactory
 import com.example.CLYRedNote.model.Note
 import com.example.test05.presenter.SearchDetailPresenter
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.ui.tabs.notedetail.NoteDetailScreen
 
 @Composable
 fun SearchDetailScreen(
@@ -50,6 +51,8 @@ fun SearchDetailScreen(
     var searchResults by remember { mutableStateOf<List<Note>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var showNoteDetail by remember { mutableStateOf(false) }
+    var currentNoteId by remember { mutableStateOf<String?>(null) }
 
     val view = object : SearchDetailContract.View {
         override fun showSearchResults(notes: List<Note>) {
@@ -90,11 +93,20 @@ fun SearchDetailScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
+    if (showNoteDetail && currentNoteId != null) {
+        NoteDetailScreen(
+            noteId = currentNoteId!!,
+            onBackClicked = {
+                showNoteDetail = false
+                currentNoteId = null
+            }
+        )
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
         // Search Bar
         SearchDetailBar(
             searchText = searchText,
@@ -144,18 +156,22 @@ fun SearchDetailScreen(
                 items(searchResults) { note ->
                     SearchResultCard(
                         note = note,
-                        onClick = { onNoteClicked(note.id) }
+                        onClick = { 
+                            currentNoteId = note.id
+                            showNoteDetail = true
+                        }
                     )
                 }
             }
         }
 
-        errorMessage?.let { message ->
-            Text(
-                text = message,
-                color = Color.Red,
-                modifier = Modifier.padding(16.dp)
-            )
+            errorMessage?.let { message ->
+                Text(
+                    text = message,
+                    color = Color.Red,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
         }
     }
 }

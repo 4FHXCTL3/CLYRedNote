@@ -30,12 +30,13 @@ import android.graphics.BitmapFactory
 import com.example.CLYRedNote.model.Note
 import com.example.test05.presenter.HomeTabPresenter
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.ui.tabs.notedetail.NoteDetailScreen
 import kotlin.math.absoluteValue
 
 @Composable
 fun HomeTabScreen(
-    onNoteClicked: (String) -> Unit = {},
-    onSearchClicked: () -> Unit = {}
+    onSearchClicked: () -> Unit = {},
+    onNoteDetailStateChanged: (Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
@@ -46,6 +47,8 @@ fun HomeTabScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var selectedTab by remember { mutableStateOf(HomeTabType.DISCOVER) }
     var selectedCategory by remember { mutableStateOf("推荐") }
+    var showNoteDetail by remember { mutableStateOf(false) }
+    var currentNoteId by remember { mutableStateOf<String?>(null) }
 
     val view = object : HomeTabContract.View {
         override fun showNotes(noteList: List<Note>) {
@@ -80,11 +83,25 @@ fun HomeTabScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
+    LaunchedEffect(showNoteDetail) {
+        onNoteDetailStateChanged(showNoteDetail)
+    }
+    
+    if (showNoteDetail && currentNoteId != null) {
+        NoteDetailScreen(
+            noteId = currentNoteId!!,
+            onBackClicked = {
+                showNoteDetail = false
+                currentNoteId = null
+                onNoteDetailStateChanged(false)
+            }
+        )
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
         // Top Navigation Bar
         TopNavigationBar(
             selectedTab = selectedTab,
@@ -115,17 +132,21 @@ fun HomeTabScreen(
         } else {
             NotesGrid(
                 notes = notes,
-                onNoteClicked = { noteId -> onNoteClicked(noteId) },
+                onNoteClicked = { noteId -> 
+                    currentNoteId = noteId
+                    showNoteDetail = true
+                },
                 onNoteLiked = { noteId -> presenter.onNoteLiked(noteId) }
             )
         }
 
-        errorMessage?.let { message ->
-            Text(
-                text = message,
-                color = Color.Red,
-                modifier = Modifier.padding(16.dp)
-            )
+            errorMessage?.let { message ->
+                Text(
+                    text = message,
+                    color = Color.Red,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
         }
     }
 }

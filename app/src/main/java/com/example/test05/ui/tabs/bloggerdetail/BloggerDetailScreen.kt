@@ -37,6 +37,8 @@ import com.example.CLYRedNote.model.Note
 import com.example.CLYRedNote.model.User
 import com.example.test05.presenter.BloggerDetailPresenter
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.ui.tabs.notedetail.NoteDetailScreen
+import com.example.test05.ui.tabs.messagedetail.MessageDetailScreen
 
 @Composable
 fun BloggerDetailScreen(
@@ -56,6 +58,10 @@ fun BloggerDetailScreen(
     var isFollowing by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("全部") }
+    var showNoteDetail by remember { mutableStateOf(false) }
+    var currentNoteId by remember { mutableStateOf<String?>(null) }
+    var showMessageDetail by remember { mutableStateOf(false) }
+    var currentMessageUserId by remember { mutableStateOf<String?>(null) }
 
     val view = object : BloggerDetailContract.View {
         override fun showBloggerInfo(user: User) {
@@ -87,7 +93,8 @@ fun BloggerDetailScreen(
         }
 
         override fun navigateToMessage(userId: String) {
-            onMessageClicked(userId)
+            currentMessageUserId = userId
+            showMessageDetail = true
         }
     }
 
@@ -102,11 +109,28 @@ fun BloggerDetailScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
+    if (showMessageDetail && currentMessageUserId != null) {
+        MessageDetailScreen(
+            userId = currentMessageUserId!!,
+            onBackClicked = {
+                showMessageDetail = false
+                currentMessageUserId = null
+            }
+        )
+    } else if (showNoteDetail && currentNoteId != null) {
+        NoteDetailScreen(
+            noteId = currentNoteId!!,
+            onBackClicked = {
+                showNoteDetail = false
+                currentNoteId = null
+            }
+        )
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+        ) {
         // Top Bar
         TopBar(onBackClicked = onBackClicked)
         
@@ -164,19 +188,23 @@ fun BloggerDetailScreen(
                         // Notes Grid
                         NotesGrid(
                             notes = notes,
-                            onNoteClicked = onNoteClicked
+                            onNoteClicked = { noteId ->
+                                currentNoteId = noteId
+                                showNoteDetail = true
+                            }
                         )
                     }
                 }
             }
         }
 
-        errorMessage?.let { message ->
-            Text(
-                text = message,
-                color = Color.Red,
-                modifier = Modifier.padding(16.dp)
-            )
+            errorMessage?.let { message ->
+                Text(
+                    text = message,
+                    color = Color.Red,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
         }
     }
 }

@@ -57,9 +57,10 @@ fun MainNavigation() {
     var currentMessageUserId by remember { mutableStateOf<String?>(null) }
     var showSettings by remember { mutableStateOf(false) }
     var showAccountSecurity by remember { mutableStateOf(false) }
+    var homeTabShowingNoteDetail by remember { mutableStateOf(false) }
+    var meTabShowingNoteDetail by remember { mutableStateOf(false) }
     
     // Navigation stack state to handle proper back navigation
-    var fromBloggerDetail by remember { mutableStateOf(false) }
     var fromSearchDetail by remember { mutableStateOf(false) }
     var fromSearchTab by remember { mutableStateOf(false) }
     var fromMessageDetail by remember { mutableStateOf(false) }
@@ -83,11 +84,6 @@ fun MainNavigation() {
                         showSearchDetail = false
                         searchQuery = ""
                         fromSearchDetail = false
-                    },
-                    onNoteClicked = { noteId ->
-                        currentNoteId = noteId
-                        fromSearchDetail = true
-                        showNoteDetail = true
                     }
                 )
             } else if (showProfileEdit) {
@@ -108,17 +104,6 @@ fun MainNavigation() {
                     onBackClicked = { 
                         showBloggerDetail = false
                         currentBloggerId = null
-                        fromBloggerDetail = false
-                    },
-                    onNoteClicked = { noteId ->
-                        currentNoteId = noteId
-                        fromBloggerDetail = true
-                        showNoteDetail = true
-                    },
-                    onMessageClicked = { userId ->
-                        currentMessageUserId = userId
-                        fromBloggerDetail = true
-                        showMessageDetail = true
                     }
                 )
             } else if (showFanTab) {
@@ -192,46 +177,26 @@ fun MainNavigation() {
                     onBackClicked = {
                         showMessageDetail = false
                         currentMessageUserId = null
-                        // Navigate back to blogger detail if we came from there
-                        if (fromBloggerDetail) {
-                            showBloggerDetail = true
-                            fromBloggerDetail = false
-                        }
                     }
                 )
-            } else if (showNoteDetail && currentNoteId != null) {
+            } else if (showNoteDetail && currentNoteId != null && fromSearchTab) {
                 NoteDetailScreen(
                     noteId = currentNoteId!!,
                     onBackClicked = { 
                         showNoteDetail = false
                         currentNoteId = null
-                        // Navigate back to the appropriate screen based on where we came from
-                        when {
-                            fromBloggerDetail -> {
-                                showBloggerDetail = true
-                                fromBloggerDetail = false
-                            }
-                            fromSearchDetail -> {
-                                showSearchDetail = true
-                                fromSearchDetail = false
-                            }
-                            fromSearchTab -> {
-                                showSearch = true
-                                fromSearchTab = false
-                            }
-                            // If from Home or other tabs, just close NoteDetail
-                        }
+                        showSearch = true
+                        fromSearchTab = false
                     }
                 )
             } else {
                 when (selectedTab) {
                     0 -> HomeTabScreen(
-                        onNoteClicked = { noteId: String ->
-                            currentNoteId = noteId
-                            showNoteDetail = true
-                        },
                         onSearchClicked = {
                             showSearch = true
+                        },
+                        onNoteDetailStateChanged = { isShowing ->
+                            homeTabShowingNoteDetail = isShowing
                         }
                     )
                     1 -> MarketTabScreen(
@@ -271,6 +236,9 @@ fun MainNavigation() {
                         },
                         onSettingsClicked = {
                             showSettings = true
+                        },
+                        onNoteDetailStateChanged = { isShowing ->
+                            meTabShowingNoteDetail = isShowing
                         }
                     )
                 }
@@ -279,7 +247,8 @@ fun MainNavigation() {
 
         // Bottom Navigation (隐藏在某些全屏页面中)
         if (!showSearchDetail && !showNoteDetail && !showCart && !showSearch && 
-            !showFollowing && !showBloggerDetail && !showFanTab && !showCommentAt && !showProfileEdit && !showPostNext && !showMessageDetail && !showSettings && !showAccountSecurity && selectedTab != 2) {
+            !showFollowing && !showBloggerDetail && !showFanTab && !showCommentAt && !showProfileEdit && !showPostNext && !showMessageDetail && !showSettings && !showAccountSecurity && 
+            !homeTabShowingNoteDetail && !meTabShowingNoteDetail && selectedTab != 2) {
             BottomNavigationBar(
                 selectedTab = selectedTab,
                 onTabSelected = { selectedTab = it }

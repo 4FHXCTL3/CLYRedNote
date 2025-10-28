@@ -38,6 +38,7 @@ import com.example.CLYRedNote.model.User
 import com.example.CLYRedNote.model.NoteVisibility
 import com.example.test05.presenter.MeTabPresenter
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.ui.tabs.notedetail.NoteDetailScreen
 
 // Mock data classes
 data class MockNoteItemWithDetails(
@@ -70,7 +71,8 @@ fun MeTabScreen(
     onFollowingClicked: () -> Unit = {},
     onFansClicked: () -> Unit = {},
     onProfileEditClicked: () -> Unit = {},
-    onSettingsClicked: () -> Unit = {}
+    onSettingsClicked: () -> Unit = {},
+    onNoteDetailStateChanged: (Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
@@ -86,6 +88,8 @@ fun MeTabScreen(
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var selectedTab by remember { mutableIntStateOf(0) }
+    var showNoteDetail by remember { mutableStateOf(false) }
+    var currentNoteId by remember { mutableStateOf<String?>(null) }
 
     val view = object : MeTabContract.View {
         override fun showUserProfile(user: User) {
@@ -131,12 +135,26 @@ fun MeTabScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(16.dp)
-    ) {
+    LaunchedEffect(showNoteDetail) {
+        onNoteDetailStateChanged(showNoteDetail)
+    }
+    
+    if (showNoteDetail && currentNoteId != null) {
+        NoteDetailScreen(
+            noteId = currentNoteId!!,
+            onBackClicked = {
+                showNoteDetail = false
+                currentNoteId = null
+                onNoteDetailStateChanged(false)
+            }
+        )
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(16.dp)
+        ) {
         // Top Section with User Profile
         currentUser?.let { user ->
             UserProfileSection(
@@ -182,11 +200,33 @@ fun MeTabScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Content based on selected tab
-        when (selectedTab) {
-            0 -> NotesContent(notes, selectedTab)
-            1 -> CollectionsContent(collections, selectedTab)
-            2 -> LikedNotesContent(likedNotes, selectedTab)
+            // Content based on selected tab
+            when (selectedTab) {
+                0 -> NotesContent(
+                    notes = notes, 
+                    selectedTab = selectedTab,
+                    onNoteClicked = { noteId ->
+                        currentNoteId = noteId
+                        showNoteDetail = true
+                    }
+                )
+                1 -> CollectionsContent(
+                    collections = collections, 
+                    selectedTab = selectedTab,
+                    onNoteClicked = { noteId ->
+                        currentNoteId = noteId
+                        showNoteDetail = true
+                    }
+                )
+                2 -> LikedNotesContent(
+                    notes = likedNotes, 
+                    selectedTab = selectedTab,
+                    onNoteClicked = { noteId ->
+                        currentNoteId = noteId
+                        showNoteDetail = true
+                    }
+                )
+            }
         }
     }
 }
@@ -475,7 +515,7 @@ private fun NotesTabsSection(
 }
 
 @Composable
-private fun NotesContent(notes: List<Note>, selectedTab: Int) {
+private fun NotesContent(notes: List<Note>, selectedTab: Int, onNoteClicked: (String) -> Unit = {}) {
     // Sub-category tabs for Notes section
     var selectedSubTab by remember { mutableIntStateOf(0) }
     val subTabs = listOf("公开", "私密", "合集")
@@ -527,7 +567,7 @@ private fun NotesContent(notes: List<Note>, selectedTab: Int) {
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         items(publicNotes.size) { index ->
-                            NoteGridItem(note = publicNotes[index], isPrivate = false)
+                            NoteGridItem(note = publicNotes[index], isPrivate = false, onNoteClicked = onNoteClicked)
                         }
                     }
                 } else {
@@ -545,7 +585,7 @@ private fun NotesContent(notes: List<Note>, selectedTab: Int) {
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         items(privateNotes.size) { index ->
-                            NoteGridItem(note = privateNotes[index], isPrivate = true)
+                            NoteGridItem(note = privateNotes[index], isPrivate = true, onNoteClicked = onNoteClicked)
                         }
                     }
                 } else {
@@ -561,7 +601,7 @@ private fun NotesContent(notes: List<Note>, selectedTab: Int) {
 }
 
 @Composable
-private fun CollectionsContent(collections: List<Collection>, selectedTab: Int) {
+private fun CollectionsContent(collections: List<Collection>, selectedTab: Int, onNoteClicked: (String) -> Unit = {}) {
     // Sub-category tabs for Collections section
     var selectedSubTab by remember { mutableIntStateOf(0) }
     val subTabs = listOf("笔记", "专辑")
@@ -627,7 +667,7 @@ private fun CollectionsContent(collections: List<Collection>, selectedTab: Int) 
 }
 
 @Composable
-private fun LikedNotesContent(notes: List<Note>, selectedTab: Int) {
+private fun LikedNotesContent(notes: List<Note>, selectedTab: Int, onNoteClicked: (String) -> Unit = {}) {
     // Create mock liked notes
     val mockLikedNotes = listOf(
         MockLikedNoteItem("2025新年快乐", "急救跑者就位｜带你体验长沙马拉松半马赛道", "肉未来", "207", "image/scenery1.jpg"),
@@ -822,7 +862,7 @@ private fun formatLikeCount(count: Int): String {
 }
 
 @Composable
-private fun NoteGridItem(note: Note, isPrivate: Boolean) {
+private fun NoteGridItem(note: Note, isPrivate: Boolean, onNoteClicked: (String) -> Unit = {}) {
     val context = LocalContext.current
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     
@@ -844,7 +884,8 @@ private fun NoteGridItem(note: Note, isPrivate: Boolean) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.75f),
+            .aspectRatio(0.75f)
+            .clickable { onNoteClicked(note.id) },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
