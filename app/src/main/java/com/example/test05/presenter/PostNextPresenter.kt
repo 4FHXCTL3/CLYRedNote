@@ -148,10 +148,17 @@ class PostNextPresenter(
                 // Create new note
                 val newNote = Note(
                     id = "note_${System.currentTimeMillis()}",
-                    title = currentTitle.ifBlank { currentContent.take(20) + "..." },
+                    title = currentTitle.ifBlank { 
+                        if (currentContent.isNotBlank()) {
+                            currentContent.take(20) + "..."
+                        } else {
+                            "无标题笔记"
+                        }
+                    },
                     content = currentContent,
                     type = if (currentPostData.images.isNotEmpty()) NoteType.IMAGE else NoteType.TEXT,
                     author = dataLoader.getCurrentUser() ?: throw Exception("用户信息不存在"),
+                    coverImage = currentPostData.images.firstOrNull(),
                     images = currentPostData.images,
                     tags = currentTags.toList(),
                     topics = currentTopics.toList(),
@@ -160,9 +167,11 @@ class PostNextPresenter(
                     publishedAt = Date()
                 )
                 
-                // TODO: Save note to JSON data
+                // Save note to JSON data
+                dataLoader.saveNote(newNote)
                 view?.showSuccess("笔记发布成功")
-                view?.navigateBack()
+                // Navigate to NoteDetail instead of back
+                view?.navigateToNoteDetail(newNote.id)
                 
             } catch (e: Exception) {
                 view?.showError("发布失败: ${e.message}")

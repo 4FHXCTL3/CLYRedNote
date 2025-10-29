@@ -30,6 +30,7 @@ interface PostNextContract {
         fun showPrivacySelector(currentPrivacy: PostPrivacy)
         fun hidePrivacySelector()
         fun updatePrivacy(privacy: PostPrivacy)
+        fun navigateToNoteDetail(noteId: String)
     }
 
     interface Presenter {

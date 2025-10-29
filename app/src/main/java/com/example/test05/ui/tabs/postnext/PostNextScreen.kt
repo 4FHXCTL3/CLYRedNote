@@ -26,7 +26,8 @@ import com.example.test05.utils.JsonDataLoader
 @Composable
 fun PostNextScreen(
     postData: PostData = PostData(),
-    onBackClicked: () -> Unit = {}
+    onBackClicked: () -> Unit = {},
+    onNavigateToNoteDetail: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
@@ -67,6 +68,10 @@ fun PostNextScreen(
         
         override fun updatePrivacy(privacy: PostPrivacy) {
             currentPrivacy = privacy
+        }
+        
+        override fun navigateToNoteDetail(noteId: String) {
+            onNavigateToNoteDetail(noteId)
         }
     }
     

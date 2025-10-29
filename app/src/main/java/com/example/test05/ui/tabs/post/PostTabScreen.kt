@@ -24,6 +24,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.RectangleShape
 import com.example.test05.presenter.PostTabPresenter
 import com.example.test05.utils.JsonDataLoader
 
@@ -73,9 +80,9 @@ fun PostTabScreen(
         }
 
         override fun showImagePicker() {
-            // Mock image selection
-            val mockImage = "image/scenery${(1..6).random()}.jpg"
-            presenter.onImageSelected(mockImage)
+            // Select a random image from assets
+            val randomImage = "image/scenery${(1..6).random()}.jpg"
+            presenter.onImageSelected(randomImage)
         }
 
         override fun navigateToPostNext(title: String, content: String, images: List<String>) {
@@ -278,12 +285,56 @@ private fun ImageUploadArea(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                Text(
-                    text = "已选择 ${images.size} 张图片",
-                    color = Color.Black,
-                    fontSize = 14.sp
-                )
-                // In a real app, you would display actual images here
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "已选择 ${images.size} 张图片",
+                        color = Color.Black,
+                        fontSize = 14.sp
+                    )
+                    Button(
+                        onClick = onAddImageClicked,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF6B9D)),
+                        modifier = Modifier.size(32.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Text(
+                            text = "+",
+                            color = Color.White,
+                            fontSize = 16.sp
+                        )
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Display selected images
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(images) { imagePath ->
+                        Card(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(RoundedCornerShape(8.dp)),
+                            colors = CardDefaults.cardColors(containerColor = Color.Gray.copy(alpha = 0.3f))
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "🖼️",
+                                    fontSize = 32.sp,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }

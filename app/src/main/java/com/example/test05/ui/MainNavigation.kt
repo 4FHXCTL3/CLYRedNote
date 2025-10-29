@@ -64,6 +64,7 @@ fun MainNavigation() {
     var fromSearchDetail by remember { mutableStateOf(false) }
     var fromSearchTab by remember { mutableStateOf(false) }
     var fromMessageDetail by remember { mutableStateOf(false) }
+    var fromPostNext by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Content
@@ -75,6 +76,13 @@ fun MainNavigation() {
                         showPostNext = false
                         postNextData = null
                         selectedTab = 2
+                    },
+                    onNavigateToNoteDetail = { noteId ->
+                        showPostNext = false
+                        postNextData = null
+                        currentNoteId = noteId
+                        fromPostNext = true
+                        showNoteDetail = true
                     }
                 )
             } else if (showSearchDetail) {
@@ -187,6 +195,16 @@ fun MainNavigation() {
                         currentNoteId = null
                         showSearch = true
                         fromSearchTab = false
+                    }
+                )
+            } else if (showNoteDetail && currentNoteId != null && fromPostNext) {
+                NoteDetailScreen(
+                    noteId = currentNoteId!!,
+                    onBackClicked = { 
+                        showNoteDetail = false
+                        currentNoteId = null
+                        fromPostNext = false
+                        selectedTab = 0 // Navigate back to home tab
                     }
                 )
             } else {

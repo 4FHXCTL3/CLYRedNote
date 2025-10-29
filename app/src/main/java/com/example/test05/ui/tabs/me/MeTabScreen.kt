@@ -55,7 +55,8 @@ data class MockCollectionNoteItem(
     val folder: String,
     val likes: String,
     val timeAgo: String,
-    val imagePath: String
+    val imagePath: String,
+    val noteId: String
 )
 
 data class MockLikedNoteItem(
@@ -63,7 +64,8 @@ data class MockLikedNoteItem(
     val content: String,
     val author: String,
     val likes: String,
-    val imagePath: String
+    val imagePath: String,
+    val noteId: String
 )
 
 @Composable
@@ -636,17 +638,17 @@ private fun CollectionsContent(collections: List<Collection>, selectedTab: Int, 
         
         // Collections grid
         if (selectedSubTab == 0) {
-            // Create mock collection notes
+            // Create mock collection notes using real note IDs
             val mockCollectionNotes = listOf(
-                MockCollectionNoteItem("夏日穿搭分享", "穿搭日记", "3.1万", "1天前", "image/scenery1.jpg"),
-                MockCollectionNoteItem("精致妆容教程", "美妆心得", "2.8万", "3天前", "image/scenery2.jpg"),
-                MockCollectionNoteItem("旅行打卡记录", "足迹", "1.9万", "1周前", "image/scenery3.jpg"),
-                MockCollectionNoteItem("美食探店推荐", "吃货日常", "4.2万", "2周前", "image/scenery4.jpg"),
-                MockCollectionNoteItem("家居装饰灵感", "温馨小窝", "1.5万", "3周前", "image/scenery5.jpg"),
-                MockCollectionNoteItem("健身打卡记录", "自律生活", "2.1万", "1个月前", "image/scenery6.jpg"),
-                MockCollectionNoteItem("摄影作品分享", "光影世界", "3.7万", "2个月前", "image/scenery1.jpg"),
-                MockCollectionNoteItem("读书笔记整理", "精神食粮", "1.2万", "3个月前", "image/scenery2.jpg"),
-                MockCollectionNoteItem("宠物日常记录", "毛孩子", "5.1万", "4个月前", "image/scenery3.jpg")
+                MockCollectionNoteItem("夏日穿搭分享", "穿搭日记", "3.1万", "1天前", "image/scenery1.jpg", "note_001"),
+                MockCollectionNoteItem("精致妆容教程", "美妆心得", "2.8万", "3天前", "image/scenery2.jpg", "note_002"),
+                MockCollectionNoteItem("旅行打卡记录", "足迹", "1.9万", "1周前", "image/scenery3.jpg", "note_003"),
+                MockCollectionNoteItem("美食探店推荐", "吃货日常", "4.2万", "2周前", "image/scenery4.jpg", "note_004"),
+                MockCollectionNoteItem("家居装饰灵感", "温馨小窝", "1.5万", "3周前", "image/scenery5.jpg", "note_005"),
+                MockCollectionNoteItem("健身打卡记录", "自律生活", "2.1万", "1个月前", "image/scenery6.jpg", "note_006"),
+                MockCollectionNoteItem("摄影作品分享", "光影世界", "3.7万", "2个月前", "image/scenery1.jpg", "note_007"),
+                MockCollectionNoteItem("读书笔记整理", "精神食粮", "1.2万", "3个月前", "image/scenery2.jpg", "note_008"),
+                MockCollectionNoteItem("宠物日常记录", "毛孩子", "5.1万", "4个月前", "image/scenery3.jpg", "note_009")
             )
             
             LazyVerticalGrid(
@@ -657,7 +659,10 @@ private fun CollectionsContent(collections: List<Collection>, selectedTab: Int, 
                 modifier = Modifier.fillMaxWidth()
             ) {
                 items(mockCollectionNotes.size) { index ->
-                    CollectionNoteGridItem(note = mockCollectionNotes[index])
+                    CollectionNoteGridItem(
+                        note = mockCollectionNotes[index],
+                        onNoteClicked = onNoteClicked
+                    )
                 }
             }
         } else {
@@ -670,15 +675,15 @@ private fun CollectionsContent(collections: List<Collection>, selectedTab: Int, 
 private fun LikedNotesContent(notes: List<Note>, selectedTab: Int, onNoteClicked: (String) -> Unit = {}) {
     // Create mock liked notes
     val mockLikedNotes = listOf(
-        MockLikedNoteItem("2025新年快乐", "急救跑者就位｜带你体验长沙马拉松半马赛道", "肉未来", "207", "image/scenery1.jpg"),
-        MockLikedNoteItem("我们在操场撞到人之后", "运动的时候也要美美哒", "狮山长跑队", "1.5万", "image/scenery2.jpg"),
-        MockLikedNoteItem("夏日清爽妆容教程", "超详细步骤分享", "美妆达人小王", "5.2万", "image/scenery3.jpg"),
-        MockLikedNoteItem("周末探店新发现", "这家咖啡厅太有格调了", "探店小分队", "3.8万", "image/scenery4.jpg"),
-        MockLikedNoteItem("家居改造前后对比", "小空间大变身", "装修小能手", "2.1万", "image/scenery5.jpg"),
-        MockLikedNoteItem("健身打卡第100天", "坚持的力量", "健身小白", "4.3万", "image/scenery6.jpg"),
-        MockLikedNoteItem("旅行vlog分享", "三天两夜重庆游", "旅行记录者", "6.7万", "image/scenery1.jpg"),
-        MockLikedNoteItem("读书分享推荐", "这本书改变了我", "书虫小姐", "1.9万", "image/scenery2.jpg"),
-        MockLikedNoteItem("宠物日常萌照", "我家橘猫的搞笑日常", "铲屎官日记", "8.1万", "image/scenery3.jpg")
+        MockLikedNoteItem("2025新年快乐", "急救跑者就位｜带你体验长沙马拉松半马赛道", "肉未来", "207", "image/scenery1.jpg", "note_010"),
+        MockLikedNoteItem("我们在操场撞到人之后", "运动的时候也要美美哒", "狮山长跑队", "1.5万", "image/scenery2.jpg", "note_011"),
+        MockLikedNoteItem("夏日清爽妆容教程", "超详细步骤分享", "美妆达人小王", "5.2万", "image/scenery3.jpg", "note_012"),
+        MockLikedNoteItem("周末探店新发现", "这家咖啡厅太有格调了", "探店小分队", "3.8万", "image/scenery4.jpg", "note_013"),
+        MockLikedNoteItem("家居改造前后对比", "小空间大变身", "装修小能手", "2.1万", "image/scenery5.jpg", "note_014"),
+        MockLikedNoteItem("健身打卡第100天", "坚持的力量", "健身小白", "4.3万", "image/scenery6.jpg", "note_015"),
+        MockLikedNoteItem("旅行vlog分享", "三天两夜重庆游", "旅行记录者", "6.7万", "image/scenery1.jpg", "note_016"),
+        MockLikedNoteItem("读书分享推荐", "这本书改变了我", "书虫小姐", "1.9万", "image/scenery2.jpg", "note_017"),
+        MockLikedNoteItem("宠物日常萌照", "我家橘猫的搞笑日常", "铲屎官日记", "8.1万", "image/scenery3.jpg", "note_018")
     )
     
     LazyVerticalGrid(
@@ -689,7 +694,10 @@ private fun LikedNotesContent(notes: List<Note>, selectedTab: Int, onNoteClicked
         modifier = Modifier.fillMaxWidth()
     ) {
         items(mockLikedNotes.size) { index ->
-            LikedNoteGridItem(note = mockLikedNotes[index])
+            LikedNoteGridItem(
+                note = mockLikedNotes[index],
+                onNoteClicked = onNoteClicked
+            )
         }
     }
 }
@@ -1157,7 +1165,7 @@ private fun PrivateNoteDetailItem(note: MockNoteItemWithDetails) {
 }
 
 @Composable
-private fun CollectionNoteGridItem(note: MockCollectionNoteItem) {
+private fun CollectionNoteGridItem(note: MockCollectionNoteItem, onNoteClicked: (String) -> Unit = {}) {
     val context = LocalContext.current
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     
@@ -1176,7 +1184,10 @@ private fun CollectionNoteGridItem(note: MockCollectionNoteItem) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.75f),
+            .aspectRatio(0.75f)
+            .clickable { 
+                onNoteClicked(note.noteId)
+            },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -1279,7 +1290,7 @@ private fun CollectionNoteGridItem(note: MockCollectionNoteItem) {
 }
 
 @Composable
-private fun LikedNoteGridItem(note: MockLikedNoteItem) {
+private fun LikedNoteGridItem(note: MockLikedNoteItem, onNoteClicked: (String) -> Unit = {}) {
     val context = LocalContext.current
     var imageBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     
@@ -1298,7 +1309,10 @@ private fun LikedNoteGridItem(note: MockLikedNoteItem) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .aspectRatio(0.75f),
+            .aspectRatio(0.75f)
+            .clickable { 
+                onNoteClicked(note.noteId)
+            },
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)

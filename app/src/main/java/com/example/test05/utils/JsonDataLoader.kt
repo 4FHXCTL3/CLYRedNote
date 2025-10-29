@@ -17,6 +17,17 @@ class JsonDataLoader(private val context: Context) {
         }
         return usersCache!!
     }
+    
+    private fun getNotesCache(): MutableList<Note> {
+        if (JsonDataLoader.notesCache == null) {
+            JsonDataLoader.notesCache = loadNotesInternal().toMutableList()
+        }
+        return JsonDataLoader.notesCache!!
+    }
+    
+    companion object {
+        private var notesCache: MutableList<Note>? = null
+    }
     private val gson = GsonBuilder()
         .setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         .create()
@@ -47,6 +58,10 @@ class JsonDataLoader(private val context: Context) {
     }
 
     fun loadNotes(): List<Note> {
+        return getNotesCache()
+    }
+    
+    private fun loadNotesInternal(): List<Note> {
         return try {
             val jsonString = loadJsonFromAssets("data/notes.json")
             val jsonArray = JsonParser.parseString(jsonString).asJsonArray
@@ -108,6 +123,11 @@ class JsonDataLoader(private val context: Context) {
 
     fun getCurrentUser(): User? {
         return loadUsers().find { it.id == "user_current" }
+    }
+
+    fun saveNote(note: Note) {
+        // Add the new note to the beginning of the list (newest first)
+        getNotesCache().add(0, note)
     }
 
     fun loadShoppingCart(): List<CartItemJson> {
