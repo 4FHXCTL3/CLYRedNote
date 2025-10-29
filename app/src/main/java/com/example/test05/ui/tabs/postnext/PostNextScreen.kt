@@ -20,8 +20,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import android.graphics.BitmapFactory
+import java.io.IOException
 import com.example.test05.presenter.PostNextPresenter
 import com.example.test05.utils.JsonDataLoader
+
+@Composable
+fun loadImageFromAssets(context: android.content.Context, imagePath: String): androidx.compose.ui.graphics.ImageBitmap? {
+    return try {
+        val inputStream = context.assets.open(imagePath)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        inputStream.close()
+        bitmap?.asImageBitmap()
+    } catch (e: IOException) {
+        null
+    }
+}
 
 @Composable
 fun PostNextScreen(
@@ -233,15 +250,36 @@ private fun PostImageGallery(
                     .clickable { onImageRemoved(index) },
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
             ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "图片",
-                        fontSize = 12.sp,
-                        color = Color.Gray
+                val context = LocalContext.current
+                val imageBitmap = remember(images[index]) {
+                    try {
+                        val inputStream = context.assets.open(images[index])
+                        val bitmap = BitmapFactory.decodeStream(inputStream)
+                        inputStream.close()
+                        bitmap?.asImageBitmap()
+                    } catch (e: IOException) {
+                        null
+                    }
+                }
+                
+                if (imageBitmap != null) {
+                    Image(
+                        bitmap = imageBitmap,
+                        contentDescription = "笔记图片",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "图片",
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
         }

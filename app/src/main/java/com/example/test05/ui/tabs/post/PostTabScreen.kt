@@ -31,8 +31,23 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.border
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.asImageBitmap
+import android.graphics.BitmapFactory
+import java.io.IOException
 import com.example.test05.presenter.PostTabPresenter
 import com.example.test05.utils.JsonDataLoader
+
+@Composable
+fun loadImageFromAssets(context: android.content.Context, imagePath: String): androidx.compose.ui.graphics.ImageBitmap? {
+    return try {
+        val inputStream = context.assets.open(imagePath)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        inputStream.close()
+        bitmap?.asImageBitmap()
+    } catch (e: IOException) {
+        null
+    }
+}
 
 @Composable
 fun PostTabScreen(
@@ -322,15 +337,36 @@ private fun ImageUploadArea(
                                 .clip(RoundedCornerShape(8.dp)),
                             colors = CardDefaults.cardColors(containerColor = Color.Gray.copy(alpha = 0.3f))
                         ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "🖼️",
-                                    fontSize = 32.sp,
-                                    textAlign = TextAlign.Center
+                            val context = LocalContext.current
+                            val imageBitmap = remember(imagePath) {
+                                try {
+                                    val inputStream = context.assets.open(imagePath)
+                                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                                    inputStream.close()
+                                    bitmap?.asImageBitmap()
+                                } catch (e: IOException) {
+                                    null
+                                }
+                            }
+                            
+                            if (imageBitmap != null) {
+                                Image(
+                                    bitmap = imageBitmap,
+                                    contentDescription = "选中的图片",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
                                 )
+                            } else {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "🖼️",
+                                        fontSize = 32.sp,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
                             }
                         }
                     }
