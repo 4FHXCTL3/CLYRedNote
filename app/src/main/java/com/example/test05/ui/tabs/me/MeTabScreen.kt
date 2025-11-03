@@ -70,6 +70,7 @@ data class MockLikedNoteItem(
 
 @Composable
 fun MeTabScreen(
+    refreshKey: Int = 0,
     onFollowingClicked: () -> Unit = {},
     onFansClicked: () -> Unit = {},
     onProfileEditClicked: () -> Unit = {},
@@ -129,6 +130,13 @@ fun MeTabScreen(
         presenter.attachView(view)
         presenter.loadUserData()
         presenter.loadUserNotes()
+    }
+
+    // Refresh when refreshKey changes (e.g., returning from ProfileEdit)
+    LaunchedEffect(refreshKey) {
+        if (refreshKey > 0) {
+            presenter.refreshUserData()
+        }
     }
 
     DisposableEffect(Unit) {

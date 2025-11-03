@@ -12,10 +12,10 @@ class JsonDataLoader(private val context: Context) {
     private var usersCache: List<User>? = null
     
     private fun getUsersCache(): List<User> {
-        if (usersCache == null) {
-            usersCache = loadUsersInternal()
+        if (usersStaticCache == null) {
+            usersStaticCache = loadUsersInternal().toMutableList()
         }
-        return usersCache!!
+        return usersStaticCache!!
     }
     
     private fun getNotesCache(): MutableList<Note> {
@@ -25,9 +25,6 @@ class JsonDataLoader(private val context: Context) {
         return JsonDataLoader.notesCache!!
     }
     
-    companion object {
-        private var notesCache: MutableList<Note>? = null
-    }
     private val gson = GsonBuilder()
         .setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         .create()
@@ -112,6 +109,10 @@ class JsonDataLoader(private val context: Context) {
     }
 
     fun loadComments(): List<Comment> {
+        return getCommentsCache()
+    }
+    
+    private fun loadCommentsInternal(): List<Comment> {
         return try {
             val jsonString = loadJsonFromAssets("data/comments.json")
             val jsonArray = JsonParser.parseString(jsonString).asJsonArray
@@ -124,10 +125,39 @@ class JsonDataLoader(private val context: Context) {
     fun getCurrentUser(): User? {
         return loadUsers().find { it.id == "user_current" }
     }
+    
+    fun updateUser(updatedUser: User) {
+        val usersList = getUsersCache() as MutableList<User>
+        val index = usersList.indexOfFirst { it.id == updatedUser.id }
+        if (index != -1) {
+            usersList[index] = updatedUser
+        }
+        
+        // Also update the instance cache
+        usersCache = usersList
+    }
 
     fun saveNote(note: Note) {
         // Add the new note to the beginning of the list (newest first)
         getNotesCache().add(0, note)
+    }
+    
+    fun saveComment(comment: Comment) {
+        // Add the new comment to the comments cache
+        getCommentsCache().add(comment)
+    }
+    
+    private fun getCommentsCache(): MutableList<Comment> {
+        if (commentsCache == null) {
+            commentsCache = loadCommentsInternal().toMutableList()
+        }
+        return commentsCache!!
+    }
+    
+    companion object {
+        private var notesCache: MutableList<Note>? = null
+        private var commentsCache: MutableList<Comment>? = null
+        private var usersStaticCache: MutableList<User>? = null
     }
 
     fun loadShoppingCart(): List<CartItemJson> {

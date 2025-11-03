@@ -22,6 +22,7 @@ interface MeTabContract {
         fun loadUserNotes()
         fun loadUserCollections()
         fun loadLikedNotes()
+        fun refreshUserData()
         fun onEditProfileClicked()
         fun onSettingsClicked()
         fun onNotesTabSelected()

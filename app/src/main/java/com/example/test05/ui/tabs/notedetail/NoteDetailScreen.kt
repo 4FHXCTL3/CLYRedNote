@@ -252,7 +252,11 @@ fun NoteDetailScreen(
     // Share Bottom Sheet
     if (showShareBottomSheet) {
         ShareBottomSheet(
-            onDismiss = { showShareBottomSheet = false }
+            onDismiss = { showShareBottomSheet = false },
+            onDislikeClicked = { 
+                // Handle dislike action - could be sent to presenter
+                presenter.onDislikeClicked(noteId)
+            }
         )
     }
 }
@@ -623,20 +627,47 @@ private fun CommentInputBar(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Comment input field
-            OutlinedTextField(
-                value = commentText,
-                onValueChange = onCommentTextChanged,
-                placeholder = { Text("说点什么...", color = Color.Gray, fontSize = 14.sp) },
-                modifier = Modifier.weight(1f),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.Transparent,
-                    unfocusedBorderColor = Color.Transparent
-                ),
-                shape = RoundedCornerShape(20.dp),
-                maxLines = 1,
-                singleLine = true
-            )
+            // Comment input field with send button
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(
+                        Color.Gray.copy(alpha = 0.1f),
+                        RoundedCornerShape(20.dp)
+                    )
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = commentText,
+                    onValueChange = onCommentTextChanged,
+                    placeholder = { Text("说点什么...", color = Color.Gray, fontSize = 14.sp) },
+                    modifier = Modifier.weight(1f),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.Transparent,
+                        unfocusedBorderColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent
+                    ),
+                    shape = RoundedCornerShape(20.dp),
+                    maxLines = 1,
+                    singleLine = true
+                )
+                
+                if (commentText.isNotBlank()) {
+                    IconButton(
+                        onClick = onSendClicked,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Send,
+                            contentDescription = "发送评论",
+                            tint = Color(0xFFFF6B9D),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            }
             
             Spacer(modifier = Modifier.width(16.dp))
             
@@ -706,7 +737,8 @@ private fun CommentInputBar(
 
 @Composable
 private fun ShareBottomSheet(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onDislikeClicked: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -760,7 +792,7 @@ private fun ShareBottomSheet(
             Spacer(modifier = Modifier.height(24.dp))
             
             // Other options row
-            OtherOptionsRow()
+            OtherOptionsRow(onDislikeClicked = onDislikeClicked)
             
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -893,7 +925,11 @@ private fun SocialPlatformsRow() {
 }
 
 @Composable
-private fun OtherOptionsRow() {
+private fun OtherOptionsRow(
+    onDislikeClicked: () -> Unit = {}
+) {
+    var isDisliked by remember { mutableStateOf(false) }
+    
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(32.dp)
     ) {
@@ -902,20 +938,30 @@ private fun OtherOptionsRow() {
             ShareOption("生成分享图", Icons.Default.Add, Color.Gray),
             ShareOption("复制链接", Icons.Default.Share, Color.Gray),
             ShareOption("为ta加热", Icons.Default.Favorite, Color.Gray),
-            ShareOption("不喜欢", Icons.Default.Close, Color.Gray)
+            ShareOption("不喜欢", Icons.Default.Close, if (isDisliked) Color.Red else Color.Gray)
         )) { option ->
-            ShareOptionItem(option = option)
+            ShareOptionItem(
+                option = option,
+                onClick = {
+                    if (option.title == "不喜欢") {
+                        isDisliked = !isDisliked
+                        onDislikeClicked()
+                    }
+                    // Handle other options here if needed
+                }
+            )
         }
     }
 }
 
 @Composable
 private fun ShareOptionItem(
-    option: ShareOption
+    option: ShareOption,
+    onClick: () -> Unit = {}
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { /* Handle share option click */ }
+        modifier = Modifier.clickable { onClick() }
     ) {
         Box(
             modifier = Modifier

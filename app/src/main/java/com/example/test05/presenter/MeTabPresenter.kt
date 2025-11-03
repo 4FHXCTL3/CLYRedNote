@@ -107,4 +107,8 @@ class MeTabPresenter(
     override fun onLikedTabSelected() {
         loadLikedNotes()
     }
+    
+    override fun refreshUserData() {
+        loadUserData()
+    }
 }

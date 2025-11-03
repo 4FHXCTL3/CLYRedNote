@@ -59,6 +59,7 @@ fun MainNavigation() {
     var showAccountSecurity by remember { mutableStateOf(false) }
     var homeTabShowingNoteDetail by remember { mutableStateOf(false) }
     var meTabShowingNoteDetail by remember { mutableStateOf(false) }
+    var meTabRefreshKey by remember { mutableIntStateOf(0) }
     
     // Navigation stack state to handle proper back navigation
     var fromSearchDetail by remember { mutableStateOf(false) }
@@ -98,6 +99,7 @@ fun MainNavigation() {
                 ProfileEditScreen(
                     onBackPressed = { 
                         showProfileEdit = false
+                        meTabRefreshKey++ // Trigger MeTab refresh
                     }
                 )
             } else if (showCommentAt) {
@@ -243,6 +245,7 @@ fun MainNavigation() {
                         }
                     )
                     4 -> MeTabScreen(
+                        refreshKey = meTabRefreshKey,
                         onFollowingClicked = {
                             showFollowing = true
                         },

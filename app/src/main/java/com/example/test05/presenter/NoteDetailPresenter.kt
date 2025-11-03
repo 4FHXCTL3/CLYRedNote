@@ -155,6 +155,10 @@ class NoteDetailPresenter(
             )
             
             comments = comments + newComment
+            
+            // Save comment to data loader
+            dataLoader.saveComment(newComment)
+            
             view?.showCommentAdded(newComment)
             
             // Update note comment count
@@ -187,6 +191,11 @@ class NoteDetailPresenter(
             comments = comments + newReply
             view?.showCommentAdded(newReply)
         }
+    }
+
+    override fun onDislikeClicked(noteId: String) {
+        // Handle dislike action - could update user preferences or send analytics
+        // For now, just a placeholder implementation
     }
 
     override fun onBackClicked() {

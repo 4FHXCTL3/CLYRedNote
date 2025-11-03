@@ -29,6 +29,7 @@ interface NoteDetailContract {
         fun onCommentLikeClicked(commentId: String)
         fun onAddComment(noteId: String, content: String)
         fun onReplyComment(commentId: String, content: String, replyToUserId: String?)
+        fun onDislikeClicked(noteId: String)
         fun onBackClicked()
     }
 }

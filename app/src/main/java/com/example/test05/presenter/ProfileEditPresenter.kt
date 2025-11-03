@@ -47,9 +47,12 @@ class ProfileEditPresenter(
         scope.launch {
             view?.showLoading(true)
             try {
-                // TODO: Implement user profile update logic
-                // For now, just show success message
+                // Update the user in the data loader
+                dataLoader.updateUser(user)
                 view?.showSuccess("资料保存成功")
+                
+                // Navigate back after successful update
+                view?.navigateBack()
             } catch (e: Exception) {
                 view?.showError("保存失败: ${e.message}")
             } finally {
