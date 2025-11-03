@@ -31,6 +31,7 @@ import com.example.CLYRedNote.model.MessageType
 import com.example.CLYRedNote.model.User
 import com.example.test05.presenter.MessageDetailPresenter
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.utils.MessageStorage
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,7 +43,8 @@ fun MessageDetailScreen(
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
-    val presenter = remember { MessageDetailPresenter(dataLoader) }
+    val messageStorage = remember { MessageStorage(context) }
+    val presenter = remember { MessageDetailPresenter(dataLoader, messageStorage) }
     
     var messages by remember { mutableStateOf<List<Message>>(emptyList()) }
     var chatUser by remember { mutableStateOf<User?>(null) }

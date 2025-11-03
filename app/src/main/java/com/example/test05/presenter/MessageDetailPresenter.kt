@@ -5,11 +5,13 @@ import com.example.CLYRedNote.model.MessageType
 import com.example.CLYRedNote.model.User
 import com.example.test05.ui.tabs.messagedetail.MessageDetailContract
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.utils.MessageStorage
 import kotlinx.coroutines.*
 import java.util.Date
 
 class MessageDetailPresenter(
-    private val dataLoader: JsonDataLoader
+    private val dataLoader: JsonDataLoader,
+    private val messageStorage: MessageStorage
 ) : MessageDetailContract.Presenter {
     
     private var view: MessageDetailContract.View? = null
@@ -351,6 +353,10 @@ class MessageDetailPresenter(
                 view?.showMessageSent(newMessage)
                 view?.scrollToBottom()
                 
+                // Save to both assets and internal storage
+                messageStorage.saveMessageToAssets(newMessage)
+                messageStorage.saveMessageToInternalStorage(newMessage)
+                
             } catch (e: Exception) {
                 view?.showError("Failed to send message: ${e.message}")
             }
@@ -380,6 +386,10 @@ class MessageDetailPresenter(
                 view?.showMessageSent(newMessage)
                 view?.scrollToBottom()
                 
+                // Save to both assets and internal storage
+                messageStorage.saveMessageToAssets(newMessage)
+                messageStorage.saveMessageToInternalStorage(newMessage)
+                
             } catch (e: Exception) {
                 view?.showError("Failed to send emoji: ${e.message}")
             }
@@ -408,6 +418,10 @@ class MessageDetailPresenter(
                 messages = messages + newMessage
                 view?.showMessageSent(newMessage)
                 view?.scrollToBottom()
+                
+                // Save to both assets and internal storage
+                messageStorage.saveMessageToAssets(newMessage)
+                messageStorage.saveMessageToInternalStorage(newMessage)
                 
             } catch (e: Exception) {
                 view?.showError("Failed to send image: ${e.message}")

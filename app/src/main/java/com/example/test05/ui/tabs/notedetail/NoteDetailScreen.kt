@@ -32,8 +32,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import com.example.CLYRedNote.model.Note
 import com.example.CLYRedNote.model.Comment
+import com.example.CLYRedNote.model.InteractionType
+import com.example.CLYRedNote.model.ExitType
 import com.example.test05.presenter.NoteDetailPresenter
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.utils.BrowsingHistoryManager
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -45,6 +48,7 @@ fun NoteDetailScreen(
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
     val presenter = remember { NoteDetailPresenter(dataLoader) }
+    val browsingHistoryManager = remember { BrowsingHistoryManager(context) }
     
     var note by remember { mutableStateOf<Note?>(null) }
     var comments by remember { mutableStateOf<List<Comment>>(emptyList()) }
@@ -112,11 +116,21 @@ fun NoteDetailScreen(
     LaunchedEffect(noteId) {
         presenter.attachView(view)
         presenter.loadNoteDetail(noteId)
+        
+        // 开始记录浏览历史
+        browsingHistoryManager.startBrowsingSession(noteId)
     }
 
     DisposableEffect(Unit) {
         onDispose {
             presenter.detachView()
+            
+            // 结束浏览会话并保存历史记录
+            browsingHistoryManager.endBrowsingSession(
+                note = note,
+                exitType = ExitType.NORMAL,
+                readingProgress = 0.8f // 假设阅读了80%，实际可以根据滚动位置计算
+            )
         }
     }
 
@@ -142,9 +156,29 @@ fun NoteDetailScreen(
                         TopBarWithAuthor(
                             note = noteData,
                             isFollowing = isFollowing,
-                            onBackClicked = onBackClicked,
-                            onFollowClicked = { presenter.onFollowClicked(noteData.author.id) },
-                            onShareClicked = { showShareBottomSheet = true }
+                            onBackClicked = {
+                                browsingHistoryManager.endBrowsingSession(
+                                    note = note,
+                                    exitType = ExitType.BACK_PRESS,
+                                    readingProgress = 0.8f
+                                )
+                                onBackClicked()
+                            },
+                            onFollowClicked = { 
+                                presenter.onFollowClicked(noteData.author.id)
+                                browsingHistoryManager.recordInteraction(
+                                    InteractionType.FOLLOW,
+                                    targetId = noteData.author.id,
+                                    parameters = mapOf("isFollowed" to !isFollowing)
+                                )
+                            },
+                            onShareClicked = { 
+                                showShareBottomSheet = true
+                                browsingHistoryManager.recordInteraction(
+                                    InteractionType.SHARE,
+                                    parameters = mapOf("action" to "openShareDialog")
+                                )
+                            }
                         )
                         
                         Spacer(modifier = Modifier.height(16.dp))
@@ -230,13 +264,29 @@ fun NoteDetailScreen(
                 onCommentTextChanged = { commentText = it },
                 onSendClicked = { 
                     presenter.onAddComment(noteData.id, commentText)
+                    browsingHistoryManager.recordInteraction(
+                        InteractionType.COMMENT,
+                        parameters = mapOf("commentText" to commentText)
+                    )
                 },
                 isLiked = isLiked,
                 isCollected = isCollected,
                 likeCount = likeCount,
                 commentCount = noteData.commentCount,
-                onLikeClicked = { presenter.onLikeClicked(noteData.id) },
-                onCollectClicked = { presenter.onCollectClicked(noteData.id) }
+                onLikeClicked = { 
+                    presenter.onLikeClicked(noteData.id)
+                    browsingHistoryManager.recordInteraction(
+                        InteractionType.LIKE,
+                        parameters = mapOf("isLiked" to !isLiked)
+                    )
+                },
+                onCollectClicked = { 
+                    presenter.onCollectClicked(noteData.id)
+                    browsingHistoryManager.recordInteraction(
+                        InteractionType.COLLECT,
+                        parameters = mapOf("isCollected" to !isCollected)
+                    )
+                }
             )
         }
 
@@ -256,6 +306,10 @@ fun NoteDetailScreen(
             onDislikeClicked = { 
                 // Handle dislike action - could be sent to presenter
                 presenter.onDislikeClicked(noteId)
+                browsingHistoryManager.recordInteraction(
+                    InteractionType.REPORT,
+                    parameters = mapOf("action" to "dislike")
+                )
             }
         )
     }
