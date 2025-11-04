@@ -100,7 +100,24 @@ class JsonDataLoader(private val context: Context) {
 
     fun loadMessages(): List<Message> {
         return try {
-            val jsonString = loadJsonFromAssets("data/messages.json")
+            // First try to load from internal storage (where we save messages)
+            val messagesFile = java.io.File(context.filesDir, "messages.json")
+            val jsonString = if (messagesFile.exists()) {
+                messagesFile.readText()
+            } else {
+                // Fall back to assets if no saved messages
+                // Copy initial data from assets to internal storage for future updates
+                val initialData = loadJsonFromAssets("data/messages.json")
+                if (initialData.isNotEmpty()) {
+                    try {
+                        messagesFile.writeText(initialData)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                initialData
+            }
+
             val jsonArray = JsonParser.parseString(jsonString).asJsonArray
             jsonArray.map { parseMessage(it.asJsonObject) }
         } catch (e: Exception) {

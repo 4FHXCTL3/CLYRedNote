@@ -19,38 +19,31 @@ class MessageStorage(private val context: Context) {
     
     private val readGson = Gson() // For reading existing files with original format
     
+    /**
+     * Save message to internal storage
+     * Both methods save to the same location: files/messages.json
+     */
     suspend fun saveMessageToAssets(message: Message) {
-        withContext(Dispatchers.IO) {
-            try {
-                val existingMessages = loadMessagesFromAssets()
-                val updatedMessages = existingMessages + message
-                
-                val messagesDir = File(context.filesDir, "assets/data")
-                if (!messagesDir.exists()) {
-                    messagesDir.mkdirs()
-                }
-                
-                val messagesFile = File(messagesDir, "messages.json")
-                val jsonString = gson.toJson(updatedMessages)
-                
-                FileWriter(messagesFile).use { writer ->
-                    writer.write(jsonString)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        saveMessage(message)
     }
-    
+
     suspend fun saveMessageToInternalStorage(message: Message) {
+        saveMessage(message)
+    }
+
+    /**
+     * Unified save method - saves messages to internal storage
+     * Path: context.filesDir/messages.json
+     */
+    private suspend fun saveMessage(message: Message) {
         withContext(Dispatchers.IO) {
             try {
                 val existingMessages = loadMessagesFromInternalStorage()
                 val updatedMessages = existingMessages + message
-                
+
                 val messagesFile = File(context.filesDir, "messages.json")
                 val jsonString = gson.toJson(updatedMessages)
-                
+
                 FileWriter(messagesFile).use { writer ->
                     writer.write(jsonString)
                 }
@@ -59,15 +52,17 @@ class MessageStorage(private val context: Context) {
             }
         }
     }
-    
-    private fun loadMessagesFromAssets(): List<Message> {
+
+    private fun loadMessagesFromInternalStorage(): List<Message> {
         return try {
-            val messagesFile = File(context.filesDir, "assets/data/messages.json")
+            // Try to load from internal storage first
+            val messagesFile = File(context.filesDir, "messages.json")
             if (messagesFile.exists()) {
                 val jsonString = messagesFile.readText()
                 val type = object : TypeToken<List<Message>>() {}.type
                 readGson.fromJson(jsonString, type) ?: emptyList()
             } else {
+                // If not exists, load from assets as initial data
                 loadOriginalMessagesFromAssets()
             }
         } catch (e: Exception) {
@@ -80,24 +75,9 @@ class MessageStorage(private val context: Context) {
             val inputStream = context.assets.open("data/messages.json")
             val jsonString = inputStream.bufferedReader().use { it.readText() }
             inputStream.close()
-            
+
             val type = object : TypeToken<List<Message>>() {}.type
             readGson.fromJson(jsonString, type) ?: emptyList()
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
-    
-    private fun loadMessagesFromInternalStorage(): List<Message> {
-        return try {
-            val messagesFile = File(context.filesDir, "messages.json")
-            if (messagesFile.exists()) {
-                val jsonString = messagesFile.readText()
-                val type = object : TypeToken<List<Message>>() {}.type
-                readGson.fromJson(jsonString, type) ?: emptyList()
-            } else {
-                emptyList()
-            }
         } catch (e: Exception) {
             emptyList()
         }

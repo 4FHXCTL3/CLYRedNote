@@ -2,28 +2,44 @@ import subprocess
 import json
 
 def MessageSendCheck(receiverId, senderId, message_content):
-    # 从设备获取文件
-    # run里面的com.example.test05是APP名字；files/messages.json是文件路径
-    subprocess.run(['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/messages.json'],
-                    stdout=open('messages.json', 'w'))
+    # 从设备获取文件内容，直接读取到内存
+    # run-as com.example.test05是APP名字；files/messages.json是文件路径
+    result = subprocess.run(
+        ['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/messages.json'],
+        capture_output=True,
+        encoding='utf-8',
+        errors='replace'
+    )
 
-    # 读取文件
-    with open('messages.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    # 检查命令是否成功执行
+    if result.returncode != 0 or not result.stdout:
+        return False
 
-    # 判断给定的信息是否存在于聊天记录里面
+    # 直接从命令输出解析 JSON
     try:
-        # 遍历消息列表，查找最新的匹配消息
-        for message in reversed(data):  # 从最新消息开始检查
-            # 获取sender和receiver的id
-            sender_id = message.get('sender', {}).get('id')
-            receiver_id = message.get('receiver', {}).get('id')
-            
-            if (sender_id == senderId and 
-                receiver_id == receiverId and
-                message.get('content') == message_content and
-                message.get('type') == 'TEXT'):
-                return True
+        data = json.loads(result.stdout)
+    except (json.JSONDecodeError, TypeError):
+        return False
+
+    # 只检查最新发送的消息是否匹配
+    try:
+        # 检查消息列表是否为空
+        if not data or len(data) == 0:
+            return False
+
+        # 获取最新的消息（列表最后一条）
+        latest_message = data[-1]
+
+        # 获取sender和receiver的id
+        sender_id = latest_message.get('sender', {}).get('id')
+        receiver_id = latest_message.get('receiver', {}).get('id')
+
+        # 检查最新消息是否匹配
+        if (sender_id == senderId and
+            receiver_id == receiverId and
+            latest_message.get('content') == message_content and
+            latest_message.get('type') == 'TEXT'):
+            return True
         return False
     except:
         return False
