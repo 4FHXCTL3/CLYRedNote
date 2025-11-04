@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.graphics.BitmapFactory
 import com.example.CLYRedNote.model.Note
+import com.example.CLYRedNote.model.SourceType
 import com.example.test05.presenter.HomeTabPresenter
 import com.example.test05.utils.JsonDataLoader
 import com.example.test05.ui.tabs.notedetail.NoteDetailScreen
@@ -90,6 +91,7 @@ fun HomeTabScreen(
     if (showNoteDetail && currentNoteId != null) {
         NoteDetailScreen(
             noteId = currentNoteId!!,
+            sourceType = SourceType.HOME_FEED,  // 标记来源为首页信息流
             onBackClicked = {
                 showNoteDetail = false
                 currentNoteId = null

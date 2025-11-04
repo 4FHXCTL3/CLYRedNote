@@ -65,3 +65,20 @@ enum class SharePlatform {
     SYSTEM_SHARE,
     INTERNAL_MESSAGE
 }
+
+data class Dislike(
+    val id: String,
+    val userId: String,
+    val noteId: String,
+    val reason: DislikeReason? = null,
+    val dislikedAt: Date = Date()
+)
+
+enum class DislikeReason {
+    NOT_INTERESTED,
+    SEEN_TOO_OFTEN,
+    INAPPROPRIATE,
+    MISLEADING,
+    LOW_QUALITY,
+    OTHER
+}

@@ -14,6 +14,7 @@ data class User(
     val isFollowed: Boolean = false,
     val isVerified: Boolean = false,
     val level: Int = 1,
+    val password: String? = null,
     val createdAt: Date = Date(),
     val lastActiveAt: Date? = null
 )

@@ -9,7 +9,11 @@
       "Bash(.\\gradlew.bat build:*)",
       "Bash(.gradlew build)",
       "Bash(gradlew:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(test:*)",
+      "Bash(dir /b \"D:\\Research\\GUI-Agent\\CLYRedNote\\app\\src\\main\\assets\\data\")",
+      "Bash(cat:*)",
+      "Bash(gradlew.bat assembleDebug:*)"
     ],
     "deny": []
   }

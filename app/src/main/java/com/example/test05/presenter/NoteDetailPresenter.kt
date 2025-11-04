@@ -1,24 +1,25 @@
 package com.example.test05.presenter
 
-import com.example.CLYRedNote.model.Note
-import com.example.CLYRedNote.model.Comment
-import com.example.CLYRedNote.model.User
+import com.example.CLYRedNote.model.*
 import com.example.test05.ui.tabs.notedetail.NoteDetailContract
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.utils.DataStorage
 import kotlinx.coroutines.*
 import java.util.Date
 
 class NoteDetailPresenter(
-    private val dataLoader: JsonDataLoader
+    private val dataLoader: JsonDataLoader,
+    private val dataStorage: DataStorage
 ) : NoteDetailContract.Presenter {
     private var view: NoteDetailContract.View? = null
     private val presenterScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-    
+
     private var currentNote: Note? = null
     private var comments: List<Comment> = emptyList()
     private var users: List<User> = emptyList()
     private var follows: List<String> = emptyList() // Following user IDs
-    
+    private var sourceType: SourceType = SourceType.DIRECT
+
     override fun attachView(view: NoteDetailContract.View) {
         this.view = view
         loadUserData()
@@ -40,6 +41,10 @@ class NoteDetailPresenter(
         }
     }
 
+    fun setSourceType(source: SourceType) {
+        this.sourceType = source
+    }
+
     override fun loadNoteDetail(noteId: String) {
         view?.showLoading(true)
         presenterScope.launch {
@@ -50,6 +55,9 @@ class NoteDetailPresenter(
                     currentNote = note
                     view?.showNote(currentNote!!)
                     loadComments(noteId)
+
+                    // Save browsing history
+                    saveBrowsingHistory(note)
                 } else {
                     view?.showError("Note not found")
                 }
@@ -58,6 +66,26 @@ class NoteDetailPresenter(
             } finally {
                 view?.showLoading(false)
             }
+        }
+    }
+
+    private suspend fun saveBrowsingHistory(note: Note) {
+        try {
+            val browsingHistory = BrowsingHistory(
+                id = "browsing_${System.currentTimeMillis()}",
+                userId = "user_current",
+                noteId = note.id,
+                noteTitle = note.title,
+                noteAuthor = note.author,
+                browsedAt = Date(),
+                viewType = ViewType.DETAIL,
+                sourceType = sourceType,
+                noteType = note.type,
+                noteCoverImage = note.coverImage
+            )
+            dataStorage.saveBrowsingHistory(browsingHistory)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -78,13 +106,31 @@ class NoteDetailPresenter(
         currentNote?.let { note ->
             val newLikeStatus = !note.isLiked
             val newLikeCount = if (newLikeStatus) note.likeCount + 1 else note.likeCount - 1
-            
+
             currentNote = note.copy(
                 isLiked = newLikeStatus,
                 likeCount = newLikeCount
             )
-            
+
             view?.updateLikeStatus(newLikeStatus, newLikeCount)
+
+            // Save like record
+            if (newLikeStatus) {
+                presenterScope.launch {
+                    try {
+                        val like = Like(
+                            id = "like_${System.currentTimeMillis()}",
+                            userId = "user_current",
+                            targetId = noteId,
+                            targetType = LikeTargetType.NOTE,
+                            likedAt = Date()
+                        )
+                        dataStorage.saveLike(like)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
         }
     }
 
@@ -92,21 +138,55 @@ class NoteDetailPresenter(
         currentNote?.let { note ->
             val newCollectStatus = !note.isCollected
             val newCollectCount = if (newCollectStatus) note.collectCount + 1 else note.collectCount - 1
-            
+
             currentNote = note.copy(
                 isCollected = newCollectStatus,
                 collectCount = newCollectCount
             )
-            
+
             view?.updateCollectStatus(newCollectStatus, newCollectCount)
+
+            // Save collection record
+            if (newCollectStatus) {
+                presenterScope.launch {
+                    try {
+                        val collection = Collection(
+                            id = "collection_${System.currentTimeMillis()}",
+                            userId = "user_current",
+                            noteId = noteId,
+                            note = note,
+                            collectedAt = Date()
+                        )
+                        dataStorage.saveCollection(collection)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
         }
     }
 
     override fun onShareClicked(noteId: String) {
-        // Share functionality - could open share dialog
         currentNote?.let { note ->
             val newShareCount = note.shareCount + 1
             currentNote = note.copy(shareCount = newShareCount)
+
+            // Save share record
+            presenterScope.launch {
+                try {
+                    val share = Share(
+                        id = "share_${System.currentTimeMillis()}",
+                        userId = "user_current",
+                        noteId = noteId,
+                        note = note,
+                        platform = SharePlatform.SYSTEM_SHARE,
+                        sharedAt = Date()
+                    )
+                    dataStorage.saveShare(share)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 
@@ -128,7 +208,7 @@ class NoteDetailPresenter(
         comment?.let {
             val newLikeStatus = !it.isLiked
             val newLikeCount = if (newLikeStatus) it.likeCount + 1 else it.likeCount - 1
-            
+
             comments = comments.map { c ->
                 if (c.id == commentId) {
                     c.copy(isLiked = newLikeStatus, likeCount = newLikeCount)
@@ -136,8 +216,26 @@ class NoteDetailPresenter(
                     c
                 }
             }
-            
+
             view?.showCommentLiked(commentId, newLikeStatus, newLikeCount)
+
+            // Save comment like record
+            if (newLikeStatus) {
+                presenterScope.launch {
+                    try {
+                        val like = Like(
+                            id = "like_${System.currentTimeMillis()}",
+                            userId = "user_current",
+                            targetId = commentId,
+                            targetType = LikeTargetType.COMMENT,
+                            likedAt = Date()
+                        )
+                        dataStorage.saveLike(like)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
         }
     }
 
@@ -194,8 +292,21 @@ class NoteDetailPresenter(
     }
 
     override fun onDislikeClicked(noteId: String) {
-        // Handle dislike action - could update user preferences or send analytics
-        // For now, just a placeholder implementation
+        // Save dislike record
+        presenterScope.launch {
+            try {
+                val dislike = Dislike(
+                    id = "dislike_${System.currentTimeMillis()}",
+                    userId = "user_current",
+                    noteId = noteId,
+                    reason = DislikeReason.NOT_INTERESTED,
+                    dislikedAt = Date()
+                )
+                dataStorage.saveDislike(dislike)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     override fun onBackClicked() {

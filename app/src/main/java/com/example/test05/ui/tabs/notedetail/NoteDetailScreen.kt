@@ -34,6 +34,7 @@ import com.example.CLYRedNote.model.Note
 import com.example.CLYRedNote.model.Comment
 import com.example.CLYRedNote.model.InteractionType
 import com.example.CLYRedNote.model.ExitType
+import com.example.CLYRedNote.model.SourceType
 import com.example.test05.presenter.NoteDetailPresenter
 import com.example.test05.utils.JsonDataLoader
 import com.example.test05.utils.BrowsingHistoryManager
@@ -43,11 +44,13 @@ import java.util.*
 @Composable
 fun NoteDetailScreen(
     noteId: String,
-    onBackClicked: () -> Unit
+    onBackClicked: () -> Unit,
+    sourceType: SourceType = SourceType.DIRECT
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
-    val presenter = remember { NoteDetailPresenter(dataLoader) }
+    val dataStorage = remember { com.example.test05.utils.DataStorage(context) }
+    val presenter = remember { NoteDetailPresenter(dataLoader, dataStorage) }
     val browsingHistoryManager = remember { BrowsingHistoryManager(context) }
     
     var note by remember { mutableStateOf<Note?>(null) }
@@ -115,8 +118,9 @@ fun NoteDetailScreen(
 
     LaunchedEffect(noteId) {
         presenter.attachView(view)
+        presenter.setSourceType(sourceType)  // 设置来源类型
         presenter.loadNoteDetail(noteId)
-        
+
         // 开始记录浏览历史
         browsingHistoryManager.startBrowsingSession(noteId)
     }
