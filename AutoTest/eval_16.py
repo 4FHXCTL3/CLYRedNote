@@ -1,5 +1,10 @@
 import subprocess
 import json
+import sys
+import io
+
+# 设置 UTF-8 编码以支持 emoji 输出
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def BrowseAndInteractCheck(userId, viewCount=2, commentContent="很精彩"):
     """
@@ -53,17 +58,17 @@ def BrowseAndInteractCheck(userId, viewCount=2, commentContent="很精彩"):
         print(f"❌ Failed to read collections file")
         print(f"   Reason: ADB command failed (return code: {collections_result.returncode})")
         return False
-    if comments_result.returncode != 0:
-        print(f"❌ Failed to read comments file")
-        print(f"   Reason: ADB command failed (return code: {comments_result.returncode})")
-        return False
 
     # 解析 JSON
     try:
-        browsing_data = json.loads(browsing_result.stdout)
-        likes_data = json.loads(likes_result.stdout) if likes_result.stdout else []
-        collections_data = json.loads(collections_result.stdout) if collections_result.stdout else []
-        comments_data = json.loads(comments_result.stdout) if comments_result.stdout else []
+        browsing_data = json.loads(browsing_result.stdout.strip()) if browsing_result.stdout.strip() else []
+        likes_data = json.loads(likes_result.stdout.strip()) if likes_result.stdout.strip() else []
+        collections_data = json.loads(collections_result.stdout.strip()) if collections_result.stdout.strip() else []
+        # comments.json 可能不存在，需要容错处理
+        if comments_result.returncode == 0 and comments_result.stdout and comments_result.stdout.strip():
+            comments_data = json.loads(comments_result.stdout.strip())
+        else:
+            comments_data = []
     except (json.JSONDecodeError, TypeError) as e:
         print(f"❌ Failed to parse JSON data")
         print(f"   Reason: Invalid JSON format")

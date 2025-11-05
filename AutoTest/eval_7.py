@@ -1,5 +1,10 @@
 import subprocess
 import json
+import sys
+import io
+
+# 设置 UTF-8 编码以支持 emoji 输出
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def ViewFollowingNoteCheck(userId):
     """
@@ -22,9 +27,9 @@ def ViewFollowingNoteCheck(userId):
         errors='replace'
     )
 
-    # 从设备获取笔记列表
-    notes_result = subprocess.run(
-        ['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/notes.json'],
+    # 从设备获取浏览历史
+    browsing_result = subprocess.run(
+        ['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/browsing_history.json'],
         capture_output=True,
         encoding='utf-8',
         errors='replace'
@@ -45,18 +50,25 @@ def ViewFollowingNoteCheck(userId):
             print(f"   Error: {browsing_result.stderr}")
         return False
 
-    if notes_result.returncode != 0 or not notes_result.stdout:
-        print(f"❌ Failed to read notes file")
-        print(f"   Reason: ADB command failed (return code: {notes_result.returncode})")
-        if notes_result.stderr:
-            print(f"   Error: {notes_result.stderr}")
-        return False
-
     # 解析 JSON
     try:
-        follows_data = json.loads(follows_result.stdout)
-        browsing_data = json.loads(browsing_result.stdout)
-        notes_data = json.loads(notes_result.stdout)
+        follows_data = json.loads(follows_result.stdout.strip()) if follows_result.stdout.strip() else []
+        browsing_data = json.loads(browsing_result.stdout.strip()) if browsing_result.stdout.strip() else []
+
+        # 从浏览历史中提取笔记信息
+        notes_data = []
+        seen_note_ids = set()
+        for item in browsing_data:
+            note_id = item.get('noteId')
+            author = item.get('noteAuthor', {})
+            if note_id and note_id not in seen_note_ids:
+                notes_data.append({
+                    'id': note_id,
+                    'title': item.get('noteTitle', ''),
+                    'author': author,
+                    'createdAt': item.get('browsedAt', '')  # 使用浏览时间作为近似
+                })
+                seen_note_ids.add(note_id)
     except (json.JSONDecodeError, TypeError) as e:
         print(f"❌ Failed to parse JSON data")
         print(f"   Reason: Invalid JSON format")

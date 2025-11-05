@@ -1,5 +1,10 @@
 import subprocess
 import json
+import sys
+import io
+
+# 设置 UTF-8 编码以支持 emoji 输出
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def ReplyCommentCheck(userId, replyContent):
     """
@@ -15,16 +20,18 @@ def ReplyCommentCheck(userId, replyContent):
     )
 
     # 检查命令是否成功执行
-    if result.returncode != 0 or not result.stdout:
+    # comments.json 可能不存在，需要容错处理
+    if result.returncode != 0 or not result.stdout or not result.stdout.strip():
         print(f"❌ Failed to read comments file")
-        print(f"   Reason: ADB command failed (return code: {result.returncode})")
+        print(f"   Reason: Comments file does not exist or is empty")
+        print(f"   Note: Please add a comment first to create the file")
         if result.stderr:
             print(f"   Error: {result.stderr}")
         return False
 
     # 解析 JSON
     try:
-        data = json.loads(result.stdout)
+        data = json.loads(result.stdout.strip())
     except (json.JSONDecodeError, TypeError) as e:
         print(f"❌ Failed to parse comments data")
         print(f"   Reason: Invalid JSON format")

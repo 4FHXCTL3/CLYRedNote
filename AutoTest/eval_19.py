@@ -1,5 +1,10 @@
 import subprocess
 import json
+import sys
+import io
+
+# 设置 UTF-8 编码以支持 emoji 输出
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def ViewSecondCollectionCheck(userId, position=2):
     """
