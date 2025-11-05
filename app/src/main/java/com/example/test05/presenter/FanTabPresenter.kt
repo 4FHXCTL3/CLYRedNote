@@ -1,14 +1,17 @@
 package com.example.test05.presenter
 
+import com.example.CLYRedNote.model.Follow
 import com.example.CLYRedNote.model.User
 import com.example.test05.ui.tabs.fan.FanTabContract
 import com.example.test05.ui.tabs.fan.FanTabType
 import com.example.test05.ui.tabs.fan.FanUser
 import com.example.test05.utils.JsonDataLoader
 import kotlinx.coroutines.*
+import java.util.Date
 
 class FanTabPresenter(
-    private val dataLoader: JsonDataLoader
+    private val dataLoader: JsonDataLoader,
+    private val dataStorage: com.example.test05.utils.DataStorage
 ) : FanTabContract.Presenter {
     private var view: FanTabContract.View? = null
     private val presenterScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -133,16 +136,31 @@ class FanTabPresenter(
                         fanUser
                     }
                 }
-                
+
                 val isNowFollowing = fanUsers.find { it.user.id == userId }?.isFollowingBack ?: false
                 view?.updateFollowStatus(userId, isNowFollowing)
                 if (isNowFollowing) {
                     view?.showFollowSuccess(userId)
+
+                    // Save follow record to data storage
+                    val currentUser = dataLoader.getCurrentUser()
+                    val targetUser = allUsers.find { it.id == userId }
+                    if (currentUser != null && targetUser != null) {
+                        val follow = Follow(
+                            id = "follow_${System.currentTimeMillis()}",
+                            followerId = currentUser.id,
+                            followingId = targetUser.id,
+                            follower = currentUser,
+                            following = targetUser,
+                            followedAt = Date()
+                        )
+                        dataStorage.saveFollow(follow)
+                    }
                 }
-                
+
                 // Refresh current tab
                 onTabSelected(currentTabType)
-                
+
             } catch (e: Exception) {
                 view?.showError("Failed to follow back user: ${e.message}")
             }

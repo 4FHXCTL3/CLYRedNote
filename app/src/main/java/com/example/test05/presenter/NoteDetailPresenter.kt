@@ -193,14 +193,41 @@ class NoteDetailPresenter(
     override fun onFollowClicked(authorId: String) {
         val isCurrentlyFollowing = follows.contains(authorId)
         val newFollowStatus = !isCurrentlyFollowing
-        
+
         follows = if (newFollowStatus) {
             follows + authorId
         } else {
             follows - authorId
         }
-        
+
         view?.updateFollowStatus(newFollowStatus)
+
+        // Save or remove follow record
+        presenterScope.launch {
+            try {
+                if (newFollowStatus) {
+                    // Create follow record
+                    val currentUser = users.find { it.id == "user_current" }
+                    val followingUser = users.find { it.id == authorId }
+                    if (currentUser != null && followingUser != null) {
+                        val follow = Follow(
+                            id = "follow_${System.currentTimeMillis()}",
+                            followerId = "user_current",
+                            followingId = authorId,
+                            follower = currentUser,
+                            following = followingUser,
+                            followedAt = Date()
+                        )
+                        dataStorage.saveFollow(follow)
+                    }
+                } else {
+                    // Remove follow record
+                    dataStorage.removeFollow("user_current", authorId)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     override fun onCommentLikeClicked(commentId: String) {
@@ -241,7 +268,7 @@ class NoteDetailPresenter(
 
     override fun onAddComment(noteId: String, content: String) {
         if (content.isBlank()) return
-        
+
         val currentUser = users.find { it.id == "user_current" }
         if (currentUser != null) {
             val newComment = Comment(
@@ -251,14 +278,20 @@ class NoteDetailPresenter(
                 noteId = noteId,
                 createdAt = Date()
             )
-            
+
             comments = comments + newComment
-            
-            // Save comment to data loader
-            dataLoader.saveComment(newComment)
-            
+
+            // Save comment to DataStorage
+            presenterScope.launch {
+                try {
+                    dataStorage.saveComment(newComment)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
             view?.showCommentAdded(newComment)
-            
+
             // Update note comment count
             currentNote?.let { note ->
                 currentNote = note.copy(commentCount = note.commentCount + 1)
@@ -268,13 +301,13 @@ class NoteDetailPresenter(
 
     override fun onReplyComment(commentId: String, content: String, replyToUserId: String?) {
         if (content.isBlank()) return
-        
+
         val currentUser = users.find { it.id == "user_current" }
         val parentComment = comments.find { it.id == commentId }
-        
+
         if (currentUser != null && parentComment != null) {
             val replyToUser = replyToUserId?.let { userId -> users.find { it.id == userId } }
-            
+
             val newReply = Comment(
                 id = "comment_${System.currentTimeMillis()}",
                 content = content,
@@ -285,9 +318,18 @@ class NoteDetailPresenter(
                 replyToUsername = replyToUser?.nickname,
                 createdAt = Date()
             )
-            
+
             comments = comments + newReply
             view?.showCommentAdded(newReply)
+
+            // Save reply to DataStorage
+            presenterScope.launch {
+                try {
+                    dataStorage.saveComment(newReply)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 

@@ -1,10 +1,15 @@
 import subprocess
 import json
+import sys
+import io
+
+# 设置 UTF-8 编码以支持 emoji 输出
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def LikeCollectCommentCheck(userId, noteKeyword):
     """
     检查用户是否对标题含指定关键词的笔记进行了点赞、收藏和评论
-    任务4: 搜索并打开一篇标题含"美妆"的笔记，对其进行点赞、收藏并评论"很有用！"
+    任务4: 搜索并打开一篇标题含"穿搭"的笔记，对其进行点赞、收藏并评论"很有用！"
     """
     # 从设备获取点赞记录
     likes_result = subprocess.run(
@@ -30,9 +35,9 @@ def LikeCollectCommentCheck(userId, noteKeyword):
         errors='replace'
     )
 
-    # 从设备获取笔记列表
-    notes_result = subprocess.run(
-        ['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/notes.json'],
+    # 从设备获取浏览历史（用于获取笔记信息）
+    browsing_result = subprocess.run(
+        ['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/browsing_history.json'],
         capture_output=True,
         encoding='utf-8',
         errors='replace'
@@ -47,24 +52,51 @@ def LikeCollectCommentCheck(userId, noteKeyword):
         print(f"❌ Failed to read collections file")
         print(f"   Reason: ADB command failed (return code: {collections_result.returncode})")
         return False
-    if comments_result.returncode != 0:
-        print(f"❌ Failed to read comments file")
-        print(f"   Reason: ADB command failed (return code: {comments_result.returncode})")
-        return False
-    if notes_result.returncode != 0:
-        print(f"❌ Failed to read notes file")
-        print(f"   Reason: ADB command failed (return code: {notes_result.returncode})")
+    if browsing_result.returncode != 0:
+        print(f"❌ Failed to read browsing history file")
+        print(f"   Reason: ADB command failed (return code: {browsing_result.returncode})")
         return False
 
     # 解析 JSON
     try:
-        likes_data = json.loads(likes_result.stdout) if likes_result.stdout else []
-        collections_data = json.loads(collections_result.stdout) if collections_result.stdout else []
-        comments_data = json.loads(comments_result.stdout) if comments_result.stdout else []
-        notes_data = json.loads(notes_result.stdout) if notes_result.stdout else []
+        likes_data = json.loads(likes_result.stdout.strip()) if likes_result.stdout.strip() else []
     except (json.JSONDecodeError, TypeError) as e:
-        print(f"❌ Failed to parse JSON data")
-        print(f"   Reason: Invalid JSON format")
+        print(f"❌ Failed to parse likes.json")
+        print(f"   Error: {e}")
+        return False
+
+    try:
+        collections_data = json.loads(collections_result.stdout.strip()) if collections_result.stdout.strip() else []
+    except (json.JSONDecodeError, TypeError) as e:
+        print(f"❌ Failed to parse collections.json")
+        print(f"   Error: {e}")
+        return False
+
+    # comments.json 可能不存在，如果不存在则为空列表
+    try:
+        if comments_result.returncode == 0 and comments_result.stdout.strip():
+            comments_data = json.loads(comments_result.stdout.strip())
+        else:
+            comments_data = []
+    except (json.JSONDecodeError, TypeError):
+        comments_data = []
+
+    # 从浏览历史中提取笔记信息
+    try:
+        browsing_data = json.loads(browsing_result.stdout.strip()) if browsing_result.stdout.strip() else []
+        # 从浏览历史中构建笔记列表
+        notes_data = []
+        seen_note_ids = set()
+        for item in browsing_data:
+            note_id = item.get('noteId')
+            if note_id and note_id not in seen_note_ids:
+                notes_data.append({
+                    'id': note_id,
+                    'title': item.get('noteTitle', '')
+                })
+                seen_note_ids.add(note_id)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(f"❌ Failed to parse browsing_history.json")
         print(f"   Error: {e}")
         return False
 
@@ -125,5 +157,5 @@ def LikeCollectCommentCheck(userId, noteKeyword):
 if __name__ == "__main__":
     print(LikeCollectCommentCheck(
         userId='user_current',
-        noteKeyword='美妆'
+        noteKeyword='穿搭'
     ))

@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -21,12 +22,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.test05.presenter.AccountSecurityPresenter
+import com.example.test05.utils.JsonDataLoader
 
 @Composable
 fun AccountSecurityScreen(
     onBackClicked: () -> Unit = {}
 ) {
-    val presenter = remember { AccountSecurityPresenter() }
+    val context = LocalContext.current
+    val dataLoader = remember { JsonDataLoader(context) }
+    val dataStorage = remember { com.example.test05.utils.DataStorage(context) }
+    val presenter = remember { AccountSecurityPresenter(dataLoader, dataStorage) }
     
     var accountSecurityItems by remember { mutableStateOf<List<AccountSecurityItem>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }

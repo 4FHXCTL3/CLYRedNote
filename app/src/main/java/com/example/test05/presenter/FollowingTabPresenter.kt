@@ -8,7 +8,8 @@ import com.example.test05.utils.JsonDataLoader
 import kotlinx.coroutines.*
 
 class FollowingTabPresenter(
-    private val dataLoader: JsonDataLoader
+    private val dataLoader: JsonDataLoader,
+    private val dataStorage: com.example.test05.utils.DataStorage
 ) : FollowingTabContract.Presenter {
     private var view: FollowingTabContract.View? = null
     private val presenterScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -166,14 +167,17 @@ class FollowingTabPresenter(
                         user
                     }
                 }
-                
+
                 view?.updateFollowStatus(userId, false)
                 view?.showUnfollowSuccess(userId)
                 view?.updateFollowingCount(followingUsers.count { it.isFollowing })
-                
+
+                // Remove follow record from data storage
+                dataStorage.removeFollow("user_current", userId)
+
                 // Refresh current tab
                 onTabSelected(currentTabType)
-                
+
             } catch (e: Exception) {
                 view?.showError("Failed to unfollow user: ${e.message}")
             }

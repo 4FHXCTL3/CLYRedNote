@@ -39,7 +39,8 @@ fun FollowingTabScreen(
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
-    val presenter = remember { FollowingTabPresenter(dataLoader) }
+    val dataStorage = remember { com.example.test05.utils.DataStorage(context) }
+    val presenter = remember { FollowingTabPresenter(dataLoader, dataStorage) }
     
     var selectedTab by remember { mutableStateOf(FollowingTabType.FOLLOWING) }
     var searchText by remember { mutableStateOf("") }

@@ -1,13 +1,17 @@
 package com.example.test05.presenter
 
+import com.example.CLYRedNote.model.Follow
 import com.example.CLYRedNote.model.Note
 import com.example.CLYRedNote.model.User
 import com.example.test05.ui.tabs.bloggerdetail.BloggerDetailContract
+import com.example.test05.utils.DataStorage
 import com.example.test05.utils.JsonDataLoader
 import kotlinx.coroutines.*
+import java.util.Date
 
 class BloggerDetailPresenter(
-    private val dataLoader: JsonDataLoader
+    private val dataLoader: JsonDataLoader,
+    private val dataStorage: DataStorage
 ) : BloggerDetailContract.Presenter {
     private var view: BloggerDetailContract.View? = null
     private val presenterScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -72,6 +76,19 @@ class BloggerDetailPresenter(
                 isFollowing = true
                 view?.updateFollowStatus(true)
                 view?.showFollowSuccess()
+
+                // Save follow record to data storage
+                if (currentUser != null && currentBlogger != null) {
+                    val follow = Follow(
+                        id = "follow_${System.currentTimeMillis()}",
+                        followerId = currentUser!!.id,
+                        followingId = currentBlogger!!.id,
+                        follower = currentUser!!,
+                        following = currentBlogger!!,
+                        followedAt = Date()
+                    )
+                    dataStorage.saveFollow(follow)
+                }
             } catch (e: Exception) {
                 view?.showError("关注失败: ${e.message}")
             }
@@ -86,6 +103,11 @@ class BloggerDetailPresenter(
                 isFollowing = false
                 view?.updateFollowStatus(false)
                 view?.showUnfollowSuccess()
+
+                // Remove follow record from data storage
+                if (currentUser != null && currentBlogger != null) {
+                    dataStorage.removeFollow(currentUser!!.id, currentBlogger!!.id)
+                }
             } catch (e: Exception) {
                 view?.showError("取消关注失败: ${e.message}")
             }

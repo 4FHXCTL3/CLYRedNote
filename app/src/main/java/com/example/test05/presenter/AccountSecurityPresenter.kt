@@ -2,9 +2,14 @@ package com.example.test05.presenter
 
 import com.example.test05.ui.tabs.accountsecurity.AccountSecurityContract
 import com.example.test05.ui.tabs.accountsecurity.AccountSecurityItem
+import com.example.test05.utils.DataStorage
+import com.example.test05.utils.JsonDataLoader
 import kotlinx.coroutines.*
 
-class AccountSecurityPresenter : AccountSecurityContract.Presenter {
+class AccountSecurityPresenter(
+    private val dataLoader: JsonDataLoader,
+    private val dataStorage: DataStorage
+) : AccountSecurityContract.Presenter {
     
     private var view: AccountSecurityContract.View? = null
     private val presenterScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -109,10 +114,17 @@ class AccountSecurityPresenter : AccountSecurityContract.Presenter {
         presenterScope.launch {
             try {
                 view?.showLoading(true)
-                
+
                 // Simulate password update delay
                 delay(1000)
-                
+
+                // Get current user and update password
+                val currentUser = dataLoader.getCurrentUser()
+                if (currentUser != null) {
+                    val updatedUser = currentUser.copy(password = newPassword)
+                    dataStorage.updateUser(updatedUser)
+                }
+
                 // Update the password item status
                 val updatedItems = accountSecurityItems.map { item ->
                     if (item.id == "password") {
@@ -122,7 +134,7 @@ class AccountSecurityPresenter : AccountSecurityContract.Presenter {
                     }
                 }
                 accountSecurityItems = updatedItems.toMutableList()
-                
+
                 view?.showAccountSecurityItems(updatedItems)
                 view?.showSuccess("密码设置成功")
             } catch (e: Exception) {

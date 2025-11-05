@@ -38,7 +38,8 @@ fun FanTabScreen(
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
-    val presenter = remember { FanTabPresenter(dataLoader) }
+    val dataStorage = remember { com.example.test05.utils.DataStorage(context) }
+    val presenter = remember { FanTabPresenter(dataLoader, dataStorage) }
     
     var selectedTab by remember { mutableStateOf(initialTab) }
     var fanUsers by remember { mutableStateOf<List<FanUser>>(emptyList()) }

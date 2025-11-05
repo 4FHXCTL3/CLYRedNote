@@ -64,6 +64,66 @@ class DataStorage(private val context: Context) {
     }
 
     /**
+     * Save follow record
+     */
+    suspend fun saveFollow(follow: Follow) {
+        saveToFile("follows.json", follow, object : TypeToken<List<Follow>>() {}.type)
+    }
+
+    /**
+     * Save comment
+     */
+    suspend fun saveComment(comment: Comment) {
+        saveToFile("comments.json", comment, object : TypeToken<List<Comment>>() {}.type)
+    }
+
+    /**
+     * Update user information
+     */
+    suspend fun updateUser(updatedUser: User) {
+        withContext(Dispatchers.IO) {
+            try {
+                val existingUsers = loadFromFile<User>("users.json", object : TypeToken<List<User>>() {}.type)
+                val updatedUsers = existingUsers.map { user ->
+                    if (user.id == updatedUser.id) updatedUser else user
+                }
+
+                val dataFile = File(context.filesDir, "users.json")
+                val jsonString = gson.toJson(updatedUsers)
+
+                FileWriter(dataFile).use { writer ->
+                    writer.write(jsonString)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    /**
+     * Remove follow record (for unfollow)
+     */
+    suspend fun removeFollow(followerId: String, followingId: String) {
+        withContext(Dispatchers.IO) {
+            try {
+                val existingFollows = loadFromFile<Follow>("follows.json", object : TypeToken<List<Follow>>() {}.type)
+                val updatedFollows = existingFollows.filterNot {
+                    it.followerId == followerId && it.followingId == followingId
+                }
+
+                val dataFile = File(context.filesDir, "follows.json")
+                val jsonString = gson.toJson(updatedFollows)
+
+                FileWriter(dataFile).use { writer ->
+                    writer.write(jsonString)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    /**
      * Generic method to save data to file
      */
     private suspend fun <T> saveToFile(fileName: String, newItem: T, typeToken: java.lang.reflect.Type) {

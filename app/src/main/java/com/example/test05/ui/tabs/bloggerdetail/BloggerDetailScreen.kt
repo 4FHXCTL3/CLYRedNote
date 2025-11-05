@@ -49,7 +49,8 @@ fun BloggerDetailScreen(
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
-    val presenter = remember { BloggerDetailPresenter(dataLoader) }
+    val dataStorage = remember { com.example.test05.utils.DataStorage(context) }
+    val presenter = remember { BloggerDetailPresenter(dataLoader, dataStorage) }
     
     var blogger by remember { mutableStateOf<User?>(null) }
     var notes by remember { mutableStateOf<List<Note>>(emptyList()) }

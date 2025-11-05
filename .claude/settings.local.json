@@ -19,7 +19,13 @@
       "Bash(head:*)",
       "Bash(done)",
       "Bash(dir:*)",
-      "Bash(adb exec-out:*)"
+      "Bash(adb exec-out:*)",
+      "Bash(for i in 4 5 6 7 8 9)",
+      "Bash(for i in 10 11 12 13 14 15)",
+      "Bash(for:*)",
+      "Bash(adb push:*)",
+      "Bash(python:*)",
+      "Bash(powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; python ''D:\\Research\\GUI-Agent\\CLYRedNote\\AutoTest\\eval_4.py''\")"
     ],
     "deny": []
   }
