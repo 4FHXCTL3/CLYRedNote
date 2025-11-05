@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.graphics.BitmapFactory
 import com.example.CLYRedNote.model.Note
+import com.example.CLYRedNote.model.SourceType
 import com.example.test05.presenter.SearchDetailPresenter
 import com.example.test05.utils.JsonDataLoader
 import com.example.test05.ui.tabs.notedetail.NoteDetailScreen
@@ -43,7 +44,8 @@ fun SearchDetailScreen(
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
-    val presenter = remember { SearchDetailPresenter(dataLoader) }
+    val dataStorage = remember { com.example.test05.utils.DataStorage(context) }
+    val presenter = remember { SearchDetailPresenter(dataLoader, dataStorage) }
     
     var searchText by remember { mutableStateOf(initialQuery) }
     var selectedCategory by remember { mutableStateOf(SearchCategory.ALL.displayName) }
@@ -96,6 +98,7 @@ fun SearchDetailScreen(
     if (showNoteDetail && currentNoteId != null) {
         NoteDetailScreen(
             noteId = currentNoteId!!,
+            sourceType = SourceType.SEARCH_RESULT,  // 标记来源为搜索结果
             onBackClicked = {
                 showNoteDetail = false
                 currentNoteId = null

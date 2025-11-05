@@ -24,21 +24,35 @@ def SearchAndViewCheck(userId, searchQuery, viewCount=3):
 
     # 检查命令是否成功执行
     if search_result.returncode != 0 or not search_result.stdout:
+        print(f"❌ Failed to read search history file")
+        print(f"   Reason: ADB command failed (return code: {search_result.returncode})")
+        if search_result.stderr:
+            print(f"   Error: {search_result.stderr}")
         return False
     if browsing_result.returncode != 0 or not browsing_result.stdout:
+        print(f"❌ Failed to read browsing history file")
+        print(f"   Reason: ADB command failed (return code: {browsing_result.returncode})")
+        if browsing_result.stderr:
+            print(f"   Error: {browsing_result.stderr}")
         return False
 
     # 解析 JSON
     try:
         search_data = json.loads(search_result.stdout)
         browsing_data = json.loads(browsing_result.stdout)
-    except (json.JSONDecodeError, TypeError):
+    except (json.JSONDecodeError, TypeError) as e:
+        print(f"❌ Failed to parse JSON data")
+        print(f"   Reason: Invalid JSON format")
+        print(f"   Error: {e}")
         return False
 
     # 检查搜索历史和浏览记录
     try:
         # 检查是否有搜索记录
         if not search_data or len(search_data) == 0:
+            print(f"❌ Search history is empty")
+            print(f"   Reason: No search records found")
+            print(f"   Expected: Search query '{searchQuery}'")
             return False
 
         # 查找最新的搜索记录
@@ -46,6 +60,13 @@ def SearchAndViewCheck(userId, searchQuery, viewCount=3):
                         if item.get('userId') == userId and item.get('query') == searchQuery]
 
         if not user_searches:
+            print(f"❌ Search query not found")
+            print(f"   Reason: User '{userId}' did not search for '{searchQuery}'")
+            # Show recent searches
+            recent_searches = [item.get('query', 'UNKNOWN') for item in search_data
+                             if item.get('userId') == userId][:5]
+            if recent_searches:
+                print(f"   Recent searches: {recent_searches}")
             return False
 
         # 获取最新的搜索记录
@@ -59,10 +80,18 @@ def SearchAndViewCheck(userId, searchQuery, viewCount=3):
                           and item.get('browsedAt', '') >= search_time]
 
         # 检查浏览数量是否达到预期
-        return len(search_browsing) >= viewCount
+        if len(search_browsing) >= viewCount:
+            print(f"✓ Successfully searched '{searchQuery}' and viewed {viewCount} results")
+            return True
+        else:
+            print(f"❌ Not enough search result views")
+            print(f"   Reason: Found {len(search_browsing)} views, expected {viewCount}")
+            print(f"   Search query: '{searchQuery}' at {search_time}")
+            return False
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ Error while checking search and browsing data")
+        print(f"   Reason: {e}")
         return False
 
 if __name__ == "__main__":

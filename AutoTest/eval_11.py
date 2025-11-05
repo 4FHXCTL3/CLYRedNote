@@ -16,17 +16,27 @@ def ChangeNicknameCheck(userId, expectedNickname='111'):
 
     # 检查命令是否成功执行
     if result.returncode != 0 or not result.stdout:
+        print(f"❌ Failed to read users file")
+        print(f"   Reason: ADB command failed (return code: {result.returncode})")
+        if result.stderr:
+            print(f"   Error: {result.stderr}")
         return False
 
     # 解析 JSON
     try:
         data = json.loads(result.stdout)
-    except (json.JSONDecodeError, TypeError):
+    except (json.JSONDecodeError, TypeError) as e:
+        print(f"❌ Failed to parse users data")
+        print(f"   Reason: Invalid JSON format")
+        print(f"   Error: {e}")
         return False
 
     # 检查昵称修改
     try:
         if not data or len(data) == 0:
+            print(f"❌ Users list is empty")
+            print(f"   Reason: No user records found")
+            print(f"   Expected: At least one user record")
             return False
 
         # 查找当前用户
@@ -34,12 +44,30 @@ def ChangeNicknameCheck(userId, expectedNickname='111'):
             if user.get('id') == userId:
                 # 检查昵称是否已修改
                 nickname = user.get('nickname', '')
-                return nickname == expectedNickname
+                if nickname == expectedNickname:
+                    print(f"✓ Successfully changed nickname")
+                    print(f"   User ID: {userId}")
+                    print(f"   New nickname: {expectedNickname}")
+                    return True
+                else:
+                    print(f"❌ Nickname does not match expected value")
+                    print(f"   Reason: User nickname is '{nickname}', expected '{expectedNickname}'")
+                    if not nickname:
+                        print(f"   Note: Nickname field is empty or not set")
+                    return False
 
+        print(f"❌ User not found")
+        print(f"   Reason: User '{userId}' does not exist in users list")
+        print(f"   Total users in system: {len(data)}")
+        # Show available user IDs
+        user_ids = [user.get('id', 'Unknown') for user in data[:5]]
+        if user_ids:
+            print(f"   Available user IDs (first 5): {user_ids}")
         return False
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ Error while checking nickname")
+        print(f"   Reason: {e}")
         return False
 
 if __name__ == "__main__":

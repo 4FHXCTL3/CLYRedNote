@@ -13,7 +13,13 @@
       "Bash(test:*)",
       "Bash(dir /b \"D:\\Research\\GUI-Agent\\CLYRedNote\\app\\src\\main\\assets\\data\")",
       "Bash(cat:*)",
-      "Bash(gradlew.bat assembleDebug:*)"
+      "Bash(gradlew.bat assembleDebug:*)",
+      "Bash(for i in {6..15})",
+      "Bash(do echo \"=== eval_$i.py ===\")",
+      "Bash(head:*)",
+      "Bash(done)",
+      "Bash(dir:*)",
+      "Bash(adb exec-out:*)"
     ],
     "deny": []
   }

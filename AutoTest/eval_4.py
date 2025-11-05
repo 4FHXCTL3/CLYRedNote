@@ -39,8 +39,21 @@ def LikeCollectCommentCheck(userId, noteKeyword):
     )
 
     # 检查命令是否成功执行
-    if (likes_result.returncode != 0 or collections_result.returncode != 0 or
-        comments_result.returncode != 0 or notes_result.returncode != 0):
+    if likes_result.returncode != 0:
+        print(f"❌ Failed to read likes file")
+        print(f"   Reason: ADB command failed (return code: {likes_result.returncode})")
+        return False
+    if collections_result.returncode != 0:
+        print(f"❌ Failed to read collections file")
+        print(f"   Reason: ADB command failed (return code: {collections_result.returncode})")
+        return False
+    if comments_result.returncode != 0:
+        print(f"❌ Failed to read comments file")
+        print(f"   Reason: ADB command failed (return code: {comments_result.returncode})")
+        return False
+    if notes_result.returncode != 0:
+        print(f"❌ Failed to read notes file")
+        print(f"   Reason: ADB command failed (return code: {notes_result.returncode})")
         return False
 
     # 解析 JSON
@@ -49,7 +62,10 @@ def LikeCollectCommentCheck(userId, noteKeyword):
         collections_data = json.loads(collections_result.stdout) if collections_result.stdout else []
         comments_data = json.loads(comments_result.stdout) if comments_result.stdout else []
         notes_data = json.loads(notes_result.stdout) if notes_result.stdout else []
-    except (json.JSONDecodeError, TypeError):
+    except (json.JSONDecodeError, TypeError) as e:
+        print(f"❌ Failed to parse JSON data")
+        print(f"   Reason: Invalid JSON format")
+        print(f"   Error: {e}")
         return False
 
     # 查找标题包含关键词的笔记
@@ -57,6 +73,8 @@ def LikeCollectCommentCheck(userId, noteKeyword):
         target_notes = [note for note in notes_data if noteKeyword in note.get('title', '')]
 
         if not target_notes:
+            print(f"❌ No notes found with keyword '{noteKeyword}'")
+            print(f"   Reason: No matching notes in the database")
             return False
 
         # 检查这些笔记是否被点赞、收藏和评论
@@ -82,12 +100,26 @@ def LikeCollectCommentCheck(userId, noteKeyword):
 
             # 如果找到一个笔记同时满足三个条件，返回 True
             if has_liked and has_collected and has_commented:
+                print(f"✓ Successfully liked, collected and commented on note '{note.get('title')}'")
                 return True
 
+        # 检查哪些操作缺失
+        note = target_notes[0]
+        note_id = note.get('id')
+        has_liked = any(like.get('userId') == userId and like.get('targetId') == note_id for like in likes_data)
+        has_collected = any(col.get('userId') == userId and col.get('noteId') == note_id for col in collections_data)
+        has_commented = any(comment.get('author', {}).get('id') == userId and comment.get('noteId') == note_id for comment in comments_data)
+
+        print(f"❌ Missing actions on note '{note.get('title')}'")
+        print(f"   Note ID: {note_id}")
+        print(f"   Liked: {'✓' if has_liked else '✗'}")
+        print(f"   Collected: {'✓' if has_collected else '✗'}")
+        print(f"   Commented: {'✗' if not has_commented else '✓'}")
         return False
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ Error while checking interactions")
+        print(f"   Reason: {e}")
         return False
 
 if __name__ == "__main__":

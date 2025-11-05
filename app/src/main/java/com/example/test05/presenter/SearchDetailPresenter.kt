@@ -1,14 +1,18 @@
 package com.example.test05.presenter
 
 import com.example.CLYRedNote.model.Note
+import com.example.CLYRedNote.model.SearchHistory
 import com.example.test05.ui.tabs.searchdetail.SearchDetailContract
 import com.example.test05.ui.tabs.searchdetail.SearchCategory
 import com.example.test05.ui.tabs.searchdetail.SearchFilter
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.utils.DataStorage
 import kotlinx.coroutines.*
+import java.util.Date
 
 class SearchDetailPresenter(
-    private val dataLoader: JsonDataLoader
+    private val dataLoader: JsonDataLoader,
+    private val dataStorage: DataStorage
 ) : SearchDetailContract.Presenter {
     
     private var view: SearchDetailContract.View? = null
@@ -90,16 +94,37 @@ class SearchDetailPresenter(
         presenterScope.launch {
             try {
                 view?.showLoading(true)
-                
+
                 val filteredNotes = withContext(Dispatchers.IO) {
                     filterNotes(allNotes, currentQuery, currentCategory, currentFilter)
                 }
-                
+
                 view?.showSearchResults(filteredNotes)
+
+                // Save search history
+                saveSearchHistory(currentQuery, filteredNotes.size)
             } catch (e: Exception) {
                 view?.showError("搜索失败: ${e.message}")
             } finally {
                 view?.showLoading(false)
+            }
+        }
+    }
+
+    private fun saveSearchHistory(query: String, resultCount: Int) {
+        presenterScope.launch {
+            try {
+                val searchHistory = SearchHistory(
+                    id = "search_${System.currentTimeMillis()}",
+                    userId = "user_current",
+                    query = query,
+                    searchedAt = Date(),
+                    resultCount = resultCount
+                )
+                dataStorage.saveSearchHistory(searchHistory)
+            } catch (e: Exception) {
+                // Silent failure - don't interrupt search experience
+                e.printStackTrace()
             }
         }
     }

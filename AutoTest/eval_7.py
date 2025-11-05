@@ -31,36 +31,71 @@ def ViewFollowingNoteCheck(userId):
     )
 
     # 检查命令是否成功执行
-    if (follows_result.returncode != 0 or browsing_result.returncode != 0 or
-        notes_result.returncode != 0):
+    if follows_result.returncode != 0 or not follows_result.stdout:
+        print(f"❌ Failed to read follows file")
+        print(f"   Reason: ADB command failed (return code: {follows_result.returncode})")
+        if follows_result.stderr:
+            print(f"   Error: {follows_result.stderr}")
+        return False
+
+    if browsing_result.returncode != 0 or not browsing_result.stdout:
+        print(f"❌ Failed to read browsing history file")
+        print(f"   Reason: ADB command failed (return code: {browsing_result.returncode})")
+        if browsing_result.stderr:
+            print(f"   Error: {browsing_result.stderr}")
+        return False
+
+    if notes_result.returncode != 0 or not notes_result.stdout:
+        print(f"❌ Failed to read notes file")
+        print(f"   Reason: ADB command failed (return code: {notes_result.returncode})")
+        if notes_result.stderr:
+            print(f"   Error: {notes_result.stderr}")
         return False
 
     # 解析 JSON
     try:
-        follows_data = json.loads(follows_result.stdout) if follows_result.stdout else []
-        browsing_data = json.loads(browsing_result.stdout) if browsing_result.stdout else []
-        notes_data = json.loads(notes_result.stdout) if notes_result.stdout else []
-    except (json.JSONDecodeError, TypeError):
+        follows_data = json.loads(follows_result.stdout)
+        browsing_data = json.loads(browsing_result.stdout)
+        notes_data = json.loads(notes_result.stdout)
+    except (json.JSONDecodeError, TypeError) as e:
+        print(f"❌ Failed to parse JSON data")
+        print(f"   Reason: Invalid JSON format")
+        print(f"   Error: {e}")
         return False
 
     # 检查是否查看了关注博主的笔记
     try:
+        # 检查关注列表是否为空
+        if not follows_data or len(follows_data) == 0:
+            print(f"❌ Follows list is empty")
+            print(f"   Reason: No follow records found")
+            print(f"   Expected: At least one following relationship")
+            return False
+
         # 获取用户的关注列表，按关注时间排序
         user_follows = [f for f in follows_data if f.get('followerId') == userId]
         if not user_follows:
+            print(f"❌ No following records for user")
+            print(f"   Reason: User '{userId}' is not following anyone")
+            print(f"   Expected: At least one following relationship")
             return False
 
         user_follows.sort(key=lambda x: x.get('followedAt', ''))
         first_following_id = user_follows[0].get('followingId')
+        first_following_username = user_follows[0].get('following', {}).get('username', 'Unknown')
 
         # 获取该博主的第一条笔记
         author_notes = [note for note in notes_data
                        if note.get('author', {}).get('id') == first_following_id]
         if not author_notes:
+            print(f"❌ First following user has no notes")
+            print(f"   Reason: User '{first_following_username}' (id: {first_following_id}) has not published any notes")
+            print(f"   Expected: At least one note from this user")
             return False
 
         author_notes.sort(key=lambda x: x.get('createdAt', ''))
         first_note_id = author_notes[0].get('id')
+        first_note_title = author_notes[0].get('title', 'Untitled')
 
         # 检查浏览历史中是否有查看该笔记的记录，且来源为用户主页
         has_viewed = any(item.get('userId') == userId
@@ -68,10 +103,27 @@ def ViewFollowingNoteCheck(userId):
                         and item.get('sourceType') == 'USER_PROFILE'
                         for item in browsing_data)
 
-        return has_viewed
+        if has_viewed:
+            print(f"✓ Successfully viewed first following user's first note")
+            print(f"   Following user: {first_following_username}")
+            print(f"   Note: {first_note_title} (id: {first_note_id})")
+            return True
+        else:
+            print(f"❌ Did not view first following user's first note from user profile")
+            print(f"   Reason: No browsing record found")
+            print(f"   Expected note: {first_note_title} (id: {first_note_id})")
+            print(f"   Expected source: USER_PROFILE")
+            # Check if viewed from other sources
+            other_views = [item for item in browsing_data
+                          if item.get('userId') == userId and item.get('noteId') == first_note_id]
+            if other_views:
+                sources = [item.get('sourceType', 'UNKNOWN') for item in other_views]
+                print(f"   Note was viewed from other sources: {sources}")
+            return False
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ Error while checking following note view")
+        print(f"   Reason: {e}")
         return False
 
 if __name__ == "__main__":

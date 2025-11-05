@@ -16,22 +16,27 @@ def ReplyCommentCheck(userId, replyContent):
 
     # 检查命令是否成功执行
     if result.returncode != 0 or not result.stdout:
+        print(f"❌ Failed to read comments file")
+        print(f"   Reason: ADB command failed (return code: {result.returncode})")
+        if result.stderr:
+            print(f"   Error: {result.stderr}")
         return False
 
     # 解析 JSON
     try:
         data = json.loads(result.stdout)
-    except (json.JSONDecodeError, TypeError):
+    except (json.JSONDecodeError, TypeError) as e:
+        print(f"❌ Failed to parse comments data")
+        print(f"   Reason: Invalid JSON format")
+        print(f"   Error: {e}")
         return False
 
     # 检查评论回复
     try:
         if not data or len(data) == 0:
+            print(f"❌ Comments list is empty")
+            print(f"   Reason: No comments found")
             return False
-
-        # 获取当前用户的笔记
-        current_user_notes = set()
-        # 这里简化处理，假设评论数据中包含了足够的信息
 
         # 查找回复类型的评论（parentCommentId不为空表示是回复）
         replies = [comment for comment in data
@@ -41,14 +46,24 @@ def ReplyCommentCheck(userId, replyContent):
 
         # 如果找到符合条件的回复，返回 True
         if replies:
-            # 按时间排序，检查是否是最新的回复
             latest_reply = sorted(replies, key=lambda x: x.get('createdAt', ''), reverse=True)[0]
-            return latest_reply.get('content') == replyContent
+            if latest_reply.get('content') == replyContent:
+                print(f"✓ Successfully replied with '{replyContent}'")
+                return True
 
+        print(f"❌ Reply comment not found")
+        print(f"   Reason: No reply with content '{replyContent}' from user '{userId}'")
+        # Show recent replies
+        user_replies = [c.get('content', 'UNKNOWN') for c in data
+                       if c.get('author', {}).get('id') == userId
+                       and c.get('parentCommentId') is not None][:3]
+        if user_replies:
+            print(f"   Recent replies: {user_replies}")
         return False
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ Error while checking reply comments")
+        print(f"   Reason: {e}")
         return False
 
 if __name__ == "__main__":
