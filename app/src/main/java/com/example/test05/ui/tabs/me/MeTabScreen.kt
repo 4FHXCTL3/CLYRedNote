@@ -79,7 +79,8 @@ fun MeTabScreen(
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
-    val presenter = remember { MeTabPresenter(dataLoader) }
+    val dataStorage = remember { com.example.test05.utils.DataStorage(context) }
+    val presenter = remember { MeTabPresenter(dataLoader, dataStorage) }
     
     var currentUser by remember { mutableStateOf<User?>(null) }
     var followingCount by remember { mutableIntStateOf(0) }

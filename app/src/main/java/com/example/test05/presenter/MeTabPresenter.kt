@@ -2,13 +2,15 @@ package com.example.test05.presenter
 
 import com.example.test05.ui.tabs.me.MeTabContract
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.utils.DataStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MeTabPresenter(
-    private val dataLoader: JsonDataLoader
+    private val dataLoader: JsonDataLoader,
+    private val dataStorage: DataStorage
 ) : MeTabContract.Presenter {
     
     private var view: MeTabContract.View? = null
@@ -80,8 +82,29 @@ class MeTabPresenter(
     override fun loadLikedNotes() {
         scope.launch {
             try {
-                // For now, return empty list since we don't have like data structure
-                view?.showLikedNotes(emptyList())
+                // Load likes from storage
+                val likes = withContext(Dispatchers.IO) {
+                    dataStorage.loadLikes()
+                }
+
+                // Filter likes for current user and type NOTE
+                val userLikes = likes.filter {
+                    it.userId == "user_current" && it.targetType.name == "NOTE"
+                }
+
+                // Load all notes
+                val allNotes = withContext(Dispatchers.IO) {
+                    dataLoader.loadNotes()
+                }
+
+                // Get liked notes and sort by like time (newest first)
+                val likedNotes = userLikes
+                    .sortedByDescending { it.likedAt }
+                    .mapNotNull { like ->
+                        allNotes.find { note -> note.id == like.targetId }
+                    }
+
+                view?.showLikedNotes(likedNotes)
             } catch (e: Exception) {
                 view?.showError("Failed to load liked notes: ${e.message}")
             }

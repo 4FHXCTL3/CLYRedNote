@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import android.graphics.BitmapFactory
 import com.example.test05.presenter.CommentAtTabPresenter
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.utils.DataStorage
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,7 +37,8 @@ fun CommentAtTabScreen(
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
-    val presenter = remember { CommentAtTabPresenter(dataLoader) }
+    val dataStorage = remember { DataStorage(context) }
+    val presenter = remember { CommentAtTabPresenter(dataLoader, dataStorage) }
     
     var commentNotifications by remember { mutableStateOf<List<CommentNotification>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }

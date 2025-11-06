@@ -281,10 +281,11 @@ class NoteDetailPresenter(
 
             comments = comments + newComment
 
-            // Save comment to DataStorage
+            // Save comment to both DataStorage and DataLoader
             presenterScope.launch {
                 try {
                     dataStorage.saveComment(newComment)
+                    dataLoader.saveComment(newComment) // Add to cache
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -322,10 +323,11 @@ class NoteDetailPresenter(
             comments = comments + newReply
             view?.showCommentAdded(newReply)
 
-            // Save reply to DataStorage
+            // Save reply to both DataStorage and DataLoader
             presenterScope.launch {
                 try {
                     dataStorage.saveComment(newReply)
+                    dataLoader.saveComment(newReply) // Add to cache
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

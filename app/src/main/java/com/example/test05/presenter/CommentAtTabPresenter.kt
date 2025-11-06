@@ -6,6 +6,7 @@ import com.example.CLYRedNote.model.User
 import com.example.test05.ui.tabs.commentat.CommentAtTabContract
 import com.example.test05.ui.tabs.commentat.CommentNotification
 import com.example.test05.utils.JsonDataLoader
+import com.example.test05.utils.DataStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -13,17 +14,30 @@ import kotlinx.coroutines.withContext
 import java.util.Date
 
 class CommentAtTabPresenter(
-    private val dataLoader: JsonDataLoader
+    private val dataLoader: JsonDataLoader,
+    private val dataStorage: DataStorage
 ) : CommentAtTabContract.Presenter {
-    
+
     private var view: CommentAtTabContract.View? = null
     private val scope = CoroutineScope(Dispatchers.Main)
     private val likedComments = mutableSetOf<String>()
     private val commentReplies = mutableMapOf<String, MutableList<String>>()
+    private var currentUser: User? = null
     
     override fun attachView(view: CommentAtTabContract.View) {
         this.view = view
-        loadCommentNotifications()
+        scope.launch {
+            try {
+                // Load current user
+                val users = withContext(Dispatchers.IO) {
+                    dataLoader.loadUsers()
+                }
+                currentUser = users.find { it.id == "user_current" }
+            } catch (e: Exception) {
+                // Continue even if user loading fails
+            }
+            loadCommentNotifications()
+        }
     }
     
     override fun detachView() {
@@ -82,7 +96,50 @@ class CommentAtTabPresenter(
     override fun onReplySubmitted(commentId: String, replyText: String) {
         scope.launch {
             try {
-                // Add reply to the comment
+                // Get the current user
+                val user = currentUser
+                if (user == null) {
+                    view?.showError("无法获取当前用户信息")
+                    return@launch
+                }
+
+                // Find the original comment to get noteId
+                val comments = withContext(Dispatchers.IO) {
+                    dataLoader.loadComments()
+                }
+                val originalComment = comments.find { it.id == commentId }
+                if (originalComment == null) {
+                    view?.showError("找不到原评论")
+                    return@launch
+                }
+
+                // Create a new reply comment
+                val replyComment = Comment(
+                    id = "comment_${System.currentTimeMillis()}",
+                    content = replyText,
+                    author = user,
+                    noteId = originalComment.noteId,
+                    parentCommentId = commentId,
+                    replyToUserId = originalComment.author.id,
+                    replyToUsername = originalComment.author.nickname,
+                    likeCount = 0,
+                    replyCount = 0,
+                    isLiked = false,
+                    images = emptyList(),
+                    createdAt = Date(),
+                    updatedAt = Date(),
+                    replies = emptyList(),
+                    isAuthorReply = false,
+                    isPinned = false
+                )
+
+                // Save the reply comment to storage
+                withContext(Dispatchers.IO) {
+                    dataStorage.saveComment(replyComment)
+                    dataLoader.saveComment(replyComment) // Add to cache
+                }
+
+                // Add reply to the comment (for UI display)
                 commentReplies.getOrPut(commentId) { mutableListOf() }.add(replyText)
                 view?.addReplyToComment(commentId, replyText)
                 view?.updateReplyVisibility(commentId, false)

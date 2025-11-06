@@ -124,7 +124,8 @@ fun BloggerDetailScreen(
             onBackClicked = {
                 showNoteDetail = false
                 currentNoteId = null
-            }
+            },
+            sourceType = com.example.CLYRedNote.model.SourceType.USER_PROFILE
         )
     } else {
         Column(

@@ -26,7 +26,11 @@
       "Bash(adb push:*)",
       "Bash(python:*)",
       "Bash(powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; python ''D:\\Research\\GUI-Agent\\CLYRedNote\\AutoTest\\eval_4.py''\")",
-      "Bash(powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; cd ''D:\\Research\\GUI-Agent\\CLYRedNote\\AutoTest''; 5..15 | ForEach-Object { Write-Host ''=== eval_'' $_''.py ===''; python (''eval_'' + $_+ ''.py'') 2>&1 | Select-Object -First 3 }\")"
+      "Bash(powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; cd ''D:\\Research\\GUI-Agent\\CLYRedNote\\AutoTest''; 5..15 | ForEach-Object { Write-Host ''=== eval_'' $_''.py ===''; python (''eval_'' + $_+ ''.py'') 2>&1 | Select-Object -First 3 }\")",
+      "Bash(adb install:*)",
+      "Bash(adb shell run-as:*)",
+      "Bash(adb shell:*)",
+      "Bash(timeout 5 adb exec-out run-as com.example.test05 cat:*)"
     ],
     "deny": []
   }

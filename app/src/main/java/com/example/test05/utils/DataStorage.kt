@@ -78,6 +78,13 @@ class DataStorage(private val context: Context) {
     }
 
     /**
+     * Load likes
+     */
+    fun loadLikes(): List<Like> {
+        return loadFromFile("likes.json", object : TypeToken<List<Like>>() {}.type)
+    }
+
+    /**
      * Update user information
      */
     suspend fun updateUser(updatedUser: User) {
