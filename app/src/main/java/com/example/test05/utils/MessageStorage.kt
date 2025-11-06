@@ -38,10 +38,23 @@ class MessageStorage(private val context: Context) {
     private suspend fun saveMessage(message: Message) {
         withContext(Dispatchers.IO) {
             try {
+                val messagesFile = File(context.filesDir, "messages.json")
+
+                // Ensure parent directory exists
+                messagesFile.parentFile?.mkdirs()
+
+                // Create file if it doesn't exist
+                if (!messagesFile.exists()) {
+                    messagesFile.createNewFile()
+                    // Initialize with empty array
+                    FileWriter(messagesFile).use { writer ->
+                        writer.write("[]")
+                    }
+                }
+
                 val existingMessages = loadMessagesFromInternalStorage()
                 val updatedMessages = existingMessages + message
 
-                val messagesFile = File(context.filesDir, "messages.json")
                 val jsonString = gson.toJson(updatedMessages)
 
                 FileWriter(messagesFile).use { writer ->
