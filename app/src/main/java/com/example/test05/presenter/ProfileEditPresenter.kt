@@ -1,6 +1,8 @@
 package com.example.test05.presenter
 
+import android.content.Context
 import com.example.test05.ui.tabs.profileedit.ProfileEditContract
+import com.example.test05.utils.DataStorage
 import com.example.test05.utils.JsonDataLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -8,7 +10,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ProfileEditPresenter(
-    private val dataLoader: JsonDataLoader
+    private val dataLoader: JsonDataLoader,
+    private val context: Context
 ) : ProfileEditContract.Presenter {
     
     private var view: ProfileEditContract.View? = null
@@ -47,10 +50,15 @@ class ProfileEditPresenter(
         scope.launch {
             view?.showLoading(true)
             try {
-                // Update the user in the data loader
+                // Update the user in the data loader (in-memory cache)
                 dataLoader.updateUser(user)
+
+                // Save to persistent storage
+                val dataStorage = DataStorage(context)
+                dataStorage.updateUser(user)
+
                 view?.showSuccess("资料保存成功")
-                
+
                 // Navigate back after successful update
                 view?.navigateBack()
             } catch (e: Exception) {

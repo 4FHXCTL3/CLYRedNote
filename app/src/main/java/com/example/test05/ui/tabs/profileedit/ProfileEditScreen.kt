@@ -28,7 +28,7 @@ fun ProfileEditScreen(
 ) {
     val context = LocalContext.current
     val dataLoader = remember { JsonDataLoader(context) }
-    val presenter = remember { ProfileEditPresenter(dataLoader) }
+    val presenter = remember { ProfileEditPresenter(dataLoader, context) }
     
     var originalUser by remember { mutableStateOf<User?>(null) }
     var isLoading by remember { mutableStateOf(false) }
