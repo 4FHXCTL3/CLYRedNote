@@ -6,20 +6,15 @@ import io
 # 设置 UTF-8 编码以支持 emoji 输出
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-def ViewLikedNotesAndCommentCheck(userId, viewCount=3, commentContent="很有用"):
+def ViewAndCommentNotesCheck():
     """
-    检查用户是否浏览了赞过的前N条笔记并进行评论
-    任务21: 在"我"页面浏览"赞过"的前3条笔记详情，并评论"很有用"
+    检查浏览历史和评论记录的最后三条数据：
+    1. browsing_history.json 最后三条: noteId 分别为 note_010, note_011, note_012
+    2. comments.json 最后三条: content 均为 "很实用！", noteId 分别为 note_010, note_011, note_012
     """
-    # 从设备获取点赞记录
-    likes_result = subprocess.run(
-        ['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/likes.json'],
-        capture_output=True,
-        encoding='utf-8',
-        errors='replace'
-    )
 
-    # 从设备获取浏览历史
+    # 检查浏览历史
+    print("=== Checking browsing_history.json ===")
     browsing_result = subprocess.run(
         ['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/browsing_history.json'],
         capture_output=True,
@@ -27,7 +22,43 @@ def ViewLikedNotesAndCommentCheck(userId, viewCount=3, commentContent="很有用
         errors='replace'
     )
 
-    # 从设备获取评论记录
+    if browsing_result.returncode != 0 or not browsing_result.stdout:
+        print(f"❌ Failed to read browsing_history.json")
+        print(f"   Reason: ADB command failed (return code: {browsing_result.returncode})")
+        return False
+
+    try:
+        browsing_data = json.loads(browsing_result.stdout)
+        if not browsing_data or len(browsing_data) < 3:
+            print(f"❌ Browsing history has less than 3 records")
+            print(f"   Found: {len(browsing_data) if browsing_data else 0} records")
+            print(f"   Expected: At least 3 records")
+            return False
+
+        # 获取最后三条浏览历史
+        last_three_browsing = browsing_data[-3:]
+        browsing_note_ids = [item.get('noteId', '') for item in last_three_browsing]
+
+        expected_browsing_ids = ['note_010', 'note_011', 'note_012']
+
+        if browsing_note_ids == expected_browsing_ids:
+            print(f"✓ Browsing history check passed")
+            for i, item in enumerate(last_three_browsing):
+                print(f"   Record {i+1}:")
+                print(f"     Note ID: {item.get('noteId')}")
+                print(f"     Note Title: {item.get('noteTitle', 'Unknown')}")
+                print(f"     Browsed at: {item.get('browsedAt', 'Unknown')}")
+        else:
+            print(f"❌ Browsing history check failed")
+            print(f"   Expected note IDs: {expected_browsing_ids}")
+            print(f"   Actual note IDs: {browsing_note_ids}")
+            return False
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"❌ Failed to parse browsing_history.json: {e}")
+        return False
+
+    # 检查评论记录
+    print("\n=== Checking comments.json ===")
     comments_result = subprocess.run(
         ['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/comments.json'],
         capture_output=True,
@@ -35,93 +66,57 @@ def ViewLikedNotesAndCommentCheck(userId, viewCount=3, commentContent="很有用
         errors='replace'
     )
 
-    # 检查命令是否成功执行
-    if likes_result.returncode != 0 or not likes_result.stdout:
-        print(f"❌ Failed to read likes file")
-        print(f"   Reason: ADB command failed (return code: {likes_result.returncode})")
-        if likes_result.stderr:
-            print(f"   Error: {likes_result.stderr}")
-        return False
-    if browsing_result.returncode != 0 or not browsing_result.stdout:
-        print(f"❌ Failed to read browsing history file")
-        print(f"   Reason: ADB command failed (return code: {browsing_result.returncode})")
+    if comments_result.returncode != 0 or not comments_result.stdout:
+        print(f"❌ Failed to read comments.json")
+        print(f"   Reason: ADB command failed (return code: {comments_result.returncode})")
         return False
 
-    # 解析 JSON
     try:
-        likes_data = json.loads(likes_result.stdout.strip()) if likes_result.stdout.strip() else []
-        browsing_data = json.loads(browsing_result.stdout.strip()) if browsing_result.stdout.strip() else []
-        # comments.json 可能不存在，需要容错处理
-        if comments_result.returncode == 0 and comments_result.stdout and comments_result.stdout.strip():
-            comments_data = json.loads(comments_result.stdout.strip())
+        comments_data = json.loads(comments_result.stdout)
+        if not comments_data or len(comments_data) < 3:
+            print(f"❌ Comments list has less than 3 records")
+            print(f"   Found: {len(comments_data) if comments_data else 0} records")
+            print(f"   Expected: At least 3 records")
+            return False
+
+        # 获取最后三条评论
+        last_three_comments = comments_data[-3:]
+
+        # 检查每条评论的 content 和 noteId
+        expected_content = "很实用！"
+        expected_note_ids = ['note_010', 'note_011', 'note_012']
+
+        all_match = True
+        for i, comment in enumerate(last_three_comments):
+            content = comment.get('content', '')
+            note_id = comment.get('noteId', '')
+            expected_note_id = expected_note_ids[i]
+
+            if content != expected_content or note_id != expected_note_id:
+                all_match = False
+                print(f"❌ Comment {i+1} check failed")
+                print(f"   Expected: content='{expected_content}', noteId='{expected_note_id}'")
+                print(f"   Actual: content='{content}', noteId='{note_id}'")
+
+        if all_match:
+            print(f"✓ Comments check passed")
+            for i, comment in enumerate(last_three_comments):
+                print(f"   Comment {i+1}:")
+                print(f"     Content: {comment.get('content')}")
+                print(f"     Note ID: {comment.get('noteId')}")
+                print(f"     Created at: {comment.get('createdAt', 'Unknown')}")
         else:
-            comments_data = []
-    except (json.JSONDecodeError, TypeError) as e:
-        print(f"❌ Failed to parse JSON data")
-        print(f"   Reason: Invalid JSON format")
-        print(f"   Error: {e}")
+            return False
+
+    except (json.JSONDecodeError, Exception) as e:
+        print(f"❌ Failed to parse comments.json: {e}")
         return False
 
-    # 检查浏览和评论
-    try:
-        # 获取用户点赞的笔记列表
-        user_liked_notes = [like for like in likes_data
-                           if like.get('userId') == userId
-                           and like.get('targetType') == 'NOTE']
-
-        if not user_liked_notes:
-            print(f"❌ No liked notes found")
-            print(f"   Reason: User has not liked any notes")
-            return False
-
-        if len(user_liked_notes) < viewCount:
-            print(f"❌ Not enough liked notes")
-            print(f"   Reason: User has liked {len(user_liked_notes)} note(s), expected at least {viewCount}")
-            return False
-
-        # 获取前N个点赞的笔记ID
-        sorted_likes = sorted(user_liked_notes, key=lambda x: x.get('likedAt', ''), reverse=True)
-        target_note_ids = [like.get('targetId') for like in sorted_likes[:viewCount]]
-
-        # 检查这些笔记是否都被浏览和评论
-        success_count = 0
-        for note_id in target_note_ids:
-            # 检查是否浏览过（任意来源）
-            has_browsed = any(item.get('userId') == userId
-                             and item.get('noteId') == note_id
-                             for item in browsing_data)
-
-            # 检查是否评论过
-            has_commented = any(comment.get('author', {}).get('id') == userId
-                               and comment.get('noteId') == note_id
-                               and comment.get('content') == commentContent
-                               for comment in comments_data)
-
-            if has_browsed and has_commented:
-                success_count += 1
-
-        if success_count >= viewCount:
-            print(f"✓ Successfully viewed and commented on {viewCount} liked notes")
-            print(f"   All notes have been browsed and commented with '{commentContent}'")
-            return True
-        else:
-            print(f"❌ Not all liked notes have been viewed and commented")
-            print(f"   Reason: Only {success_count} out of {viewCount} notes meet requirements")
-            # Show details for each note
-            for i, note_id in enumerate(target_note_ids):
-                has_browsed = any(item.get('userId') == userId and item.get('noteId') == note_id for item in browsing_data)
-                has_commented = any(comment.get('author', {}).get('id') == userId and comment.get('noteId') == note_id and comment.get('content') == commentContent for comment in comments_data)
-                print(f"   Note {i+1} (ID: {note_id}): Browsed={'✓' if has_browsed else '✗'}, Commented={'✓' if has_commented else '✗'}")
-            return False
-
-    except Exception as e:
-        print(f"❌ Error while checking liked notes")
-        print(f"   Reason: {e}")
-        return False
+    # 所有检查都通过
+    print("\n" + "="*50)
+    print("✓ All checks passed!")
+    print("="*50)
+    return True
 
 if __name__ == "__main__":
-    print(ViewLikedNotesAndCommentCheck(
-        userId='user_current',
-        viewCount=3,
-        commentContent='很有用'
-    ))
+    print(ViewAndCommentNotesCheck())
