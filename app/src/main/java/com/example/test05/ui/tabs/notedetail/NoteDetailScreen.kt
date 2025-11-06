@@ -302,12 +302,17 @@ fun NoteDetailScreen(
             )
         }
     }
-    
+
     // Share Bottom Sheet
     if (showShareBottomSheet) {
         ShareBottomSheet(
             onDismiss = { showShareBottomSheet = false },
-            onDislikeClicked = { 
+            onShareClicked = {
+                // Handle share action - save share record
+                presenter.onShareClicked(noteId)
+                showShareBottomSheet = false
+            },
+            onDislikeClicked = {
                 // Handle dislike action - could be sent to presenter
                 presenter.onDislikeClicked(noteId)
                 browsingHistoryManager.recordInteraction(
@@ -796,6 +801,7 @@ private fun CommentInputBar(
 @Composable
 private fun ShareBottomSheet(
     onDismiss: () -> Unit,
+    onShareClicked: () -> Unit = {},
     onDislikeClicked: () -> Unit = {}
 ) {
     Box(
@@ -838,19 +844,22 @@ private fun ShareBottomSheet(
             }
             
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Recent contacts row
-            RecentContactsRow()
-            
+            RecentContactsRow(onContactClicked = onShareClicked)
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // Social platforms row
-            SocialPlatformsRow()
-            
+            SocialPlatformsRow(onPlatformClicked = onShareClicked)
+
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // Other options row
-            OtherOptionsRow(onDislikeClicked = onDislikeClicked)
+            OtherOptionsRow(
+                onShareClicked = onShareClicked,
+                onDislikeClicked = onDislikeClicked
+            )
             
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -858,7 +867,7 @@ private fun ShareBottomSheet(
 }
 
 @Composable
-private fun RecentContactsRow() {
+private fun RecentContactsRow(onContactClicked: () -> Unit = {}) {
     Column {
         Text(
             text = "最近联系人",
@@ -888,7 +897,8 @@ private fun RecentContactsRow() {
                         4 -> "image/scenery5.jpg"
                         else -> null
                     },
-                    isOnline = index < 3
+                    isOnline = index < 3,
+                    onClick = onContactClicked
                 )
             }
         }
@@ -899,7 +909,8 @@ private fun RecentContactsRow() {
 private fun ShareContactItem(
     name: String,
     avatarImage: String? = null,
-    isOnline: Boolean = false
+    isOnline: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var imageBitmap by remember { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
@@ -920,7 +931,7 @@ private fun ShareContactItem(
     
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { /* Handle contact click */ }
+        modifier = Modifier.clickable { onClick() }
     ) {
         Box {
             if (imageBitmap != null) {
@@ -966,7 +977,7 @@ private fun ShareContactItem(
 }
 
 @Composable
-private fun SocialPlatformsRow() {
+private fun SocialPlatformsRow(onPlatformClicked: () -> Unit = {}) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(32.dp)
     ) {
@@ -977,17 +988,21 @@ private fun SocialPlatformsRow() {
             ShareOption("QQ好友", Icons.Default.Person, Color.Blue),
             ShareOption("QQ空间", Icons.Default.Star, Color.Yellow)
         )) { option ->
-            ShareOptionItem(option = option)
+            ShareOptionItem(
+                option = option,
+                onClick = onPlatformClicked
+            )
         }
     }
 }
 
 @Composable
 private fun OtherOptionsRow(
+    onShareClicked: () -> Unit = {},
     onDislikeClicked: () -> Unit = {}
 ) {
     var isDisliked by remember { mutableStateOf(false) }
-    
+
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(32.dp)
     ) {
@@ -1004,8 +1019,10 @@ private fun OtherOptionsRow(
                     if (option.title == "不喜欢") {
                         isDisliked = !isDisliked
                         onDislikeClicked()
+                    } else {
+                        // All other options trigger share action
+                        onShareClicked()
                     }
-                    // Handle other options here if needed
                 }
             )
         }

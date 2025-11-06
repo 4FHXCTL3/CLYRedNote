@@ -136,10 +136,23 @@ class DataStorage(private val context: Context) {
     private suspend fun <T> saveToFile(fileName: String, newItem: T, typeToken: java.lang.reflect.Type) {
         withContext(Dispatchers.IO) {
             try {
+                val dataFile = File(context.filesDir, fileName)
+
+                // Ensure parent directory exists
+                dataFile.parentFile?.mkdirs()
+
+                // Create file if it doesn't exist
+                if (!dataFile.exists()) {
+                    dataFile.createNewFile()
+                    // Initialize with empty array
+                    FileWriter(dataFile).use { writer ->
+                        writer.write("[]")
+                    }
+                }
+
                 val existingData = loadFromFile<T>(fileName, typeToken)
                 val updatedData = existingData + newItem
 
-                val dataFile = File(context.filesDir, fileName)
                 val jsonString = gson.toJson(updatedData)
 
                 FileWriter(dataFile).use { writer ->
