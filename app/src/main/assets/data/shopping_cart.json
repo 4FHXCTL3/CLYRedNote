@@ -1,0 +1,50 @@
+[
+  {
+    "id": "cart_001",
+    "productId": "product_001",
+    "userId": "user_current",
+    "quantity": 1,
+    "selectedSpecs": {
+      "尺码": "56-59cm",
+      "颜色": "冰雪白/M"
+    },
+    "isSelected": true,
+    "addedAt": "2023-10-18T14:30:00Z"
+  },
+  {
+    "id": "cart_002",
+    "productId": "product_003",
+    "userId": "user_current",
+    "quantity": 2,
+    "selectedSpecs": {
+      "尺码": "AS4",
+      "颜色": "均色"
+    },
+    "isSelected": true,
+    "addedAt": "2023-10-17T10:15:00Z"
+  },
+  {
+    "id": "cart_003",
+    "productId": "product_005",
+    "userId": "user_current",
+    "quantity": 1,
+    "selectedSpecs": {
+      "尺码": "AS4",
+      "颜色": "均色"
+    },
+    "isSelected": false,
+    "addedAt": "2023-10-16T09:20:00Z"
+  },
+  {
+    "id": "cart_004",
+    "productId": "product_007",
+    "userId": "user_current",
+    "quantity": 1,
+    "selectedSpecs": {
+      "尺码": "M",
+      "颜色": "均色"
+    },
+    "isSelected": true,
+    "addedAt": "2023-10-15T16:45:00Z"
+  }
+]

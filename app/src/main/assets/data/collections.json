@@ -1,0 +1,109 @@
+[
+  {
+    "id": "collection_001",
+    "userId": "user_current",
+    "noteId": "note_002",
+    "folderId": "folder_001",
+    "folderName": "科技",
+    "tags": ["AI", "实用"],
+    "notes": "很实用的AI技术分享",
+    "collectedAt": "2023-10-14T11:30:00Z"
+  },
+  {
+    "id": "collection_002",
+    "userId": "user_current",
+    "noteId": "note_001",
+    "folderId": "folder_002",
+    "folderName": "穿搭",
+    "tags": ["秋冬", "时尚"],
+    "collectedAt": "2023-10-15T16:20:00Z"
+  },
+  {
+    "id": "collection_003",
+    "userId": "user_001",
+    "noteId": "note_004",
+    "folderId": "folder_default",
+    "folderName": "默认收藏夹",
+    "collectedAt": "2023-10-19T13:15:00Z"
+  },
+  {
+    "id": "collection_004",
+    "userId": "user_current",
+    "noteId": "note_003",
+    "folderId": "folder_003",
+    "folderName": "美妆",
+    "tags": ["美妆", "测评"],
+    "notes": "这款粉底液真的很不错",
+    "collectedAt": "2023-10-13T18:00:00Z"
+  },
+  {
+    "id": "collection_005",
+    "userId": "user_current",
+    "noteId": "note_005",
+    "folderId": "folder_004",
+    "folderName": "旅行",
+    "tags": ["旅行", "风景"],
+    "notes": "美丽的风景值得收藏",
+    "collectedAt": "2023-10-12T20:30:00Z"
+  },
+  {
+    "id": "collection_006",
+    "userId": "user_current",
+    "noteId": "note_007",
+    "folderId": "folder_005",
+    "folderName": "家居",
+    "tags": ["装修", "设计"],
+    "notes": "小户型装修参考",
+    "collectedAt": "2023-10-11T14:20:00Z"
+  },
+  {
+    "id": "collection_007",
+    "userId": "user_current",
+    "noteId": "note_008",
+    "folderId": "folder_006",
+    "folderName": "健身",
+    "tags": ["健身", "运动"],
+    "notes": "坚持健身的心得",
+    "collectedAt": "2023-10-10T09:15:00Z"
+  },
+  {
+    "id": "collection_008",
+    "userId": "user_current",
+    "noteId": "note_009",
+    "folderId": "folder_001",
+    "folderName": "科技",
+    "tags": ["学习", "方法"],
+    "notes": "高效学习技巧",
+    "collectedAt": "2023-10-09T16:45:00Z"
+  },
+  {
+    "id": "collection_009",
+    "userId": "user_current",
+    "noteId": "note_010",
+    "folderId": "folder_007",
+    "folderName": "摄影",
+    "tags": ["摄影", "技巧"],
+    "notes": "手机摄影技巧分享",
+    "collectedAt": "2023-10-08T12:30:00Z"
+  },
+  {
+    "id": "collection_010",
+    "userId": "user_current",
+    "noteId": "note_011",
+    "folderId": "folder_008",
+    "folderName": "阅读",
+    "tags": ["读书", "分享"],
+    "notes": "好书推荐收藏",
+    "collectedAt": "2023-10-07T19:00:00Z"
+  },
+  {
+    "id": "collection_011",
+    "userId": "user_current",
+    "noteId": "note_012",
+    "folderId": "folder_009",
+    "folderName": "宠物",
+    "tags": ["猫咪", "日常"],
+    "notes": "可爱的猫咪瞬间",
+    "collectedAt": "2023-10-06T15:20:00Z"
+  }
+]

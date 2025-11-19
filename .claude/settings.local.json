@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(./gradlew:*)",
+      "Bash(\".\\gradlew.bat\" build)",
+      "Bash(.\\gradlew.bat assembleDebug:*)",
+      "Bash(gradlew.bat build:*)",
+      "Bash(.\\gradlew.bat build:*)",
+      "Bash(.gradlew build)",
+      "Bash(gradlew:*)",
+      "Bash(find:*)",
+      "Bash(test:*)",
+      "Bash(dir /b \"D:\\Research\\GUI-Agent\\CLYRedNote\\app\\src\\main\\assets\\data\")",
+      "Bash(cat:*)",
+      "Bash(gradlew.bat assembleDebug:*)",
+      "Bash(for i in {6..15})",
+      "Bash(do echo \"=== eval_$i.py ===\")",
+      "Bash(head:*)",
+      "Bash(done)",
+      "Bash(dir:*)",
+      "Bash(adb exec-out:*)",
+      "Bash(for i in 4 5 6 7 8 9)",
+      "Bash(for i in 10 11 12 13 14 15)",
+      "Bash(for:*)",
+      "Bash(adb push:*)",
+      "Bash(python:*)",
+      "Bash(powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; python ''D:\\Research\\GUI-Agent\\CLYRedNote\\AutoTest\\eval_4.py''\")",
+      "Bash(powershell -Command \"[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; cd ''D:\\Research\\GUI-Agent\\CLYRedNote\\AutoTest''; 5..15 | ForEach-Object { Write-Host ''=== eval_'' $_''.py ===''; python (''eval_'' + $_+ ''.py'') 2>&1 | Select-Object -First 3 }\")",
+      "Bash(adb install:*)",
+      "Bash(adb shell run-as:*)",
+      "Bash(adb shell:*)",
+      "Bash(timeout 5 adb exec-out run-as com.example.test05 cat:*)"
+    ],
+    "deny": []
+  }
+}
