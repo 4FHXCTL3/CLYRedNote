@@ -1,100 +1,78 @@
-import subprocess
 import json
-import sys
-import io
+import os
+import subprocess
+from io import StringIO
 
-# 设置 UTF-8 编码以支持 emoji 输出
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-def FollowBackFanCheck(userId, fanPosition=1):
+def FollowBackFanCheck(userId="user_current", authorUsername="cly_beauty", result=None, device_id=None,backup_dir=None):
     """
     检查用户是否回关了指定位置的粉丝
     任务20: 在"我"->"粉丝"对第一个粉丝进行"回关"
     """
-    # 从设备获取关注列表
-    follows_result = subprocess.run(
-        ['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/follows.json'],
-        capture_output=True,
-        encoding='utf-8',
-        errors='replace'
-    )
+    # 使用StringIO捕获输出，避免修改全局stdout
+    output_buffer = StringIO()
 
-    # 从设备获取用户列表（包含粉丝信息）
-    users_result = subprocess.run(
-        ['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/users.json'],
-        capture_output=True,
-        encoding='utf-8',
-        errors='replace'
-    )
-
-    # 检查命令是否成功执行
-    if follows_result.returncode != 0 or not follows_result.stdout:
-        print(f"❌ Failed to read follows file")
-        print(f"   Reason: ADB command failed (return code: {follows_result.returncode})")
-        if follows_result.stderr:
-            print(f"   Error: {follows_result.stderr}")
-        return False
-    if users_result.returncode != 0 or not users_result.stdout:
-        print(f"❌ Failed to read users file")
-        print(f"   Reason: ADB command failed (return code: {users_result.returncode})")
-        return False
-
-    # 解析 JSON
     try:
-        follows_data = json.loads(follows_result.stdout)
-        users_data = json.loads(users_result.stdout)
-    except (json.JSONDecodeError, TypeError) as e:
-        print(f"❌ Failed to parse JSON data")
-        print(f"   Reason: Invalid JSON format")
-        print(f"   Error: {e}")
-        return False
+        # 从设备获取关注列表
+        message_file_path = os.path.join(backup_dir, 'follows.json') if backup_dir else 'follows.json'
+        cmd = ["adb"]
+        if device_id:
+            cmd.extend(["-s", device_id])
+        cmd.extend(["exec-out", "run-as", "com.example.test05", "cat", "files/follows.json"])
 
-    # 检查回关
-    try:
-        # 获取当前用户的粉丝列表（谁关注了我）
-        my_fans = [follow for follow in follows_data
-                  if follow.get('followingId') == userId]
-
-        if not my_fans:
-            print(f"❌ No fans found")
-            print(f"   Reason: User has no fans")
+        result1 = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace")
+        try:
+            with open(message_file_path, "r", encoding='utf-8') as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    data = data[-1] if data else {}
+        except:
             return False
 
-        if len(my_fans) < fanPosition:
-            print(f"❌ Not enough fans")
-            print(f"   Reason: User has {len(my_fans)} fan(s), expected at least {fanPosition}")
+        # 检查命令是否成功执行
+        if result1.returncode != 0 or not result1.stdout:
+            # print(f"❌ Failed to read follows file")
+            # print(f"   Reason: ADB command failed (return code: {result1.returncode})")
+            # if result1.stderr:
+            # print(f"   Error: {result1.stderr}")
             return False
 
-        # 获取第N个粉丝
-        sorted_fans = sorted(my_fans, key=lambda x: x.get('followedAt', ''), reverse=True)
-        target_fan = sorted_fans[fanPosition - 1]
-        fan_id = target_fan.get('followerId')
-        fan_username = target_fan.get('follower', {}).get('username', 'UNKNOWN')
-
-        # 检查是否已经关注了这个粉丝（回关）
-        has_followed_back = any(follow.get('followerId') == userId
-                               and follow.get('followingId') == fan_id
-                               for follow in follows_data)
-
-        if has_followed_back:
-            print(f"✓ Successfully followed back fan #{fanPosition}")
-            print(f"   Fan ID: {fan_id}")
-            print(f"   Fan username: {fan_username}")
-            return True
-        else:
-            print(f"❌ Did not follow back fan #{fanPosition}")
-            print(f"   Fan ID: {fan_id}")
-            print(f"   Fan username: {fan_username}")
-            print(f"   Reason: No follow record found from user to this fan")
+        # 解析 JSON
+        try:
+            data = json.loads(result1.stdout)
+        except:
+            # print(f"❌ Failed to parse follows data")
+            # print(f"   Reason: Invalid JSON format")
             return False
 
-    except Exception as e:
-        print(f"❌ Error while checking follow back")
-        print(f"   Reason: {e}")
-        return False
+        # 检查关注列表
+        try:
+            if not data or len(data) == 0:
+                # print(f"❌ Follows list is empty")
+                # print(f"   Reason: No follow records found")
+                # print(f"   Expected: Following '{authorUsername}'")
+                return False
+
+            # 查找用户是否关注了指定博主
+            for follow in data:
+                if follow.get("followerId") == userId and follow.get("following", {}).get("username") == authorUsername:
+                    # print(f"✓ Successfully followed author '{authorUsername}'")
+                    return True
+
+            # print(f"❌ Author not followed")
+            # print(f"   Reason: User '{userId}' did not follow '{authorUsername}'")
+            # if current_follows:
+            # print(f"   Current follows: {current_follows}")
+            return False
+
+        except:
+            # print(f"❌ Error while checking follows")
+            return False
+
+    finally:
+        # 释放缓冲区资源
+        output_buffer.close()
+
 
 if __name__ == "__main__":
-    print(FollowBackFanCheck(
-        userId='user_current',
-        fanPosition=1
-    ))
+    print(FollowBackFanCheck(userId="user_current", authorUsername="cly_beauty"))

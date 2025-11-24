@@ -49,8 +49,9 @@ class BloggerDetailPresenter(
                         it.followerId == currentUser?.id && it.followingId == userId 
                     }
                     
-                    // Get blogger's notes
+                    // Get blogger's notes and sort by createdAt descending (newest first)
                     allNotes = notes.filter { it.author.id == userId }
+                        .sortedByDescending { it.createdAt }
                     filteredNotes = allNotes
                     
                     view?.showBloggerInfo(currentBlogger!!)
@@ -140,7 +141,7 @@ class BloggerDetailPresenter(
                 note.title.contains(query, ignoreCase = true) ||
                 note.content.contains(query, ignoreCase = true) ||
                 note.tags.any { it.contains(query, ignoreCase = true) }
-            }
+            }.sortedByDescending { it.createdAt }
         }
         view?.showBloggerNotes(filteredNotes)
     }
@@ -150,7 +151,7 @@ class BloggerDetailPresenter(
             "全部" -> allNotes
             else -> allNotes.filter { note ->
                 note.tags.contains(category) || note.topics.contains(category)
-            }
+            }.sortedByDescending { it.createdAt }
         }
         view?.showBloggerNotes(filteredNotes)
     }

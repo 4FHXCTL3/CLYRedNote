@@ -1,80 +1,93 @@
-import subprocess
 import json
-import sys
-import io
+import os
+import subprocess
+from io import StringIO
 
-# 设置 UTF-8 编码以支持 emoji 输出
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
-def ReplyCommentCheck(userId, replyContent):
+def ReplyCommentCheck(userId="user_current", replyContent="谢谢喜欢～", result=None, device_id=None,backup_dir=None):
+    # 使用StringIO捕获输出，避免修改全局stdout
+    output_buffer = StringIO()
     """
     检查用户是否回复了最新收到的评论
     任务6: 查看"消息"->"评论和@"页面，回复最新收到的一条评论，内容为"谢谢喜欢～"
     """
     # 从设备获取评论列表
-    result = subprocess.run(
-        ['adb', 'exec-out', 'run-as', 'com.example.test05', 'cat', 'files/comments.json'],
-        capture_output=True,
-        encoding='utf-8',
-        errors='replace'
+    message_file_path = os.path.join(backup_dir, 'comments.json') if backup_dir else 'comments.json'
+    cmd = ["adb"]
+    if device_id:
+        cmd.extend(["-s", device_id])
+    cmd.extend(
+        ["adb", "exec-out", "run-as", "com.example.test05", "cat", "files/comments.json"],
     )
+    result1 = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace")
+    try:
+        with open(message_file_path, "r",encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                data = data[-1] if data else {}
+    except :
+        return False
 
     # 检查命令是否成功执行
     # comments.json 可能不存在，需要容错处理
-    if result.returncode != 0 or not result.stdout or not result.stdout.strip():
-        print(f"❌ Failed to read comments file")
-        print(f"   Reason: Comments file does not exist or is empty")
-        print(f"   Note: Please add a comment first to create the file")
-        if result.stderr:
-            print(f"   Error: {result.stderr}")
+    if result1.returncode != 0 or not result1.stdout or not result1.stdout.strip():
+        print(" Failed to read comments file")
+        print("   Reason: Comments file does not exist or is empty")
+        print("   Note: Please add a comment first to create the file")
+        if result1.stderr:
+            print(f"   Error: {result1.stderr}")
         return False
 
     # 解析 JSON
     try:
-        data = json.loads(result.stdout.strip())
-    except (json.JSONDecodeError, TypeError) as e:
-        print(f"❌ Failed to parse comments data")
-        print(f"   Reason: Invalid JSON format")
-        print(f"   Error: {e}")
+        data = json.loads(result1.stdout.strip())
+    except:
+        print(" Failed to parse comments data")
+        print("   Reason: Invalid JSON format")
         return False
 
     # 检查评论回复
     try:
         if not data or len(data) == 0:
-            print(f"❌ Comments list is empty")
-            print(f"   Reason: No comments found")
+            print(" Comments list is empty")
+            print("   Reason: No comments found")
             return False
 
         # 查找回复类型的评论（parentCommentId不为空表示是回复）
-        replies = [comment for comment in data
-                  if comment.get('author', {}).get('id') == userId
-                  and comment.get('parentCommentId') is not None
-                  and comment.get('content') == replyContent]
+        replies = [
+            comment
+            for comment in data
+            if comment.get("author", {}).get("id") == userId
+            and comment.get("parentCommentId") is not None
+            and comment.get("content") == replyContent
+        ]
 
         # 如果找到符合条件的回复，返回 True
         if replies:
-            latest_reply = sorted(replies, key=lambda x: x.get('createdAt', ''), reverse=True)[0]
-            if latest_reply.get('content') == replyContent:
+            latest_reply = sorted(replies, key=lambda x: x.get("createdAt", ""), reverse=True)[0]
+            if latest_reply.get("content") == replyContent:
                 print(f"✓ Successfully replied with '{replyContent}'")
                 return True
 
-        print(f"❌ Reply comment not found")
+        print(" Reply comment not found")
         print(f"   Reason: No reply with content '{replyContent}' from user '{userId}'")
         # Show recent replies
-        user_replies = [c.get('content', 'UNKNOWN') for c in data
-                       if c.get('author', {}).get('id') == userId
-                       and c.get('parentCommentId') is not None][:3]
+        user_replies = [
+            c.get("content", "UNKNOWN")
+            for c in data
+            if c.get("author", {}).get("id") == userId and c.get("parentCommentId") is not None
+        ][:3]
         if user_replies:
             print(f"   Recent replies: {user_replies}")
         return False
 
-    except Exception as e:
-        print(f"❌ Error while checking reply comments")
-        print(f"   Reason: {e}")
+    except:
+        print(" Error while checking reply comments")
         return False
+    finally:
+        # 释放缓冲区资源
+        output_buffer.close()
+
 
 if __name__ == "__main__":
-    print(ReplyCommentCheck(
-        userId='user_current',
-        replyContent='谢谢喜欢～'
-    ))
+    print(ReplyCommentCheck(userId="user_current", replyContent="谢谢喜欢～"))
