@@ -1,0 +1,23 @@
+[
+  {
+    "dislikedAt": "2025-11-26T13:10:27Z",
+    "id": "dislike_1764162627901",
+    "noteId": "note_002",
+    "reason": "NOT_INTERESTED",
+    "userId": "user_current"
+  },
+  {
+    "dislikedAt": "2025-11-26T13:10:32Z",
+    "id": "dislike_1764162632712",
+    "noteId": "note_002",
+    "reason": "NOT_INTERESTED",
+    "userId": "user_current"
+  },
+  {
+    "dislikedAt": "2025-11-26T13:10:33Z",
+    "id": "dislike_1764162633286",
+    "noteId": "note_002",
+    "reason": "NOT_INTERESTED",
+    "userId": "user_current"
+  }
+]

@@ -1,0 +1,76 @@
+[
+  {
+    "followedAt": "2025-11-26T13:04:53Z",
+    "follower": {
+      "avatar": "image/scenery6.jpg",
+      "bio": "记录我的生活",
+      "createdAt": "2023-06-01T12:00:00Z",
+      "followerCount": 128,
+      "followingCount": 89,
+      "id": "user_current",
+      "isFollowed": false,
+      "isVerified": false,
+      "level": 2,
+      "nickname": "CLY",
+      "noteCount": 23,
+      "username": "CLY"
+    },
+    "followerId": "user_current",
+    "following": {
+      "avatar": "image/scenery1.jpg",
+      "bio": "美妆博主，分享日常护肤心得",
+      "createdAt": "2023-01-15T08:30:00Z",
+      "followerCount": 12580,
+      "followingCount": 256,
+      "id": "user_001",
+      "isFollowed": false,
+      "isVerified": true,
+      "level": 5,
+      "nickname": "小红薯美妆达人",
+      "noteCount": 89,
+      "username": "cly_beauty"
+    },
+    "followingId": "user_001",
+    "id": "follow_1764162293847",
+    "isMutual": false,
+    "isSpecialFollow": false,
+    "tags": []
+  },
+  {
+    "followedAt": "2025-11-26T13:30:28Z",
+    "follower": {
+      "avatar": "image/scenery6.jpg",
+      "bio": "记录我的生活",
+      "createdAt": "2023-06-01T12:00:00Z",
+      "followerCount": 128,
+      "followingCount": 89,
+      "id": "user_current",
+      "isFollowed": false,
+      "isVerified": false,
+      "level": 2,
+      "nickname": "111",
+      "noteCount": 23,
+      "username": "CLY"
+    },
+    "followerId": "user_current",
+    "following": {
+      "avatar": "image/scenery1.jpg",
+      "bio": "美妆博主，分享日常护肤心得",
+      "createdAt": "2023-01-15T08:30:00Z",
+      "followerCount": 12580,
+      "followingCount": 256,
+      "id": "user_001",
+      "isFollowed": false,
+      "isVerified": true,
+      "level": 5,
+      "nickname": "小红薯美妆达人",
+      "noteCount": 89,
+      "username": "cly_beauty"
+    },
+    "followingId": "user_001",
+    "id": "follow_1764163828277",
+    "isMutual": false,
+    "isSpecialFollow": false,
+    "tags": []
+  }
+]

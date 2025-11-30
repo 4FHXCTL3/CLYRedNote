@@ -3,11 +3,12 @@ import os
 import subprocess
 
 
-def FindTieMethod(userId="user_current", result=None, device_id=None, backup_dir=None):
+def find_tie_method(result=None, device_id=None, backup_dir=None):
     """
     Task 2: 我想学习围巾的新系法，帮我推荐一篇笔记并打开
     """
-    message_file_path = os.path.join(backup_dir, 'browsing_history.json') if backup_dir else 'browsing_history.json'
+    _USER_ID = "user_current"
+    message_file_path = os.path.join(backup_dir, "browsing_history.json") if backup_dir else "browsing_history.json"
     # Get browsing history from device
     cmd = ["adb"]
     if device_id:
@@ -43,7 +44,7 @@ def FindTieMethod(userId="user_current", result=None, device_id=None, backup_dir
             return False
 
         # Get user's browsing records, sorted by time
-        user_browsing = [item for item in data if item.get("userId") == userId]
+        user_browsing = [item for item in data if item.get("_USER_ID") == _USER_ID]
 
         if len(user_browsing) == 0:
             return False
@@ -64,8 +65,4 @@ def FindTieMethod(userId="user_current", result=None, device_id=None, backup_dir
 
 
 if __name__ == "__main__":
-    print(
-        FindTieMethod(
-            userId="user_current",  # Current user
-        )
-    )
+    print(find_tie_method())

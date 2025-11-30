@@ -3,22 +3,23 @@ import os
 import subprocess
 
 
-def browse_notes_check( result=None, device_id=None,backup_dir=None):
+def browse_notes_check(result=None, device_id=None, backup_dir=None):
     """
     Check if user has browsed the expected number of notes
     Task 2: Scroll down and browse 3 recommended notes
     """
-    USER_ID = "user_current"
-    EXPECTED_COUNT = 3
+    _USER_ID = "user_current"
+    _EXPECTED_COUNT = 3
 
-    message_file_path = os.path.join(backup_dir, "browsing_history.json") if backup_dir is not None else "browsing_history.json"
+    message_file_path = (
+        os.path.join(backup_dir, "browsing_history.json") if backup_dir is not None else "browsing_history.json"
+    )
     # Get browsing history from device
     try:
         cmd = ["adb"]
         if device_id:
             cmd.extend(["-s", device_id])
-        cmd.extend(
-            ["exec-out", "run-as", "com.example.test05", "cat", "files/browsing_history.json"])
+        cmd.extend(["exec-out", "run-as", "com.example.test05", "cat", "files/browsing_history.json"])
         with open(message_file_path, "w") as f:
             subprocess.run(cmd, stdout=f)
 
@@ -29,17 +30,19 @@ def browse_notes_check( result=None, device_id=None,backup_dir=None):
             return False
 
         # Get user's browsing records, sorted by time
-        user_browsing = [item for item in data if item.get("userId") == USER_ID]
+        user_browsing = [item for item in data if item.get("userId") == _USER_ID]
 
         # Check if recent browsing count meets expectation
-        if len(user_browsing) >= EXPECTED_COUNT:
+        if len(user_browsing) >= _EXPECTED_COUNT:
             # Get the latest records
-            recent_browsing = sorted(user_browsing, key=lambda x: x.get("browsedAt", ""), reverse=True)[:EXPECTED_COUNT]
+            recent_browsing = sorted(user_browsing, key=lambda x: x.get("browsedAt", ""), reverse=True)[
+                :_EXPECTED_COUNT
+            ]
 
             # Verify these records are from home feed
             home_feed_count = sum(1 for item in recent_browsing if item.get("sourceType") == "HOME_FEED")
 
-            if home_feed_count >= EXPECTED_COUNT:
+            if home_feed_count >= _EXPECTED_COUNT:
                 return True
             else:
                 source_types = [item.get("sourceType", "UNKNOWN") for item in recent_browsing]

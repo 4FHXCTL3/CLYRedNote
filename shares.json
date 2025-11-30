@@ -1,0 +1,227 @@
+[
+  {
+    "id": "share_1764072518558",
+    "note": {
+      "allowComment": true,
+      "allowShare": true,
+      "author": {
+        "avatar": "image/scenery2.jpg",
+        "bio": "潮流穿搭分享 | 时尚生活美学家",
+        "createdAt": "2023-02-20T10:15:00Z",
+        "followerCount": 8965,
+        "followingCount": 189,
+        "id": "user_002",
+        "isFollowed": true,
+        "isVerified": false,
+        "level": 4,
+        "nickname": "潮流时尚达人",
+        "noteCount": 156,
+        "username": "fashion_girl"
+      },
+      "collectCount": 445,
+      "commentCount": 156,
+      "content": "秋冬季节到了，今天给大家分享几个实用的穿搭技巧。首先是层次搭配，可以选择毛衣+外套的组合...",
+      "coverImage": "image/scenery1.jpg",
+      "createdAt": "2023-10-15T14:30:00Z",
+      "id": "note_001",
+      "images": [
+        "image/scenery1.jpg",
+        "image/scenery2.jpg",
+        "image/scenery3.jpg"
+      ],
+      "isCollected": false,
+      "isLiked": false,
+      "likeCount": 2580,
+      "relatedProducts": [],
+      "shareCount": 89,
+      "status": "PUBLISHED",
+      "tags": [
+        "穿搭",
+        "秋冬",
+        "时尚"
+      ],
+      "title": "秋冬穿搭指南 | 温暖又时尚的搭配技巧",
+      "topics": [
+        "#秋冬穿搭",
+        "#时尚搭配"
+      ],
+      "type": "IMAGE",
+      "updatedAt": "2025-11-25T11:53:46Z",
+      "viewCount": 12580,
+      "visibility": "PUBLIC"
+    },
+    "noteId": "note_001",
+    "platform": "SYSTEM_SHARE",
+    "sharedAt": "2025-11-25T12:08:38Z",
+    "userId": "user_current"
+  },
+  {
+    "id": "share_1764072759835",
+    "note": {
+      "allowComment": true,
+      "allowShare": true,
+      "author": {
+        "avatar": "image/scenery3.jpg",
+        "bio": "分享AI技术前沿动态",
+        "createdAt": "2022-11-08T14:20:00Z",
+        "followerCount": 15670,
+        "followingCount": 312,
+        "id": "user_003",
+        "isFollowed": false,
+        "isVerified": true,
+        "level": 6,
+        "nickname": "AI科技探索者",
+        "noteCount": 234,
+        "username": "ai_tech_lover"
+      },
+      "collectCount": 567,
+      "commentCount": 289,
+      "content": "AI技术已经深入到我们生活的方方面面，今天来盘点一下那些你可能没注意到的AI应用...",
+      "coverImage": "image/scenery3.jpg",
+      "createdAt": "2023-10-14T10:20:00Z",
+      "id": "note_002",
+      "images": [
+        "image/scenery3.jpg",
+        "image/scenery4.jpg",
+        "image/scenery5.jpg",
+        "image/scenery6.jpg"
+      ],
+      "isCollected": true,
+      "isLiked": true,
+      "likeCount": 3456,
+      "relatedProducts": [],
+      "shareCount": 178,
+      "status": "PUBLISHED",
+      "tags": [
+        "AI",
+        "科技",
+        "生活"
+      ],
+      "title": "AI技术在日常生活中的应用，太实用了！",
+      "topics": [
+        "#AI技术",
+        "#科技生活"
+      ],
+      "type": "TEXT",
+      "updatedAt": "2025-11-25T11:53:46Z",
+      "viewCount": 18900,
+      "visibility": "PUBLIC"
+    },
+    "noteId": "note_002",
+    "platform": "SYSTEM_SHARE",
+    "sharedAt": "2025-11-25T12:12:39Z",
+    "userId": "user_current"
+  },
+  {
+    "id": "share_1764072788391",
+    "note": {
+      "allowComment": true,
+      "allowShare": true,
+      "author": {
+        "avatar": "image/scenery2.jpg",
+        "bio": "潮流穿搭分享 | 时尚生活美学家",
+        "createdAt": "2023-02-20T10:15:00Z",
+        "followerCount": 8965,
+        "followingCount": 189,
+        "id": "user_002",
+        "isFollowed": true,
+        "isVerified": false,
+        "level": 4,
+        "nickname": "潮流时尚达人",
+        "noteCount": 156,
+        "username": "fashion_girl"
+      },
+      "collectCount": 445,
+      "commentCount": 156,
+      "content": "秋冬季节到了，今天给大家分享几个实用的穿搭技巧。首先是层次搭配，可以选择毛衣+外套的组合...",
+      "coverImage": "image/scenery1.jpg",
+      "createdAt": "2023-10-15T14:30:00Z",
+      "id": "note_001",
+      "images": [
+        "image/scenery1.jpg",
+        "image/scenery2.jpg",
+        "image/scenery3.jpg"
+      ],
+      "isCollected": false,
+      "isLiked": false,
+      "likeCount": 2580,
+      "relatedProducts": [],
+      "shareCount": 89,
+      "status": "PUBLISHED",
+      "tags": [
+        "穿搭",
+        "秋冬",
+        "时尚"
+      ],
+      "title": "秋冬穿搭指南 | 温暖又时尚的搭配技巧",
+      "topics": [
+        "#秋冬穿搭",
+        "#时尚搭配"
+      ],
+      "type": "IMAGE",
+      "updatedAt": "2025-11-25T11:53:46Z",
+      "viewCount": 12580,
+      "visibility": "PUBLIC"
+    },
+    "noteId": "note_001",
+    "platform": "SYSTEM_SHARE",
+    "sharedAt": "2025-11-25T12:13:08Z",
+    "userId": "user_current"
+  },
+  {
+    "id": "share_1764163025881",
+    "note": {
+      "allowComment": true,
+      "allowShare": true,
+      "author": {
+        "avatar": "image/scenery2.jpg",
+        "bio": "潮流穿搭分享 | 时尚生活美学家",
+        "createdAt": "2023-02-20T10:15:00Z",
+        "followerCount": 8965,
+        "followingCount": 189,
+        "id": "user_002",
+        "isFollowed": true,
+        "isVerified": false,
+        "level": 4,
+        "nickname": "潮流时尚达人",
+        "noteCount": 156,
+        "username": "fashion_girl"
+      },
+      "collectCount": 445,
+      "commentCount": 156,
+      "content": "秋冬季节到了，今天给大家分享几个实用的穿搭技巧。首先是层次搭配，可以选择毛衣+外套的组合...",
+      "coverImage": "image/scenery1.jpg",
+      "createdAt": "2023-10-15T14:30:00Z",
+      "id": "note_001",
+      "images": [
+        "image/scenery1.jpg",
+        "image/scenery2.jpg",
+        "image/scenery3.jpg"
+      ],
+      "isCollected": false,
+      "isLiked": false,
+      "likeCount": 2580,
+      "relatedProducts": [],
+      "shareCount": 89,
+      "status": "PUBLISHED",
+      "tags": [
+        "穿搭",
+        "秋冬",
+        "时尚"
+      ],
+      "title": "秋冬穿搭指南 | 温暖又时尚的搭配技巧",
+      "topics": [
+        "#秋冬穿搭",
+        "#时尚搭配"
+      ],
+      "type": "IMAGE",
+      "updatedAt": "2025-11-26T11:12:16Z",
+      "viewCount": 12580,
+      "visibility": "PUBLIC"
+    },
+    "noteId": "note_001",
+    "platform": "SYSTEM_SHARE",
+    "sharedAt": "2025-11-26T13:17:05Z",
+    "userId": "user_current"
+  }
+]

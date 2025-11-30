@@ -3,82 +3,51 @@ import os
 import subprocess
 
 
-def SetPasswordCheck(userId="user_current", expectedPassword="123456", result=None, device_id=None,backup_dir=None):
+def set_password_check(result=None, device_id=None, backup_dir=None):
     """
     检查用户是否设置了登录密码
     任务10: 在"我"打开编辑资料右侧的设置按钮，找到"账号与安全"选项，设置登录密码为123456
     """
+    _USER_ID = "user_current"
+    _EXPECTED_PASSWORD = "123456"
+
     # 从设备获取用户数据
-    message_file_path = os.path.join(backup_dir, 'users.json') if backup_dir else 'users.json'
+    message_file_path = os.path.join(backup_dir, "users.json") if backup_dir is not None else "users.json"
     cmd = ["adb"]
     if device_id:
         cmd.extend(["-s", device_id])
-    cmd.extend(
-        ["exec-out", "run-as", "com.example.test05", "cat", "files/users.json"],
-    )
-    result1 = subprocess.run(cmd, capture_output=True, encoding="utf-8", errors="replace")
+    cmd.extend(["exec-out", "run-as", "com.example.test05", "cat", "files/users.json"])
+
+    # 将数据写入备份文件
+    with open(message_file_path, "w") as f:
+        subprocess.run(cmd, stdout=f)
+
     try:
-        with open(message_file_path, "r",encoding='utf-8') as f:
+        with open(message_file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-            if isinstance(data, list):
-                data = data[-1] if data else {}
-    except :
-        return False
-
-    # 检查命令是否成功执行
-    if result1.returncode != 0 or not result1.stdout:
-        print(" Failed to read users file")
-        print(f"   Reason: ADB command failed (return code: {result1.returncode})")
-        if result1.stderr:
-            print(f"   Error: {result1.stderr}")
-        return False
-
-    # 解析 JSON
-    try:
-        data = json.loads(result1.stdout)
     except:
-        print(" Failed to parse users data")
-        print("   Reason: Invalid JSON format")
         return False
 
     # 检查密码设置
     try:
         if not data or len(data) == 0:
-            print(" Users list is empty")
-            print("   Reason: No user records found")
-            print("   Expected: At least one user record")
             return False
 
         # 查找当前用户
         for user in data:
-            if user.get("id") == userId:
+            if user.get("id") == _USER_ID:
                 # 检查是否设置了密码（简化处理：检查password字段）
                 password = user.get("password", "")
-                if password == expectedPassword:
-                    print("✓ Successfully set password")
-                    print(f"   User ID: {userId}")
-                    print(f"   Password: {expectedPassword}")
+                if password == _EXPECTED_PASSWORD:
                     return True
                 else:
-                    print(" Password does not match expected value")
-                    print(f"   Reason: User password is '{password}', expected '{expectedPassword}'")
-                    if not password:
-                        print("   Note: Password field is empty or not set")
                     return False
 
-        print(" User not found")
-        print(f"   Reason: User '{userId}' does not exist in users list")
-        print(f"   Total users in system: {len(data)}")
-        # Show available user IDs
-        user_ids = [user.get("id", "Unknown") for user in data[:5]]
-        if user_ids:
-            print(f"   Available user IDs (first 5): {user_ids}")
         return False
 
     except:
-        print(" Error while checking password")
         return False
 
 
 if __name__ == "__main__":
-    print(SetPasswordCheck(userId="user_current", expectedPassword="123456"))
+    print(set_password_check())
