@@ -60,23 +60,29 @@ class HomeTabPresenter(
 
     override fun loadNotesByCategory(category: String) {
         scope.launch {
+            view?.showLoading(true)
             try {
                 val allNotes = withContext(Dispatchers.IO) {
                     dataLoader.loadNotes()
                 }
-                
-                // Filter notes by category/tags
-                val filteredNotes = allNotes.filter { note ->
-                    note.tags.any { tag -> 
-                        tag.contains(category, ignoreCase = true) 
-                    } || note.topics.any { topic ->
-                        topic.contains(category, ignoreCase = true)
+
+                val filteredNotes = when (category) {
+                    "视频" -> allNotes.filter { it.id in listOf("note_001", "note_002", "note_003", "note_004", "note_005") }
+                    "直播" -> allNotes.filter { it.id in listOf("note_006", "note_007", "note_008", "note_009", "note_010") }
+                    "短剧" -> allNotes.filter { it.id in listOf("note_011", "note_012", "note_013", "note_014", "note_015") }
+                    else -> allNotes.filter { note ->
+                        note.tags.any { tag ->
+                            tag.contains(category, ignoreCase = true)
+                        } || note.topics.any { topic ->
+                            topic.contains(category, ignoreCase = true)
+                        }
                     }
                 }
-                
-                view?.showNotes(if (filteredNotes.isEmpty()) allNotes else filteredNotes)
+                view?.showNotes(filteredNotes)
             } catch (e: Exception) {
                 view?.showError("Failed to load notes by category: ${e.message}")
+            } finally {
+                view?.showLoading(false)
             }
         }
     }
@@ -102,6 +108,10 @@ class HomeTabPresenter(
     }
 
     override fun onCategorySelected(category: String) {
-        loadNotesByCategory(category)
+        if (category == "推荐") {
+            loadNotes(HomeTabType.DISCOVER)
+        } else {
+            loadNotesByCategory(category)
+        }
     }
 }

@@ -240,7 +240,7 @@ private fun CategoryFilterRow(
     selectedCategory: String,
     onCategorySelected: (String) -> Unit
 ) {
-    val categories = listOf("推荐", "视频", "直播", "短剧", "穿搭", "学习")
+    val categories = listOf("推荐", "视频", "直播", "短剧", "穿搭", "美食", "学习", "旅行", "科普", "家居", "职场", "漫画", "彩妆", "摄影")
     
     LazyRow(
         modifier = Modifier
